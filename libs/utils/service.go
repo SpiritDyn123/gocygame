@@ -49,12 +49,14 @@ func RunMutli(sers ...IService) {
 	}
 
 	closeSig := make(chan bool)
+	closeEndSig := make(chan bool)
 	var wg sync.WaitGroup
 	wg.Add(len(sers))
 	for _, server := range sers {
 		go func(cs chan bool) {
 			defer wg.Done()
 			server.Pool(cs)
+			closeEndSig <-true //保证顺序关闭中
 		}(closeSig)
 		log.Release("%s启动成功", server.GetName())
 	}
@@ -62,15 +64,17 @@ func RunMutli(sers ...IService) {
 	chanSig := make(chan os.Signal)
 	signal.Notify(chanSig, os.Interrupt, syscall.SIGTERM)
 	sig := <- chanSig
-
+	log.Release("服务器关闭中（signal:%v...)", sig)
 	for _, server := range sers {
-		log.Release("%s关闭中（signal:%v）", server.GetName(), sig)
+
 		closeSig<-true
+		<- closeEndSig
 		server.Close()
+		log.Release("%s 关闭成功", server.GetName())
 	}
 	wg.Wait()
 
-	log.Release("关闭成功")
+	log.Release("服务器关闭成功")
 }
 
 //提供一个默认简单的pooller

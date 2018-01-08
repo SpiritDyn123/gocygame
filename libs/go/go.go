@@ -38,13 +38,9 @@ func (g *Go) Go(f func(), cb func()) {
 		defer func() {
 			g.ChanCb <- cb
 			if r := recover(); r != nil {
-				if conf.LenStackBuf > 0 {
-					buf := make([]byte, conf.LenStackBuf)
-					l := runtime.Stack(buf, false)
-					log.Error("%v: %s", r, buf[:l])
-				} else {
-					log.Error("%v", r)
-				}
+				buf := make([]byte, 4096)
+				l := runtime.Stack(buf, false)
+				log.Error("%v: %s", r, buf[:l])
 			}
 		}()
 
@@ -56,13 +52,9 @@ func (g *Go) Cb(cb func()) {
 	defer func() {
 		g.pendingGo--
 		if r := recover(); r != nil {
-			if conf.LenStackBuf > 0 {
-				buf := make([]byte, conf.LenStackBuf)
-				l := runtime.Stack(buf, false)
-				log.Error("%v: %s", r, buf[:l])
-			} else {
-				log.Error("%v", r)
-			}
+			buf := make([]byte, 4096)
+			l := runtime.Stack(buf, false)
+			log.Error("%v: %s", r, buf[:l])
 		}
 	}()
 
