@@ -40,6 +40,7 @@ func (ss sort_is) Less(i, j int) bool {
 func RunMutli(sers ...IService) {
 	sort.Sort(sort_is(sers))
 
+	log.Release("启动中...")
 	for _, server := range sers {
 		log.Release("%s启动中", server.GetName())
 		if err := server.Start(); err != nil {
@@ -61,10 +62,12 @@ func RunMutli(sers ...IService) {
 		log.Release("%s启动成功", server.GetName())
 	}
 
+	log.Release("启动成功")
+
 	chanSig := make(chan os.Signal)
 	signal.Notify(chanSig, os.Interrupt, syscall.SIGTERM)
 	sig := <- chanSig
-	log.Release("服务器关闭中（signal:%v...)", sig)
+	log.Release("关闭中（signal:%v)...", sig)
 	for _, server := range sers {
 
 		closeSig<-true
@@ -74,7 +77,7 @@ func RunMutli(sers ...IService) {
 	}
 	wg.Wait()
 
-	log.Release("服务器关闭成功")
+	log.Release("关闭成功")
 }
 
 //提供一个默认简单的pooller
