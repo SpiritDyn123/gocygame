@@ -8,7 +8,7 @@ import (
 	"strings"
 	"github.com/ivpusic/grpool"
 	"runtime"
-	lfile"github.com/SpiritDyn123/gocygame/log/file"
+	lfile"github.com/SpiritDyn123/gocygame/libs/log/file"
 )
 
 // levels
