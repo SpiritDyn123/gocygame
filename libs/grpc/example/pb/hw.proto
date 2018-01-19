@@ -1,0 +1,36 @@
+syntax="proto3";
+
+package hellworld;
+
+import "descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+   string my_option = 51234;
+}
+
+message RpcTestRequest {
+    int32 id=1;
+    string data=2;
+}
+
+message RpcHBRequest {
+
+}
+
+message RpcHBResponse {
+
+}
+
+message RpcTestResponse {
+    int32 code=1;
+    string message=2;
+    option (my_option) = "sssssss";
+}
+
+service RpcTestService {
+    rpc hello(RpcTestRequest) returns (RpcTestResponse){
+    }
+
+    rpc HB(stream RpcHBRequest) returns (stream RpcHBResponse) {
+    }
+}

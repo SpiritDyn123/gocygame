@@ -7,6 +7,7 @@ import(
 	"libs/leaf/log"
 	"sync"
 	"time"
+	"github.com/SpiritDyn123/gocygame/libs/grpc"
 )
 
 const (
@@ -22,7 +23,7 @@ type EtcdLBServer struct {
 }
 
 func (lb *EtcdLBServer) RegisterService(serverName string, serverId int, serviceName string, addr string, etcdAdrrs []string) error {
-	value := &EtcdValue{
+	value := &grpc.ServiceValue{
 		Addr:addr,
 		ServerName:serverName,
 		ServerId:serverId,
@@ -46,7 +47,7 @@ func (lb *EtcdLBServer) RegisterService(serverName string, serverId int, service
 	lb.wg.Add(1)
 	go func() {
 		defer lb.wg.Done()
-		key := genEtcdRpcKey(serverId, serverName, serviceName)
+		key := genEtcdRpcKey(addr, serviceName)
 		for {
 			lease, err := etcdCli.Grant(context.TODO(), LEASE_TTL_SECOND)
 			if err != nil {

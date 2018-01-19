@@ -8,6 +8,7 @@ import (
 	"context"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"encoding/json"
+	"github.com/SpiritDyn123/gocygame/libs/grpc"
 )
 
 /*
@@ -27,15 +28,16 @@ func(w *watcher) Next() ([]*naming.Update, error) {
 		resp, err := w.etcdCli.Get(context.Background(), keyPrefix, etcd.WithPrefix())
 		if err == nil && resp.Kvs != nil && len(resp.Kvs) > 0 {
 			updates := make([]*naming.Update, len(resp.Kvs))
-			data := &EtcdValue{}
 			if resp.Kvs != nil {
 				for idx, item := range resp.Kvs {
+					data := &grpc.ServiceValue{}
 					ui := &naming.Update{Op:naming.Add}
 					err = json.Unmarshal(item.Value, data)
 					if err != nil {
 						ui.Addr = string(item.Value)
 					} else {
 						ui.Addr = data.Addr
+						ui.Metadata = data
 					}
 
 					updates[idx] = ui
@@ -49,24 +51,25 @@ func(w *watcher) Next() ([]*naming.Update, error) {
 	}
 
 	rch := w.etcdCli.Watch(context.Background(), keyPrefix, etcd.WithPrefix())
-	data := &EtcdValue{}
 	addr := ""
-
 	for wresp := range rch {
-		updates := make([]*naming.Update, len(wresp.Events))
-		for idx, ev := range wresp.Events {
-			err := json.Unmarshal(ev.Kv.Value, data)
-			if err != nil {
-				addr = string(ev.Kv.Value)
-			} else {
-				addr = data.Addr
-			}
-
+		updates := []*naming.Update{}
+		for _, ev := range wresp.Events {
 			switch ev.Type {
 			case mvccpb.PUT:
-				updates[idx] = &naming.Update{Op: naming.Add, Addr: addr}
+				data := &grpc.ServiceValue{}
+				var mdata interface{} = nil
+				err := json.Unmarshal(ev.Kv.Value, data)
+				if err != nil {
+					addr = string(ev.Kv.Value)
+				} else {
+					addr = data.Addr
+					mdata = data
+				}
+				updates = append(updates, &naming.Update{Op: naming.Add, Addr: addr, Metadata: mdata})
 			case mvccpb.DELETE:
-				updates[idx] = &naming.Update{Op: naming.Delete, Addr: addr}
+				delKey := string(ev.Kv.Key)
+				updates = append(updates, &naming.Update{Op: naming.Delete, Addr: delKey[strings.LastIndex(delKey, "/")+1:]})
 			}
 		}
 		return updates, nil
