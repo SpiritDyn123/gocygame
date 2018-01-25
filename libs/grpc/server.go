@@ -12,13 +12,13 @@ type RpcServer interface {
 	Stop() error
 }
 
-type RpcHandler func(server *grpc.Server)
+type RpcServerHandler func(server *grpc.Server)
 
 type RpcServerOptions struct {
 	ServiceName string
 	EtcdAddr[]string
 	Version string
-	Handler RpcHandler
+	Handler RpcServerHandler
 }
 
 type rpcServer struct {
