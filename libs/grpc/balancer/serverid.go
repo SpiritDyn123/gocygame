@@ -8,7 +8,7 @@ import(
 	"google.golang.org/grpc/grpclog"
 	"context"
 	"google.golang.org/grpc/codes"
-	cgrpc"github.com/SpiritDyn123/gocygame/libs/grpc"
+	"github.com/SpiritDyn123/gocygame/libs/grpc/defines"
 	"reflect"
 	_"github.com/SpiritDyn123/gocygame/libs/log"
  	_"encoding/json"
@@ -168,8 +168,12 @@ func (rr *serveridBalancer) Get(ctx context.Context, opts grpc.BalancerGetOption
 
 	//如果指定了serverID就取serverId
 	serverId := 0
-	if sv := ctx.Value(cgrpc.CTX_SERVER_ID_KEY); sv != nil && reflect.TypeOf(sv).Kind() == reflect.Int {
+	if sv := ctx.Value(defines.CTX_SERVER_ID_KEY); sv != nil && reflect.TypeOf(sv).Kind() == reflect.Int {
 		serverId = sv.(int)
+	}
+	version := ""
+	if sv := ctx.Value(defines.CTX_SERVER_VERSION_KEY); sv != nil && reflect.TypeOf(sv).Kind() == reflect.String {
+		version = sv.(string)
 	}
 
 	if serverId != 0 {
@@ -178,8 +182,15 @@ func (rr *serveridBalancer) Get(ctx context.Context, opts grpc.BalancerGetOption
 		//}
 
 		for _, a := range rr.addrs {
-			if sv, ok := a.addr.Metadata.(*cgrpc.ServiceValue); ok && sv.ServerId == serverId {
+			sv, ok:= a.addr.Metadata.(*defines.ServiceValue)
+			if ok && sv.ServerId == serverId {
 				if a.connected {
+					if version != "" {
+						if version != sv.Version {
+							err = fmt.Errorf("serverId:%d version:%s needVersion:%s server is not not match", serverId, sv.Version, version)
+							break
+						}
+					}
 					addr = a.addr
 					rr.mu.Unlock()
 					return

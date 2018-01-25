@@ -10,11 +10,12 @@ import(
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
 	b"github.com/SpiritDyn123/gocygame/libs/grpc/balancer"
-	cgrpc"github.com/SpiritDyn123/gocygame/libs/grpc"
+	"github.com/SpiritDyn123/gocygame/libs/grpc/defines"
 	"sync"
 	"os"
 	"os/signal"
 	"fmt"
+	"reflect"
 )
 
 var (
@@ -23,6 +24,7 @@ var (
 	GoNum int
 	Hb bool
 	Td int
+
 )
 
 func main() {
@@ -53,12 +55,14 @@ func main() {
 			tc := time.NewTicker(time.Millisecond * time.Duration(Td))
 			if Hb {
 				rpcCli := hw.NewRpcTestServiceClient(conn)
-				rpcHBCli, err := rpcCli.HB(context.WithValue(b_ctx, cgrpc.CTX_SERVER_ID_KEY, ServerId))
+				rpcHBCli, err := rpcCli.HB(context.WithValue(b_ctx, defines.CTX_SERVER_ID_KEY, ServerId))
 				if err != nil {
 					log.Error("rpcCli HB err:%v", err)
 					return
 				}
 				defer rpcHBCli.CloseSend()
+
+				index := 0
 				for {
 					select {
 					case _ = <- doneCh:
@@ -73,15 +77,20 @@ func main() {
 
 						log.Release("send hb msg success")
 
-						_, err = rpcHBCli.Recv()
+						msg := &hw.RpcTestResponse{}
+						err = rpcHBCli.RecvMsg(msg)
+						//msg, err := rpcHBCli.Recv()
 						if err != nil {
 							log.Error("rpcCli recv hb err:%v", err)
 							return
 						}
-
-						log.Release("recv hb msg success")
+						log.Release("recv hb msg:%v context:%+v success", reflect.TypeOf(msg).String(), msg)
+						index++
+						if index == 2 {
+							hresp, err := rpcCli.Hello(b_ctx, &hw.RpcTestRequest{})
+							log.Release("hello Resp:%+v, err:%v", hresp, err)
+						}
 					}
-
 				}
 			} else {
 				i := 0
@@ -92,7 +101,7 @@ func main() {
 						return
 					case _ = <- tc.C:
 						rpcCli := hw.NewRpcTestServiceClient(conn)
-						resp, err := rpcCli.Hello(context.WithValue(b_ctx, cgrpc.CTX_SERVER_ID_KEY, ServerId), &hw.RpcTestRequest{Id:int32(i+1), Data: strconv.Itoa(index) + "_name_" + strconv.Itoa(i+1)})
+						resp, err := rpcCli.Hello(context.WithValue(b_ctx, defines.CTX_SERVER_ID_KEY, ServerId), &hw.RpcTestRequest{Id:int32(i+1), Data: strconv.Itoa(index) + "_name_" + strconv.Itoa(i+1)})
 						log.Release("recv resp:%+v, err:%v\n",resp, err)
 						i++
 					}

@@ -7,7 +7,7 @@ import(
 	"libs/leaf/log"
 	"sync"
 	"time"
-	"github.com/SpiritDyn123/gocygame/libs/grpc"
+	"github.com/SpiritDyn123/gocygame/libs/grpc/defines"
 )
 
 const (
@@ -22,12 +22,13 @@ type EtcdLBServer struct {
 	registered bool
 }
 
-func (lb *EtcdLBServer) RegisterService(serverName string, serverId int, serviceName string, addr string, etcdAdrrs []string) error {
-	value := &grpc.ServiceValue{
+func (lb *EtcdLBServer) RegisterService(serverName string, serverId int, serviceName string,  version string, addr string, etcdAdrrs []string) error {
+	value := &defines.ServiceValue{
 		Addr:addr,
 		ServerName:serverName,
 		ServerId:serverId,
 		ServiceName:serviceName,
+		Version:version,
 	}
 	data, err := json.Marshal(value)
 	if err != nil {

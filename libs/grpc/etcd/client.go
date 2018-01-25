@@ -8,7 +8,7 @@ import (
 	"context"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"encoding/json"
-	"github.com/SpiritDyn123/gocygame/libs/grpc"
+	"github.com/SpiritDyn123/gocygame/libs/grpc/defines"
 )
 
 /*
@@ -30,7 +30,7 @@ func(w *watcher) Next() ([]*naming.Update, error) {
 			updates := make([]*naming.Update, len(resp.Kvs))
 			if resp.Kvs != nil {
 				for idx, item := range resp.Kvs {
-					data := &grpc.ServiceValue{}
+					data := &defines.ServiceValue{}
 					ui := &naming.Update{Op:naming.Add}
 					err = json.Unmarshal(item.Value, data)
 					if err != nil {
@@ -57,7 +57,7 @@ func(w *watcher) Next() ([]*naming.Update, error) {
 		for _, ev := range wresp.Events {
 			switch ev.Type {
 			case mvccpb.PUT:
-				data := &grpc.ServiceValue{}
+				data := &defines.ServiceValue{}
 				var mdata interface{} = nil
 				err := json.Unmarshal(ev.Kv.Value, data)
 				if err != nil {
