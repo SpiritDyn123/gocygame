@@ -12,7 +12,7 @@ type RpcServer interface {
 	Stop() error
 }
 
-type RpcServerHandler func(server *grpc.Server)
+type RpcServerHandler func(server *grpc.Server) error
 
 type RpcServerOptions struct {
 	ServiceName string
@@ -48,7 +48,10 @@ func (ser *rpcServer) Start() error {
 		}
 
 		for _, opt := range ser.opts {
-			opt.Handler(ser.grpcSer)
+			err := opt.Handler(ser.grpcSer)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

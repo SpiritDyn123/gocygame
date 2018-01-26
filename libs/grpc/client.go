@@ -7,7 +7,8 @@ import (
 )
 
 type RpcClient interface {
-
+	Start() error
+	Stop() error
 }
 
 type RpcClientHandler func(cc *grpc.ClientConn) error
@@ -29,7 +30,27 @@ type rpcClient struct {
 }
 
 func (cli *rpcClient) Start() error {
+	for _, opt := range cli.opts {
+		if _, ok := rc.grpcConns[opt.ServiceName]; ok {
+			return nil, fmt.Errorf("NewRpcClient service:%s repeated", opt.ServiceName)
+		}
 
+		r := lb.NewResolver(opt.ServiceName)
+		b := sb.NewServerIdBalancer(r)
+		conn, err := grpc.DialContext(context.Background(), opt.TargetAddrs, grpc.WithBlock(), grpc.WithInsecure(), grpc.WithBalancer(b))
+		if err != nil {
+			return nil, err
+		}
+
+		err = opt.Handler(conn)
+		if err != nil {
+			return nil, err
+		}
+		rc.grpcConns[opt.ServiceName] = &rpcCliInfo{
+			opt:opt,
+			gconn:conn,
+		}
+	}
 	return nil
 }
 
@@ -55,27 +76,7 @@ func NewClient(opts ...*RpcClientOptions) (RpcClient, error){
 		opts:opts,
 		grpcConns:make(map[string]*grpc.ClientConn),
 	}
-	for _, opt := range opts {
-		if _, ok := rc.grpcConns[opt.ServiceName]; ok {
-			return nil, fmt.Errorf("NewRpcClient service:%s repeated", opt.ServiceName)
-		}
 
-		r := lb.NewResolver(opt.ServiceName)
-		b := sb.NewServerIdBalancer(r)
-		conn, err := grpc.DialContext(context.Background(), opt.TargetAddrs, grpc.WithBlock(), grpc.WithInsecure(), grpc.WithBalancer(b))
-		if err != nil {
-			return nil, err
-		}
-
-		err = opt.Handler(conn)
-		if err != nil {
-			return nil, err
-		}
-		rc.grpcConns[opt.ServiceName] = &rpcCliInfo{
-			opt:opt,
-			gconn:conn,
-		}
-	}
 
 	return rc, nil
 }

@@ -69,8 +69,9 @@ func RunSer() {
 		ServiceName:ServiceName,
 		Version:"1.0.0",
 		EtcdAddr:[]string{"192.168.1.232:2379"},
-		Handler:func(gser *grpc.Server) {
+		Handler:func(gser *grpc.Server) error {
 			hw.RegisterRpcTestServiceServer(gser, &RpcTestServiceServer{})
+			return nil
 		},
 	}
 
