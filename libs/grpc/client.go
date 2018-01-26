@@ -4,6 +4,8 @@ import (
 	"google.golang.org/grpc"
 	"golang.org/x/net/context"
 	sb"github.com/SpiritDyn123/gocygame/libs/grpc/balancer"
+	"fmt"
+	lb"github.com/SpiritDyn123/gocygame/libs/grpc/etcd"
 )
 
 type RpcClient interface {
@@ -31,26 +33,28 @@ type rpcClient struct {
 
 func (cli *rpcClient) Start() error {
 	for _, opt := range cli.opts {
-		if _, ok := rc.grpcConns[opt.ServiceName]; ok {
-			return nil, fmt.Errorf("NewRpcClient service:%s repeated", opt.ServiceName)
+		if _, ok := cli.grpcConns[opt.ServiceName]; ok {
+			return fmt.Errorf("NewRpcClient service:%s repeated", opt.ServiceName)
 		}
 
 		r := lb.NewResolver(opt.ServiceName)
 		b := sb.NewServerIdBalancer(r)
 		conn, err := grpc.DialContext(context.Background(), opt.TargetAddrs, grpc.WithBlock(), grpc.WithInsecure(), grpc.WithBalancer(b))
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		err = opt.Handler(conn)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		rc.grpcConns[opt.ServiceName] = &rpcCliInfo{
+
+		cli.grpcConns[opt.ServiceName] = &rpcCliInfo{
 			opt:opt,
 			gconn:conn,
 		}
 	}
+
 	return nil
 }
 
@@ -74,9 +78,8 @@ func (cli *rpcClient) Stop() error {
 func NewClient(opts ...*RpcClientOptions) (RpcClient, error){
 	rc := &rpcClient{
 		opts:opts,
-		grpcConns:make(map[string]*grpc.ClientConn),
+		grpcConns:make(map[string]*rpcCliInfo),
 	}
-
 
 	return rc, nil
 }
