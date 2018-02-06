@@ -6,6 +6,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"sync"
 	"github.com/SpiritDyn123/gocygame/libs/log"
+	"crypto/tls"
 )
 
 type Client struct {
@@ -23,6 +24,7 @@ type Client struct {
 	ConnectKey string
 	ClosedKey string
 	RecvKey string
+	UseTLS bool
 
 	sessions map[*link.Session]struct{}
 	lock sync.Mutex
@@ -72,9 +74,28 @@ __RECONNECT:
 	var session *link.Session
 	var err error
 	for {
-		session, err = link.DialTimeout(c.Network, c.Addr, c.DialTimeOut, c.Protocol, c.SendChanSize)
-		if err == nil || c.closeFlag {
-			break
+		if c.UseTLS {
+			conn, err := tls.Dial(c.Network, c.Addr, &tls.Config{InsecureSkipVerify:true})
+			if err == nil {
+				codec, err := c.Protocol.NewCodec(conn)
+				if err == nil {
+					session = link.NewSession(codec, c.SendChanSize)
+					break
+				} else {
+					if c.closeFlag {
+						break
+					}
+				}
+			} else {
+				if c.closeFlag {
+					break
+				}
+			}
+		} else {
+			session, err = link.DialTimeout(c.Network, c.Addr, c.DialTimeOut, c.Protocol, c.SendChanSize)
+			if err == nil || c.closeFlag {
+				break
+			}
 		}
 
 		log.Error("connect to %s error:%v", c.Addr, err)

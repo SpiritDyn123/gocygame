@@ -6,22 +6,25 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
-	"github.com/SpiritDyn123/gocygame/apps/examples/common"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/common"
 	"github.com/funny/link/codec"
-	"github.com/SpiritDyn123/gocygame/apps/examples/protocol/binary"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/protocol/binary"
 	"github.com/funny/link"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
 	"fmt"
+	"flag"
 )
 
+var (
+	tls bool
+)
 
 type server struct {
 	utils.Pooller
 	ser *tcp.Server
 	sessionMap map[uint64]*link.Session
 }
-
 
 func(ser *server) GetName() string {
 	return "测试服务器"
@@ -43,7 +46,15 @@ func(ser *server) Start() (err error) {
 	ser.TimerServer.AfterFunc(time.Second, ser.onTimer)
 
 	p := codec.FixLen(&binary.BinaryProtocl{}, common.MSGLEN, common.BytesOrder, common.MAX_RECV, common.MAX_SEND)
-	ser.ser, err = tcp.CreateServer("tcp", common.TCP_ADDR, p, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
+
+	if tls {
+		ser.ser, err = tcp.CreateTLSServer("tcp", common.TCP_ADDR, "./tls_cert.pem", "./tls_key.pem", p, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
+		log.Release("run tls tcp server")
+	} else {
+		ser.ser, err = tcp.CreateServer("tcp", common.TCP_ADDR, p, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
+		log.Release("run tcp server")
+	}
+
 	if err == nil {
 		ser.ser.Start()
 	}
@@ -114,6 +125,9 @@ func (ser *server) onTimer() {
 }
 
 func main() {
+	flag.BoolVar(&tls, "tls", false, "use tls or not")
+	flag.Parse()
+
 	utils.RunMutli(&server{})
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/funny/link"
 	"github.com/SpiritDyn123/gocygame/libs/log"
+	"crypto/tls"
 )
 
 type Server struct {
@@ -61,5 +62,32 @@ func CreateServer(network string, addr string, protocol link.Protocol, sendChanS
 		return
 	}
 
+	return
+}
+
+func CreateTLSServer(network string, addr string, certFile string, keyFile string, protocol link.Protocol, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
+	ser = &Server{
+		chanServer:chanServer,
+		acceptKey:acceptKey,
+		recvKey:recvKey,
+		closeKey:closeKey,
+		protocol:protocol,
+	}
+
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return
+	}
+
+	tlsConf := &tls.Config{
+		Certificates:[]tls.Certificate{cert},
+	}
+
+	ln, err := tls.Listen(network, addr, tlsConf)
+	if err != nil {
+		return
+	}
+
+	ser.ser = link.NewServer(ln, ser.protocol, sendChanSize, link.HandlerFunc(ser.onNewSession))
 	return
 }

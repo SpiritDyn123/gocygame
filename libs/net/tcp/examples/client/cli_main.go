@@ -4,14 +4,20 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"time"
-	"github.com/SpiritDyn123/gocygame/apps/examples/common"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/common"
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/funny/link/codec"
-	"github.com/SpiritDyn123/gocygame/apps/examples/protocol/binary"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/protocol/binary"
 	"github.com/funny/link"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/name5566/leaf/timer"
 	"fmt"
+	"flag"
+)
+
+var (
+	tls bool
+	connNum int
 )
 
 type client struct {
@@ -46,7 +52,7 @@ func (c *client) Start() (err error) {
 		Network:"tcp",
 		Addr:"127.0.0.1"+common.TCP_ADDR,
 		DialTimeOut:time.Second* 10,
-		ConnectNum:10,
+		ConnectNum:connNum,
 		Protocol:p,
 		SendChanSize:common.SEND_CHAN_SIZE,
 
@@ -54,6 +60,7 @@ func (c *client) Start() (err error) {
 		ConnectKey:common.ACCEPT_KEY,
 		ClosedKey:common.CLOSED_KEY,
 		RecvKey:common.RECV_KEY,
+		UseTLS:tls,
 	}
 	c.cli.Connect()
 	return
@@ -154,6 +161,9 @@ func (c *client) onTimer() {
 }
 
 func main() {
+	flag.BoolVar(&tls, "tls", false, "use tls or not")
+	flag.IntVar(&connNum, "connNum", 1, "how many client")
+	flag.Parse()
 
 	utils.RunMutli(&client{})
 }
