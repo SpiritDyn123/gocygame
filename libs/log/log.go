@@ -6,9 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
-	"github.com/ivpusic/grpool"
 	"runtime"
-	lfile"github.com/SpiritDyn123/gocygame/libs/log/file"
+	"sync"
 )
 
 // levels
@@ -26,21 +25,27 @@ const (
 	printFatalLevel   = "[fatal] "
 )
 
-var (
-	Invalid_depath = 3
-	Use_Pool = false
+const (
+	Logger_Go_Num = 1
 )
+
+type loggerItem struct {
+	line string
+	level int
+}
 
 type Logger struct {
 	level      int
 	baseLogger *log.Logger
 	consoleLogger *log.Logger
 	baseWriter   LogWriter
-	pool *grpool.Pool
 	flag int
+
+	wg sync.WaitGroup
+	logChan chan *loggerItem
 }
 
-func New(pathname string, maxSize int, strLevel string, flag int) (*Logger, error) {
+func New(writer LogWriter, strLevel string, flag int, console bool) (*Logger, error) {
 	// level
 	var level int
 	switch strings.ToLower(strLevel) {
@@ -56,55 +61,38 @@ func New(pathname string, maxSize int, strLevel string, flag int) (*Logger, erro
 		return nil, errors.New("unknown level: " + strLevel)
 	}
 
-	curFlag := 0
-	if Use_Pool {
-		Invalid_depath = 3
-		//用为采用协程打断了log的文件runtime.Caller
-		if flag&(log.Lshortfile|log.Llongfile) != 0 {
-			curFlag = flag
-			flag &= ^log.Lshortfile
-			flag &= ^log.Llongfile
-		}
-	}
-
-	// logger
-	var baseLogger *log.Logger
-	var consoleLogger *log.Logger
-	var baseWriter LogWriter
-	if pathname != "" {
-		file := &lfile.Writer{
-			FileName:pathname,
-			MaxSize:int64(maxSize),
-		}
-
-		baseLogger = log.New(file, "", flag)
-		baseWriter = file
-
-		//debug日志输出到屏幕
-		if level <= debugLevel {
-			consoleLogger = log.New(os.Stdout, "", flag)
-		}
-	} else {
-		consoleLogger = log.New(os.Stdout, "", flag)
+	//用为采用协程打断了log的文件runtime.Caller
+	curFlag := flag
+	if flag & (log.Lshortfile | log.Llongfile) != 0 {
+		flag &= ^log.Lshortfile
+		flag &= ^log.Llongfile
 	}
 
 	// new
 	logger := new(Logger)
+	logger.logChan = make(chan *loggerItem, 500)
 	logger.level = level
-	logger.baseLogger = baseLogger
-	logger.consoleLogger = consoleLogger
-	logger.baseWriter = baseWriter
-	logger.flag = curFlag
 
-	if Use_Pool {
-		logger.pool = grpool.NewPool(1, 1000) //单线程写文件
+	if writer != nil {
+		logger.baseLogger = log.New(writer, "", flag)
+		logger.baseWriter = writer
 	}
+
+	logger.flag = curFlag
+	if console {
+		logger.consoleLogger = log.New(os.Stdout, "", flag)
+	}
+
+	logger.wg.Add(Logger_Go_Num)
+	go logger.goLogWrite()
 
 	return logger, nil
 }
 
 // It's dangerous to call the method on logging
 func (logger *Logger) Close() {
+	close(logger.logChan)
+	logger.wg.Wait()
 	if logger.baseWriter != nil {
 		logger.baseWriter.Close()
 	}
@@ -112,8 +100,30 @@ func (logger *Logger) Close() {
 	logger.baseLogger = nil
 	logger.consoleLogger = nil
 	logger.baseWriter = nil
-	if Use_Pool {
-		logger.pool.Release()
+}
+
+func (logger *Logger) goLogWrite() {
+	defer logger.wg.Done()
+
+	for {
+		select{
+		case logLine, ok := <- logger.logChan:
+			if !ok {
+				return
+			}
+
+			if logger.baseLogger != nil {
+				logger.baseLogger.Output(3, logLine.line)
+			}
+
+			if logger.consoleLogger != nil {
+				logger.consoleLogger.Output(3, logLine.line)
+			}
+
+			if logLine.level == fatalLevel {
+				os.Exit(1) //如果使用pool，很可能会导致日志没写进去就exit
+			}
+		}
 	}
 }
 
@@ -122,62 +132,30 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 		return
 	}
 
-	logClosed := true
 	header := ""
-	if Use_Pool {
-		if logger.flag & (log.Lshortfile|log.Llongfile) != 0 {
-			_, file, line, ok := runtime.Caller(2)
-			if ok {
-				if logger.flag & log.Lshortfile != 0 {
-					short := file
-					for i := len(file) - 1; i > 0; i-- {
-						if file[i] == '/' {
-							short = file[i+1:]
-							break
-						}
+	if logger.flag & (log.Lshortfile|log.Llongfile) != 0 {
+		_, file, line, ok := runtime.Caller(2)
+		if ok {
+			if logger.flag & log.Lshortfile != 0 {
+				short := file
+				for i := len(file) - 1; i > 0; i-- {
+					if file[i] == '/' {
+						short = file[i+1:]
+						break
 					}
-					file = short
 				}
-			} else {
-				file = "???"
-				line = 0
+				file = short
 			}
-
-			header = fmt.Sprintf("%s:%d ", file, line)
+		} else {
+			file = "???"
+			line = 0
 		}
+
+		header = fmt.Sprintf("%s:%d ", file, line)
 	}
 
 	format = header + printLevel + format
-	if logger.baseLogger != nil {
-		logClosed = false
-		if Use_Pool {
-			logger.pool.JobQueue <- func() {
-				logger.baseLogger.Output(Invalid_depath, fmt.Sprintf(format, a...))
-			}
-		} else {
-			logger.baseLogger.Output(Invalid_depath, fmt.Sprintf(format, a...))
-		}
-
-	}
-
-	if logger.consoleLogger != nil {
-		logClosed = false
-		if Use_Pool {
-			logger.pool.JobQueue <- func() {
-				logger.consoleLogger.Output(Invalid_depath, fmt.Sprintf(format, a...))
-			}
-		} else {
-			logger.consoleLogger.Output(Invalid_depath, fmt.Sprintf(format, a...))
-		}
-	}
-
-	if logClosed {
-		panic("logger closed")
-	}
-
-	if level == fatalLevel {
-		os.Exit(1) //如果使用pool，很可能会导致日志没写进去就exit
-	}
+	logger.logChan <- &loggerItem{fmt.Sprintf(format, a...), level}
 }
 
 func (logger *Logger) Debug(format string, a ...interface{}) {
@@ -215,7 +193,7 @@ func (logger *Logger) SetLevel(strLevel string) error {
 	return nil
 }
 
-var gLogger, _ = New("", 0,"debug",  log.LstdFlags|log.Lshortfile)
+var gLogger, _ = New(nil,"debug",  log.LstdFlags|log.Lshortfile, true)
 
 // It's dangerous to call the method on logging
 func Export(logger *Logger) {
