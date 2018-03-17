@@ -43,6 +43,8 @@ type Logger struct {
 
 	wg sync.WaitGroup
 	logChan chan *loggerItem
+	closed bool
+	lock sync.RWMutex
 }
 
 func New(writer LogWriter, strLevel string, flag int, console bool) (*Logger, error) {
@@ -91,6 +93,10 @@ func New(writer LogWriter, strLevel string, flag int, console bool) (*Logger, er
 
 // It's dangerous to call the method on logging
 func (logger *Logger) Close() {
+	logger.lock.Lock()
+	defer logger.lock.Unlock()
+	logger.closed = true
+
 	close(logger.logChan)
 	logger.wg.Wait()
 	if logger.baseWriter != nil {
@@ -155,7 +161,12 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 	}
 
 	format = header + printLevel + format
-	logger.logChan <- &loggerItem{fmt.Sprintf(format, a...), level}
+
+	logger.lock.RLock()
+	if !logger.closed {
+		logger.logChan <- &loggerItem{fmt.Sprintf(format, a...), level}
+	}
+ 	logger.lock.RUnlock()
 }
 
 func (logger *Logger) Debug(format string, a ...interface{}) {

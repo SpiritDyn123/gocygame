@@ -1,41 +1,84 @@
 package tcp
 
 import (
-	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
-	"github.com/funny/link"
-	"github.com/SpiritDyn123/gocygame/libs/log"
 	"crypto/tls"
+	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
+	"github.com/SpiritDyn123/gocygame/libs/log"
+	"net"
+	"time"
+	"sync"
 )
 
 type Server struct {
 	chanServer *chanrpc.Server
-	acceptKey string
-	recvKey string
-	closeKey string
-	ser *link.Server
-	protocol link.Protocol
+	acceptKey  string
+	recvKey    string
+	closeKey   string
+	sendChanSize int
+	listener net.Listener
+	sessions sync.Map
+
+	msgParser *MsgParser
+	codec Codec
+
+	stopOnce sync.Once
 }
 
 func (ser *Server) Start() bool {
 	//开始accept
-	go ser.ser.Serve()
+	go ser.serve()
 
 	return true
+}
+
+func (ser *Server) serve() {
+	var tempDelay time.Duration
+	for {
+		conn, err := ser.listener.Accept()
+		if err != nil {
+			if ne, ok := err.(net.Error); ok && ne.Temporary() {
+				if tempDelay == 0 {
+					tempDelay = 5 * time.Millisecond
+				} else {
+					tempDelay *= 2
+				}
+				if max := 1 * time.Second; tempDelay > max {
+					tempDelay = max
+				}
+				time.Sleep(tempDelay)
+				continue
+			}
+			log.Error("tcp server Accept error:%v", err)
+			return
+		}
+
+		go ser.handleNewConn(conn)
+	}
 }
 
 func (ser *Server) Stop() bool {
-	ser.ser.Stop()
+	ser.listener.Close()
+
+	ser.stopOnce.Do(func(){
+		ser.sessions.Range(func(id interface{}, session interface{}) bool {
+			session.(*Session).Close()
+			return true
+		})
+	})
+
 	return true
 }
 
+func (ser *Server) handleNewConn(conn net.Conn) {
+	session := newSession(conn, ser.msgParser, ser.codec, ser.sendChanSize)
+	ser.sessions.Store(session.Id(), session)
 
-func (ser *Server) onNewSession(session *link.Session) {
 	defer func() {
 		session.Close()
+		ser.sessions.Delete(session.Id())
 	}()
 
 	ser.chanServer.Go(ser.acceptKey, session)
-
 	for {
 		idata, err := session.Receive()
 		if err != nil {
@@ -48,16 +91,22 @@ func (ser *Server) onNewSession(session *link.Session) {
 	}
 }
 
-func CreateServer(network string, addr string, protocol link.Protocol, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
+func CreateServer(network, addr string, codec Codec, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
 	ser = &Server{
-		chanServer:chanServer,
-		acceptKey:acceptKey,
-		recvKey:recvKey,
-		closeKey:closeKey,
-		protocol:protocol,
+		chanServer: chanServer,
+		acceptKey:  acceptKey,
+		recvKey:    recvKey,
+		closeKey:   closeKey,
+		msgParser: msgParser,
+		codec: codec,
+		sendChanSize: sendChanSize,
 	}
 
-	ser.ser, err = link.Listen(network, addr, ser.protocol, sendChanSize, link.HandlerFunc(ser.onNewSession))
+	if ser.msgParser == nil {
+		ser.msgParser = NewMsgParser()
+	}
+
+	ser.listener, err = net.Listen(network, addr)
 	if err != nil {
 		return
 	}
@@ -65,13 +114,15 @@ func CreateServer(network string, addr string, protocol link.Protocol, sendChanS
 	return
 }
 
-func CreateTLSServer(network string, addr string, certFile string, keyFile string, protocol link.Protocol, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
+func CreateTLSServer(network string, addr string, certFile string, keyFile string, codec Codec, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
 	ser = &Server{
-		chanServer:chanServer,
-		acceptKey:acceptKey,
-		recvKey:recvKey,
-		closeKey:closeKey,
-		protocol:protocol,
+		chanServer: chanServer,
+		acceptKey:  acceptKey,
+		recvKey:    recvKey,
+		closeKey:   closeKey,
+		msgParser: msgParser,
+		codec: codec,
+		sendChanSize: sendChanSize,
 	}
 
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
@@ -80,14 +131,13 @@ func CreateTLSServer(network string, addr string, certFile string, keyFile strin
 	}
 
 	tlsConf := &tls.Config{
-		Certificates:[]tls.Certificate{cert},
+		Certificates: []tls.Certificate{cert},
 	}
 
-	ln, err := tls.Listen(network, addr, tlsConf)
+	ser.listener, err = tls.Listen(network, addr, tlsConf)
 	if err != nil {
 		return
 	}
 
-	ser.ser = link.NewServer(ln, ser.protocol, sendChanSize, link.HandlerFunc(ser.onNewSession))
 	return
 }

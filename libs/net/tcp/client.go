@@ -2,11 +2,12 @@ package tcp
 
 import (
 	"time"
-	"github.com/funny/link"
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"sync"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"crypto/tls"
+	"net"
+	"golang.org/x/net/context"
 )
 
 type Client struct {
@@ -17,7 +18,8 @@ type Client struct {
 	Addr string
 	DialTimeOut time.Duration
 	ConnectNum int
-	Protocol link.Protocol
+	Codec Codec
+	MsgParser *MsgParser
 	SendChanSize int
 
 	ChanServer *chanrpc.Server
@@ -26,10 +28,12 @@ type Client struct {
 	RecvKey string
 	UseTLS bool
 
-	sessions map[*link.Session]struct{}
+	sessions map[*Session]struct{}
 	lock sync.Mutex
 	wg sync.WaitGroup
 	closeFlag bool
+	ctx context.Context
+	ctx_cf context.CancelFunc
 }
 
 func (c *Client) init() {
@@ -49,7 +53,9 @@ func (c *Client) init() {
 		c.DialTimeOut = time.Second * 10
 	}
 
-	c.sessions = make(map[*link.Session]struct{})
+	c.sessions = make(map[*Session]struct{})
+
+	c.ctx, c.ctx_cf = context.WithCancel(context.Background())
 }
 
 
@@ -71,35 +77,38 @@ func (c *Client) connect() {
 		c.wg.Done()
 	}()
 __RECONNECT:
-	var session *link.Session
+	var session *Session
 	var err error
 	for {
 		if c.UseTLS {
 			conn, err := tls.Dial(c.Network, c.Addr, &tls.Config{InsecureSkipVerify:true})
 			if err == nil {
-				codec, err := c.Protocol.NewCodec(conn)
-				if err == nil {
-					session = link.NewSession(codec, c.SendChanSize)
-					break
-				} else {
-					if c.closeFlag {
-						break
-					}
-				}
-			} else {
-				if c.closeFlag {
-					break
-				}
+				session = newSession(conn, c.MsgParser, c.Codec, c.SendChanSize)
 			}
+
+			if err == nil || c.closeFlag {
+				break
+			}
+
 		} else {
-			session, err = link.DialTimeout(c.Network, c.Addr, c.DialTimeOut, c.Protocol, c.SendChanSize)
+			conn, err := net.DialTimeout(c.Network, c.Addr, c.DialTimeOut)
+			if err == nil {
+				session = newSession(conn, c.MsgParser, c.Codec, c.SendChanSize)
+			}
+
 			if err == nil || c.closeFlag {
 				break
 			}
 		}
 
 		log.Error("connect to %s error:%v", c.Addr, err)
-		time.Sleep(c.ConnectInterval)
+		tc := time.NewTicker(c.ConnectInterval)
+		select {
+		case <- tc.C:
+			tc.Stop()
+		case <-c.ctx.Done():
+			break
+		}
 	}
 
 	if session == nil {
@@ -129,6 +138,10 @@ __RECONNECT:
 
 	c.lock.Lock()
 	delete(c.sessions, session)
+	if c.closeFlag {
+		c.lock.Unlock()
+		return
+	}
 	c.lock.Unlock()
 
 	if c.AutoReconnect {
@@ -139,6 +152,7 @@ __RECONNECT:
 func (c *Client) Stop() bool {
 	c.lock.Lock()
 	c.closeFlag = true
+	c.ctx_cf()
 	for session, _ := range c.sessions {
 		session.Close()
 	}

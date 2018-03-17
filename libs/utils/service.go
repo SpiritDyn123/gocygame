@@ -76,8 +76,9 @@ func RunMutli(sers ...IService) {
 		log.Release("%s 关闭成功", server.GetName())
 	}
 	wg.Wait()
-
 	log.Release("关闭成功")
+
+	log.Close()
 }
 
 //提供一个默认简单的pooller

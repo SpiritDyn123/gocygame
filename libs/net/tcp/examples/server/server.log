@@ -1,0 +1,151 @@
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[error] tcp server Accept error:accept tcp [::]:9966: use of closed network connection
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[error] tcp server Accept error:accept tcp [::]:9966: use of closed network connection
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[error] tcp server Accept error:accept tcp [::]:9966: use of closed network connection
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[error] tcp server Accept error:accept tcp [::]:9966: use of closed network connection
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] cur connections num:0
+[release] cur connections num:0
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功
+[release] 启动中...
+[release] 测试服务器启动中
+[release] run tcp server
+[release] 测试服务器启动成功
+[release] 启动成功
+[release] 关闭中（signal:interrupt)...
+[release] 测试服务器 关闭成功
+[release] 关闭成功

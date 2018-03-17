@@ -7,9 +7,8 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/common"
-	"github.com/funny/link/codec"
+	bb"encoding/binary"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp/examples/protocol/binary"
-	"github.com/funny/link"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
 	"fmt"
@@ -23,7 +22,7 @@ var (
 type server struct {
 	utils.Pooller
 	ser *tcp.Server
-	sessionMap map[uint64]*link.Session
+	sessionMap map[uint64]*tcp.Session
 }
 
 func(ser *server) GetName() string {
@@ -32,7 +31,7 @@ func(ser *server) GetName() string {
 
 func(ser *server) Start() (err error) {
 	if ser.sessionMap == nil {
-		ser.sessionMap = make(map[uint64]*link.Session)
+		ser.sessionMap = make(map[uint64]*tcp.Session)
 	}
 
 	ser.ChanServer = chanrpc.NewServer(100)
@@ -45,13 +44,16 @@ func(ser *server) Start() (err error) {
 	ser.TimerServer = timer.NewDispatcher(100)
 	ser.TimerServer.AfterFunc(time.Second, ser.onTimer)
 
-	p := codec.FixLen(&binary.BinaryProtocl{}, common.MSGLEN, common.BytesOrder, common.MAX_RECV, common.MAX_SEND)
-
+	//p := codec.FixLen(&binary.BinaryProtocl{}, common.MSGLEN, common.BytesOrder, common.MAX_RECV, common.MAX_SEND)
+	codec := &binary.BinaryCodec{}
+	mp := &tcp.MsgParser{}
+	mp.SetByteOrder(common.BytesOrder == bb.LittleEndian)
+	mp.SetMsgLen(common.MSGLEN, common.MSGLEN, common.MAX_RECV)
 	if tls {
-		ser.ser, err = tcp.CreateTLSServer("tcp", common.TCP_ADDR, "./tls_cert.pem", "./tls_key.pem", p, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
+		ser.ser, err = tcp.CreateTLSServer("tcp", common.TCP_ADDR, "./tls_cert.pem", "./tls_key.pem", codec, mp, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
 		log.Release("run tls tcp server")
 	} else {
-		ser.ser, err = tcp.CreateServer("tcp", common.TCP_ADDR, p, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
+		ser.ser, err = tcp.CreateServer("tcp", common.TCP_ADDR, codec, mp, common.SEND_CHAN_SIZE, ser.ChanServer, common.ACCEPT_KEY, common.RECV_KEY, common.CLOSED_KEY)
 		log.Release("run tcp server")
 	}
 
@@ -77,46 +79,46 @@ func(ser *server)GetPriority() int {
 
 
 func (ser *server) onAccept(args []interface{}) {
-	session, ok := args[0].(*link.Session)
+	session, ok := args[0].(*tcp.Session)
 	if !ok {
 		log.Error("onAccept %v args[0] is not session", args)
 		return
 	}
 
-	if _, ok := ser.sessionMap[session.ID()]; ok {
-		log.Error("onAccept session:%d exsited", session.ID())
+	if _, ok := ser.sessionMap[session.Id()]; ok {
+		log.Error("onAccept session:%d exsited", session.Id())
 		return
 	}
 
-	ser.sessionMap[session.ID()] = session
-	log.Release("session:%d accepted", session.ID())
+	ser.sessionMap[session.Id()] = session
+	log.Release("session:%d accepted", session.Id())
 }
 
 func (ser *server) onRecv(args []interface{}) {
-	session, ok := args[0].(*link.Session)
+	session, ok := args[0].(*tcp.Session)
 	if !ok {
 		log.Error("onRecv %v args[0] is not session", args)
 		return
 	}
 
-	if _, ok := ser.sessionMap[session.ID()]; !ok {
-		log.Error("onRecved session:%d not exsited", session.ID())
+	if _, ok := ser.sessionMap[session.Id()]; !ok {
+		log.Error("onRecved session:%d not exsited", session.Id())
 		return
 	}
 
-	log.Release("session:%d recv:%s", session.ID(), args[1].(string))
-	session.Send(fmt.Sprintf("hello session %d i has recved you msg", session.ID()))
+	log.Release("session:%d recv:%s", session.Id(), string(args[1].([]byte)))
+	session.Send([]byte(fmt.Sprintf("hello session %d i has recved you msg", session.Id())))
 }
 
 func (ser *server) onClose(args []interface{}) {
-	session, ok := args[0].(*link.Session)
+	session, ok := args[0].(*tcp.Session)
 	if !ok {
 		log.Error("onClose %v args[0] is not session", args)
 		return
 	}
 
-	delete(ser.sessionMap, session.ID())
-	log.Release("session:%d closed", session.ID())
+	delete(ser.sessionMap, session.Id())
+	log.Release("session:%d closed", session.Id())
 }
 
 func (ser *server) onTimer() {
