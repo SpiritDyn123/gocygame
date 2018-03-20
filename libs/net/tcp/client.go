@@ -107,7 +107,8 @@ __RECONNECT:
 		case <- tc.C:
 			tc.Stop()
 		case <-c.ctx.Done():
-			break
+			tc.Stop()
+			return
 		}
 	}
 
