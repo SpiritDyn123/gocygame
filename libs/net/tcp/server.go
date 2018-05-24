@@ -2,8 +2,8 @@ package tcp
 
 import (
 	"crypto/tls"
-	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
-	"github.com/SpiritDyn123/gocygame/libs/log"
+	"libs/chanrpc"
+	"libs/log"
 	"net"
 	"time"
 	"sync"
@@ -19,7 +19,7 @@ type Server struct {
 	sessions sync.Map
 
 	msgParser *MsgParser
-	codec Codec
+	protocol Protocol
 
 	stopOnce sync.Once
 }
@@ -70,7 +70,7 @@ func (ser *Server) Stop() bool {
 }
 
 func (ser *Server) handleNewConn(conn net.Conn) {
-	session := newSession(conn, ser.msgParser, ser.codec, ser.sendChanSize)
+	session := newSession(conn, ser.msgParser, ser.protocol, ser.sendChanSize)
 	ser.sessions.Store(session.Id(), session)
 
 	defer func() {
@@ -91,14 +91,14 @@ func (ser *Server) handleNewConn(conn net.Conn) {
 	}
 }
 
-func CreateServer(network, addr string, codec Codec, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
+func CreateServer(network, addr string, protocol Protocol, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
 	ser = &Server{
 		chanServer: chanServer,
 		acceptKey:  acceptKey,
 		recvKey:    recvKey,
 		closeKey:   closeKey,
 		msgParser: msgParser,
-		codec: codec,
+		protocol: protocol,
 		sendChanSize: sendChanSize,
 	}
 
@@ -114,14 +114,14 @@ func CreateServer(network, addr string, codec Codec, msgParser *MsgParser, sendC
 	return
 }
 
-func CreateTLSServer(network string, addr string, certFile string, keyFile string, codec Codec, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
+func CreateTLSServer(network string, addr string, certFile string, keyFile string, protocol Protocol, msgParser *MsgParser, sendChanSize int, chanServer *chanrpc.Server, acceptKey, recvKey, closeKey string) (ser *Server, err error) {
 	ser = &Server{
 		chanServer: chanServer,
 		acceptKey:  acceptKey,
 		recvKey:    recvKey,
 		closeKey:   closeKey,
 		msgParser: msgParser,
-		codec: codec,
+		protocol: protocol,
 		sendChanSize: sendChanSize,
 	}
 

@@ -3,9 +3,9 @@ package tcp
 import (
 	"net"
 	"sync/atomic"
-	"github.com/SpiritDyn123/gocygame/libs/log"
+	"libs/log"
 	"sync"
-	"github.com/pkg/errors"
+	"errors"
 )
 
 var (
@@ -25,13 +25,15 @@ type Session struct {
 	closeChan chan struct{}
 	closeFlag bool
 	lock sync.RWMutex
+
+	data interface{}
 }
 
 func (session *Session) Id() uint64 {
 	return session.sessionId
 }
 
-func (session *Session) Send(msg interface{}) error {
+func (session *Session) Send(msg ...interface{}) error {
 	session.lock.RLock()
 	if session.closeFlag {
 		session.lock.RUnlock()
@@ -84,14 +86,19 @@ func (session *Session) sendLoop() {
 		select {
 		case <- session.closeChan:
 			goto __END
-		case msg := <- session.sendChan:
+		case msg, ok := <- session.sendChan:
+			if !ok {
+				goto __END
+			}
 			data, err := session.codec.Marshal(msg)
 			if err != nil {
+				log.Error("session sendLoop codec.Marshal err:%v", err)
 				goto __END
 			}
 
 			err = session.msgParser.Write(session.conn, data)
 			if err != nil {
+				log.Error("session sendLoop msgParser.Write err:%v", err)
 				goto __END
 			}
 		}
@@ -105,13 +112,17 @@ func (session *Session) RemoteAddr() net.Addr {
 	return session.conn.RemoteAddr()
 }
 
-func newSession(conn net.Conn, msgParser *MsgParser, codec Codec, sendChanSize int) *Session {
+func (session *Session) Data() interface{} {
+	return session.data
+}
+
+func newSession(conn net.Conn, msgParser *MsgParser, protocol Protocol, sendChanSize int) *Session {
 	sessionId := atomic.AddUint64(&global_sessionId, 1)
 	session := &Session{
 		conn: conn,
 		sessionId: sessionId,
 		msgParser: msgParser,
-		codec: codec,
+		codec: protocol.NewCodec(),
 		sendChan: make(chan interface{}, sendChanSize),
 		closeChan: make(chan struct{}),
 	}

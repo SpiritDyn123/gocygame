@@ -2,12 +2,12 @@ package tcp
 
 import (
 	"time"
-	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
+	"libs/chanrpc"
 	"sync"
-	"github.com/SpiritDyn123/gocygame/libs/log"
+	"libs/log"
 	"crypto/tls"
 	"net"
-	"golang.org/x/net/context"
+	"context"
 )
 
 type Client struct {
@@ -18,7 +18,7 @@ type Client struct {
 	Addr string
 	DialTimeOut time.Duration
 	ConnectNum int
-	Codec Codec
+	Protocol
 	MsgParser *MsgParser
 	SendChanSize int
 
@@ -27,6 +27,7 @@ type Client struct {
 	ClosedKey string
 	RecvKey string
 	UseTLS bool
+	Data interface{}
 
 	sessions map[*Session]struct{}
 	lock sync.Mutex
@@ -79,11 +80,13 @@ func (c *Client) connect() {
 __RECONNECT:
 	var session *Session
 	var err error
+	var conn net.Conn
 	for {
 		if c.UseTLS {
-			conn, err := tls.Dial(c.Network, c.Addr, &tls.Config{InsecureSkipVerify:true})
+			conn, err = tls.Dial(c.Network, c.Addr, &tls.Config{InsecureSkipVerify:true})
 			if err == nil {
-				session = newSession(conn, c.MsgParser, c.Codec, c.SendChanSize)
+				session = newSession(conn, c.MsgParser, c.Protocol, c.SendChanSize)
+				session.data = c.Data
 			}
 
 			if err == nil || c.closeFlag {
@@ -91,9 +94,10 @@ __RECONNECT:
 			}
 
 		} else {
-			conn, err := net.DialTimeout(c.Network, c.Addr, c.DialTimeOut)
+			conn, err = net.DialTimeout(c.Network, c.Addr, c.DialTimeOut)
 			if err == nil {
-				session = newSession(conn, c.MsgParser, c.Codec, c.SendChanSize)
+				session = newSession(conn, c.MsgParser, c.Protocol, c.SendChanSize)
+				session.data = c.Data
 			}
 
 			if err == nil || c.closeFlag {
@@ -129,7 +133,7 @@ __RECONNECT:
 	for {
 		msg, err := session.Receive()
 		if err != nil {
-			log.Debug("session:%v Receive error:%v", session, err)
+			log.Debug("session id:%d, addr:%s Receive error:%v", session.Id(), session.RemoteAddr().String(), err)
 			break
 		}
 

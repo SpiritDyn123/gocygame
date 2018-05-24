@@ -17,33 +17,44 @@ type Codec interface {
 	Unmarshal(data []byte) (interface{}, error)
 }
 
+type Protocol interface {
+	NewCodec() Codec
+}
+
+type ProtocolFunc func() Codec
+func (pf ProtocolFunc) NewCodec() Codec {
+	return pf()
+}
+
+
 type MsgParser struct {
 	lenMsgLen    int
-	minMsgLen    uint32
-	maxMsgLen    uint32
+	maxRecvMsgLen    uint32
+	maxSendMsgLen    uint32
 	littleEndian bool
+	includeHead bool
 }
 
 func NewMsgParser() *MsgParser {
 	p := new(MsgParser)
 	p.lenMsgLen = 2
-	p.minMsgLen = 1
-	p.maxMsgLen = 4096
+	p.maxRecvMsgLen = 4096
+	p.maxSendMsgLen = 4096
 	p.littleEndian = false
 
 	return p
 }
 
 // It's dangerous to call the method on reading or writing
-func (p *MsgParser) SetMsgLen(lenMsgLen int, minMsgLen uint32, maxMsgLen uint32) {
+func (p *MsgParser) SetMsgLen(lenMsgLen int, maxRecvMsgLen uint32, maxSendMsgLen uint32) {
 	if lenMsgLen == 1 || lenMsgLen == 2 || lenMsgLen == 4 {
 		p.lenMsgLen = lenMsgLen
 	}
-	if minMsgLen != 0 {
-		p.minMsgLen = minMsgLen
+	if maxRecvMsgLen != 0 {
+		p.maxRecvMsgLen = maxRecvMsgLen
 	}
-	if maxMsgLen != 0 {
-		p.maxMsgLen = maxMsgLen
+	if maxSendMsgLen != 0 {
+		p.maxSendMsgLen = maxSendMsgLen
 	}
 
 	var max uint32
@@ -55,11 +66,11 @@ func (p *MsgParser) SetMsgLen(lenMsgLen int, minMsgLen uint32, maxMsgLen uint32)
 	case 4:
 		max = math.MaxUint32
 	}
-	if p.minMsgLen > max {
-		p.minMsgLen = max
+	if p.maxRecvMsgLen > max {
+		p.maxRecvMsgLen = max
 	}
-	if p.maxMsgLen > max {
-		p.maxMsgLen = max
+	if p.maxSendMsgLen > max {
+		p.maxSendMsgLen = max
 	}
 }
 
@@ -68,16 +79,17 @@ func (p *MsgParser) SetByteOrder(littleEndian bool) {
 	p.littleEndian = littleEndian
 }
 
+func (p *MsgParser) SetIncludeHead(ih bool) {
+	p.includeHead = ih
+}
 // goroutine safe
 func (p *MsgParser) Read(conn net.Conn) ([]byte, error) {
 	var b [4]byte
 	bufMsgLen := b[:p.lenMsgLen]
-
 	// read len
 	if _, err := io.ReadFull(conn, bufMsgLen); err != nil {
 		return nil, err
 	}
-
 	// parse len
 	var msgLen uint32
 	switch p.lenMsgLen {
@@ -97,20 +109,26 @@ func (p *MsgParser) Read(conn net.Conn) ([]byte, error) {
 		}
 	}
 
+	//是否包含长度
+	if p.includeHead {
+		msgLen -= uint32(p.lenMsgLen)
+	}
+
 	// check len
-	if msgLen > p.maxMsgLen {
-		return nil, errors.New("message too long")
-	} else if msgLen < p.minMsgLen {
-		return nil, errors.New("message too short")
+	if msgLen > p.maxRecvMsgLen {
+		return nil, errors.New("read message too long")
 	}
 
-	// data
-	msgData := make([]byte, msgLen)
-	if _, err := io.ReadFull(conn, msgData); err != nil {
-		return nil, err
+	if msgLen > 0 {
+		// data
+		msgData := make([]byte, msgLen)
+		if _, err := io.ReadFull(conn, msgData); err != nil {
+			return nil, err
+		}
+		return msgData, nil
+	} else {
+		return []byte{}, nil
 	}
-
-	return msgData, nil
 }
 
 // goroutine safe
@@ -122,13 +140,15 @@ func (p *MsgParser) Write(conn net.Conn, args ...[]byte) error {
 	}
 
 	// check len
-	if msgLen > p.maxMsgLen {
-		return errors.New("message too long")
-	} else if msgLen < p.minMsgLen {
-		return errors.New("message too short")
+	if msgLen > p.maxSendMsgLen {
+		return errors.New("write message too long")
 	}
 
 	msg := make([]byte, uint32(p.lenMsgLen)+msgLen)
+	//是否包含长度
+	if p.includeHead {
+		msgLen += uint32(p.lenMsgLen)
+	}
 
 	// write len
 	switch p.lenMsgLen {
