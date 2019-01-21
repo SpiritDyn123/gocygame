@@ -3,7 +3,7 @@ package tcp
 import (
 	"crypto/tls"
 	"net"
-	"libs/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
 	"net/http"
 	"github.com/gorilla/websocket"

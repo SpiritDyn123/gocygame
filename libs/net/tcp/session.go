@@ -3,7 +3,7 @@ package tcp
 import (
 	"net"
 	"sync/atomic"
-	"libs/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 	"sync"
 	"errors"
 )

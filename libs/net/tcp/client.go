@@ -2,9 +2,9 @@ package tcp
 
 import (
 	"time"
-	"libs/chanrpc"
+	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"sync"
-	"libs/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 	"crypto/tls"
 	"net"
 	"context"
@@ -85,7 +85,7 @@ __RECONNECT:
 		if c.UseTLS {
 			conn, err = tls.Dial(c.Network, c.Addr, &tls.Config{InsecureSkipVerify:true})
 			if err == nil {
-				session = newSession(conn, c.MsgParser, c.Protocol, c.SendChanSize)
+				session = newSession(conn, Session_type_tcp, c.MsgParser, c.Protocol, c.SendChanSize)
 				session.data = c.Data
 			}
 
@@ -96,7 +96,7 @@ __RECONNECT:
 		} else {
 			conn, err = net.DialTimeout(c.Network, c.Addr, c.DialTimeOut)
 			if err == nil {
-				session = newSession(conn, c.MsgParser, c.Protocol, c.SendChanSize)
+				session = newSession(conn, Session_type_tcp, c.MsgParser, c.Protocol, c.SendChanSize)
 				session.data = c.Data
 			}
 
