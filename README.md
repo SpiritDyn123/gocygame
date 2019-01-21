@@ -5,5 +5,5 @@
 ===========
  1>、采用了name5566 leaf的部分模块代码<br/>
  ------------
- 2>、tcp网络模块使用github.com/funny/link<br/>
+ 2>、tcp网络模块借鉴使用github.com/funny/link<br/>
  -----------
