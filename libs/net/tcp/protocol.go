@@ -2,10 +2,10 @@ package tcp
 
 import (
 	"math"
-	"net"
 	"io"
 	"encoding/binary"
 	"errors"
+	"net"
 )
 
 type CloseSendChan interface {
@@ -26,6 +26,10 @@ func (pf ProtocolFunc) NewCodec() Codec {
 	return pf()
 }
 
+type IMsgParser interface {
+	Read(reader interface{}) ([]byte, error)
+	Write(writer interface{}, args ...[]byte) error
+}
 
 type MsgParser struct {
 	lenMsgLen    int
@@ -83,7 +87,8 @@ func (p *MsgParser) SetIncludeHead(ih bool) {
 	p.includeHead = ih
 }
 // goroutine safe
-func (p *MsgParser) Read(conn net.Conn) ([]byte, error) {
+func (p *MsgParser) Read(r interface{}) ([]byte, error) {
+	conn := r.(net.Conn)
 	var b [4]byte
 	bufMsgLen := b[:p.lenMsgLen]
 	// read len
@@ -132,7 +137,8 @@ func (p *MsgParser) Read(conn net.Conn) ([]byte, error) {
 }
 
 // goroutine safe
-func (p *MsgParser) Write(conn net.Conn, args ...[]byte) error {
+func (p *MsgParser) Write(w interface{}, args ...[]byte) error {
+	conn := w.(net.Conn)
 	// get len
 	var msgLen uint32
 	for i := 0; i < len(args); i++ {

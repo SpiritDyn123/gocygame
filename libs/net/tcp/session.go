@@ -13,13 +13,26 @@ var (
 	Error_Session_Send_Chan_Full = errors.New("session send chan full")
 )
 
+type SessionType int
+const (
+	Session_type_tcp SessionType = 1 +iota //tcp基本链接
+	Session_type_ws
+)
+
+type netConn interface {
+	Close() error
+	LocalAddr() net.Addr
+	RemoteAddr() net.Addr
+}
+
 var global_sessionId uint64
 
 type Session struct {
-	msgParser *MsgParser
+	msgParser IMsgParser
 	codec Codec
 	sessionId uint64
-	conn net.Conn
+	conn netConn
+	sessionType SessionType
 
 	sendChan chan interface{}
 	closeChan chan struct{}
@@ -71,6 +84,9 @@ func (session *Session) Close() {
 	}
 
 	session.closeFlag = true
+	if session.conn != nil {
+
+	}
 	session.conn.Close()
 	close(session.closeChan)
 	close(session.sendChan)
@@ -116,11 +132,16 @@ func (session *Session) Data() interface{} {
 	return session.data
 }
 
-func newSession(conn net.Conn, msgParser *MsgParser, protocol Protocol, sendChanSize int) *Session {
+func (session *Session) SessionType() SessionType {
+	return session.sessionType
+}
+
+func newSession(conn netConn, session_type SessionType, msgParser IMsgParser, protocol Protocol, sendChanSize int) *Session {
 	sessionId := atomic.AddUint64(&global_sessionId, 1)
 	session := &Session{
 		conn: conn,
 		sessionId: sessionId,
+		sessionType: session_type,
 		msgParser: msgParser,
 		codec: protocol.NewCodec(),
 		sendChan: make(chan interface{}, sendChanSize),
