@@ -38,27 +38,36 @@ func (ss sort_is) Less(i, j int) bool {
 }
 
 func RunMutli(sers ...IService) {
+	defer func() {
+		err := recover()//捕捉异常错误
+		if err != nil {
+			log.Error("进程退出异常：%v", err)
+		}
+		log.Close()
+	}()
+
 	sort.Sort(sort_is(sers))
 
 	log.Release("启动中...")
-	for _, server := range sers {
+	closeSig := make([]chan bool, len(sers))
+	for i, server := range sers {
 		log.Release("%s启动中", server.GetName())
 		if err := server.Start(); err != nil {
 			log.Release("%s启动失败,原因：%v", server.GetName(), err)
 			return
 		}
+		closeSig[i] = make(chan bool)
 	}
 
-	closeSig := make(chan bool)
 	closeEndSig := make(chan bool)
 	var wg sync.WaitGroup
 	wg.Add(len(sers))
-	for _, server := range sers {
-		go func(cs chan bool) {
+	for i, server := range sers {
+		go func(cs chan bool, ser IService) {
 			defer wg.Done()
-			server.Pool(cs)
+			ser.Pool(cs)
 			closeEndSig <-true //保证顺序关闭中
-		}(closeSig)
+		}(closeSig[i], server)
 		log.Release("%s启动成功", server.GetName())
 	}
 
@@ -68,17 +77,14 @@ func RunMutli(sers ...IService) {
 	signal.Notify(chanSig, os.Interrupt, syscall.SIGTERM)
 	sig := <- chanSig
 	log.Release("关闭中（signal:%v)...", sig)
-	for _, server := range sers {
-
-		closeSig<-true
+	for i, server := range sers {
+		closeSig[i]<-true
 		<- closeEndSig
 		server.Close()
 		log.Release("%s 关闭成功", server.GetName())
 	}
 	wg.Wait()
 	log.Release("关闭成功")
-
-	log.Close()
 }
 
 //提供一个默认简单的pooller
