@@ -10,6 +10,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"sort"
+	"strings"
 )
 
 type IService interface {
@@ -37,6 +38,24 @@ func (ss sort_is) Less(i, j int) bool {
 	return ss[i].GetPriority() < ss[j].GetPriority()
 }
 
+func initLog() {
+	//初始化log的writer
+	if Etc_log_writer == nil {
+		if Etc_log_file != "" {
+			Etc_log_writer = log.CreateFileLog(Etc_log_file, Etc_log_size)
+		}
+	}
+
+	logger, err := log.New(Etc_log_writer, //日志输出定向到文件
+		strings.ToLower(Etc_log_rank),//日志等级
+		Etc_log_flag,
+		Etc_log_console)
+	if err != nil {
+		panic(err)
+	}
+	log.Export(logger)
+}
+
 func RunMutli(sers ...IService) {
 	defer func() {
 		err := recover()//捕捉异常错误
@@ -46,6 +65,10 @@ func RunMutli(sers ...IService) {
 		log.Close()
 	}()
 
+	//初始化日志
+	initLog()
+
+	//服务优先级初始化
 	sort.Sort(sort_is(sers))
 
 	log.Release("启动中...")
