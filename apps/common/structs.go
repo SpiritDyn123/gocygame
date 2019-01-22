@@ -1,27 +1,77 @@
 package common
 
-//json配置的log相关
-type Cfg_Json_Log struct {
-	Log_file_ string 		`json:"log_file"`
-	Log_lv_  string 		`json:"log_level"`
-	Log_size_  int64 		`json:"log_size"`
+import (
+	"bytes"
+	"encoding/binary"
+	"io"
+)
+
+//外网消息头部
+type ProtocolClientHead struct {
+	Protocol_id_ uint32
+	Uid_ uint64
+	Seq_ uint32
 }
 
-type Cfg_Json_SvrBase struct {
-	//基础配置
-	Svr_group_id_ int			`json:"group_id"`
-	Svr_id_  int				`json:"id"`
-	Svr_name_ string			`json:"name"`
+//内网消息头部，支持广播
+type ProtocolInnerHead struct {
+	Protocol_id_ uint32
+	Seq_ uint32
+	Uid_lst_ []uint64
+}
 
-	//网络相关
-	Svr_addr_  string			`json:"addr"`
-	Svr_ttl_   int				`json:"ttl"`
-	Svr_timeout_  int			`json:"timeout"`
-	Svr_max_conn_  int			`json:"max_conn"`
-	Svr_in_bytes_  int64		`json:"in_bytes"`
-	Svr_out_bytes_	int64		`json:"out_bytes"`
+func(head *ProtocolInnerHead) Read(buf io.Reader, order binary.ByteOrder) (err error) {
+	err = binary.Read(buf, order, &head.Protocol_id_)
+	if err != nil {
+		return
+	}
 
-	//其他
-	Svr_alarm_url_  string		`json:"alarm_url"`
+	err = binary.Read(buf, order,  &head.Seq_)
+	if err != nil {
+		return
+	}
 
+	var user_num uint32
+	err = binary.Read(buf, order, &user_num)
+	if err != nil {
+		return
+	}
+
+	if user_num > 0 {
+		head.Uid_lst_ = make([]uint64, user_num)
+		err = binary.Read(buf, order, head.Uid_lst_)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+func(head *ProtocolInnerHead) Write(order binary.ByteOrder) ([]byte, error) {
+	buf := bytes.NewBuffer(nil)
+	err := binary.Write(buf, order, head.Protocol_id_)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(buf, order, head.Seq_)
+	if err != nil {
+		return  nil, err
+	}
+
+	//修正一下数量，如果是0就代表广播
+	user_num := uint32(len(head.Uid_lst_))
+	err = binary.Write(buf, order, user_num)
+	if err != nil {
+		return  nil, err
+	}
+
+	if user_num > 0 {
+		err = binary.Write(buf, order, head.Uid_lst_)
+		if err != nil {
+			return  nil, err
+		}
+	}
+
+	return buf.Bytes(), nil
 }

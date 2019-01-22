@@ -2,11 +2,11 @@ package tcp
 
 import (
 	"crypto/tls"
-	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 	"net"
-	"time"
 	"sync"
+	"time"
 )
 
 type INetServer interface {

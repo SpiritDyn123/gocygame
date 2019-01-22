@@ -1,6 +1,8 @@
 package src
 
 import (
+	"github.com/SpiritDyn123/gocygame/apps/common/net"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/codec"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"fmt"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/etc"
@@ -9,11 +11,14 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
+	"github.com/name5566/leaf/log"
 )
 
 type GateSvrGlobal struct {
 	utils.Pooller
 	net_ser tcp.INetServer
+
+	wheel_timer_ timer.WheelTimer
 }
 
 func (svr *GateSvrGlobal) GetName() string {
@@ -27,43 +32,59 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	svr.ChanServer.Register(common.Chanrpc_key_tcp_recv, svr.onTcpRecv)
 	svr.ChanServer.Register(common.Chanrpc_key_tcp_close, svr.onTcpClose)
 
-	svr.GoServer = g.New(etc.Go_Server_Len)
+	svr.GoServer = g.New(common.Default_Go_Server_Len)
+
+	//定时器
+	svr.wheel_timer_ = timer.CreateWheelTimer()
 	svr.TimerServer = timer.NewDispatcher(10)
+	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
 
 	//启动socket
-	if etc.Gate_Config.TLS != nil {
-
-	} else {
-		svr.net_ser, err = tcp.CreateTcpServer("tcp", )
+	protocol := &codec.ProtoClientProtocol{
+		Endian_: common.Default_Net_Endian,
 	}
+
+	svr.net_ser, err = net.CreateTcpServer(&etc.Gate_Config.System_, etc.Gate_Config.Tls_, protocol, common.Default_Net_Head_Len,
+		common.Default_Net_Endian, common.Default_Send_Chan_Len, svr.ChanServer)
 	if err != nil {
 		return
+	}
+	if !svr.net_ser.Start() {
+		return fmt.Errorf("netserver start error")
 	}
 
 	return nil
 }
 
 func (svr *GateSvrGlobal) Close() {
-	panic("implement me")
+	svr.net_ser.Stop()
 }
 
 func (svr *GateSvrGlobal) Pool(cs chan bool) {
-	panic("implement me")
+	svr.Pooller.Pool(cs)
 }
 
 func (svr *GateSvrGlobal) GetPriority() int {
-	panic("implement me")
+	return 0
 }
 
+func (svr *GateSvrGlobal) onTimer() {
+	svr.wheel_timer_.Step()
+	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
+}
 
 func (svr *GateSvrGlobal) onTcpAccept(args []interface{}) {
-	panic("implement me")
+	session := args[0].(*tcp.Session)
+	log.Release("onTcpAccept session:%v", session)
 }
 
 func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
-	panic("implement me")
+	session := args[0].(*tcp.Session)
+	log.Release("onTcpRecv session:%v recv:%v", session, args[1:])
+	session.Send(args[1].([]interface{})...)
 }
 
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
-	panic("implement me")
+	session := args[0].(*tcp.Session)
+	log.Release("onTcpClose session:%v", session)
 }

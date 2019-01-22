@@ -1,18 +1,15 @@
 package etc
 
 import (
-	"github.com/SpiritDyn123/gocygame/apps/common"
-	"io/ioutil"
 	"encoding/json"
-	"encoding/binary"
+	"flag"
+	"github.com/SpiritDyn123/gocygame/apps/common"
+	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"io/ioutil"
 )
 
 var (
-	Chan_Server_Len = 10000
-	Go_Server_Len = 1000
-
-	Net_Endian = binary.BigEndian
-	Net_Head_Len = 4
+	Chan_Server_Len = 20000
 )
 
 type Cfg_Json_Gate struct {
@@ -21,17 +18,22 @@ type Cfg_Json_Gate struct {
 
 	Log_ common.Cfg_Json_Log `json:"log"`
 
-	TLS *struct {
-		Ws_ bool 				`json:"ws"`
-		Cert_file_ string		`json:"cert"`
-		Key_file_ string		`json:"key"`
-	} `json:"tls"`
+	Tls_ *common.Cfg_Json_TLS `json:"tls"`
 }
 
 var (
 	Gate_Config_File = "../etc/gatesvr.json"
 	Gate_Config Cfg_Json_Gate
 )
+
+var (
+	Cmd_log_console bool
+)
+
+func initCmd() {
+	flag.BoolVar(&Cmd_log_console, "log_console", false, "log console")
+	flag.Parse()
+}
 
 func init() {
 	fdata, err := ioutil.ReadFile(Gate_Config_File)
@@ -43,4 +45,13 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	//初始化命令行参数
+	initCmd()
+
+	//设置log
+	utils.Etc_log_console = Cmd_log_console
+	utils.Etc_log_file = Gate_Config.Log_.Log_file_
+	utils.Etc_log_rank = Gate_Config.Log_.Log_lv_
+	utils.Etc_log_size = Gate_Config.Log_.Log_size_
 }

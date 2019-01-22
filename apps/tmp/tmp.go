@@ -1,32 +1,34 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
+	"encoding/binary"
 	"fmt"
-	"github.com/SpiritDyn123/gocygame/apps/tmp/pkg"
+	"github.com/SpiritDyn123/gocygame/apps/common"
 )
 
-type A struct {
-	A int `json:"a"`
-	B string `json:"b"`
-}
 
-type F struct {
-	pkg.A
-	F bool `json:"f"`
-}
 
 func main() {
-	json_data := []byte(`
-	{
-		"a":111,
-		"b": "sdo",
-		"f":true
+	h := &common.ProtocolInnerHead{
+		Protocol_id_: 1,
+		Seq_: 2,
+		Uid_lst_: []uint64{2, 3333212},
 	}
-	`)
 
-	obj := &F{}
+	data, err := h.Write(binary.LittleEndian)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(data)
 
-	json.Unmarshal(json_data, obj)
-	fmt.Println(obj)
+	data = append(data, 1)
+	buf := bytes.NewBuffer(data)
+	h2 := &common.ProtocolInnerHead{}
+	err = h2.Read(buf, binary.LittleEndian)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(h2, buf.Len())
+	fmt.Println("end")
 }

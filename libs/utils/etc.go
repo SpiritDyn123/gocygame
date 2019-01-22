@@ -11,7 +11,7 @@ var (
 	Etc_log_rank string = "debug"  //日志等级
 	Etc_log_size int64 = 1024 * 1024 * 512 //日志大小 默认512M
 	Etc_log_flag = syslog.LstdFlags | syslog.Lshortfile
-	Etc_log_console = false
+	Etc_log_console = true
 
 	Etc_log_writer log.LogWriter //这个可以设置
 )
