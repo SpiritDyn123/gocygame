@@ -20,6 +20,8 @@ message PbSvrBaseInfo{
     int32       svr_id = 2;
     emSvrType   svr_type = 3;
     string      addr = 4;
+    int32       ttl = 5;
+    int32       timeout = 6;
 };
 
 message PbSvrRegisterClusterReqMsg {
@@ -29,6 +31,7 @@ message PbSvrRegisterClusterReqMsg {
 
 message PbSvrRegisterClusterResMsg {
    Ret ret = 1;
+   repeated PbSvrBaseInfo svrs = 2;
 };
 
 enum emClusterOprType {

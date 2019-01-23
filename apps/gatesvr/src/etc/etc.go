@@ -19,6 +19,9 @@ type Cfg_Json_Gate struct {
 	Log_ common.Cfg_Json_Log `json:"log"`
 
 	Tls_ *common.Cfg_Json_TLS `json:"tls"`
+
+	//集群管理
+	Cluster_ common.Cfg_Json_Svr_Item `json:"cluster"`
 }
 
 var (

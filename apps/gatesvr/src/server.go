@@ -3,6 +3,9 @@ package src
 import (
 	"github.com/SpiritDyn123/gocygame/apps/common/net"
 	"github.com/SpiritDyn123/gocygame/apps/common/net/codec"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
+	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/cluster"
+	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/global"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"fmt"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/etc"
@@ -19,6 +22,10 @@ type GateSvrGlobal struct {
 	net_ser tcp.INetServer
 
 	wheel_timer_ timer.WheelTimer
+
+	msg_dispatcher_ tools.IMsgDispatcher
+
+	cluster_mgr_ global.IClusterMgr
 }
 
 func (svr *GateSvrGlobal) GetName() string {
@@ -27,6 +34,8 @@ func (svr *GateSvrGlobal) GetName() string {
 }
 
 func (svr *GateSvrGlobal) Start() (err error) {
+	global.GateSvrGlobal = svr
+
 	svr.ChanServer = chanrpc.NewServer(etc.Chan_Server_Len)
 	svr.ChanServer.Register(common.Chanrpc_key_tcp_accept, svr.onTcpAccept)
 	svr.ChanServer.Register(common.Chanrpc_key_tcp_recv, svr.onTcpRecv)
@@ -38,6 +47,15 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	svr.wheel_timer_ = timer.CreateWheelTimer()
 	svr.TimerServer = timer.NewDispatcher(10)
 	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
+
+	//消息管理器
+	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
+
+	//集群管理器
+	svr.cluster_mgr_ = cluster.ClusterMgr
+	if err = svr.cluster_mgr_.Start(); err != nil {
+		return
+	}
 
 	//启动socket
 	protocol := &codec.ProtoClientProtocol{
@@ -66,6 +84,14 @@ func (svr *GateSvrGlobal) Pool(cs chan bool) {
 
 func (svr *GateSvrGlobal) GetPriority() int {
 	return 0
+}
+
+func (svr *GateSvrGlobal) GetWheelTimer() timer.WheelTimer {
+	return svr.wheel_timer_
+}
+
+func (svr *GateSvrGlobal) GetMsgDispatcher() tools.IMsgDispatcher {
+	return svr.msg_dispatcher_
 }
 
 func (svr *GateSvrGlobal) onTimer() {

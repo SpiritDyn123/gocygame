@@ -18,6 +18,7 @@ type ClientSession struct {
 	wtId_ uint64	//心跳定时器 id
 	closed_ bool
 
+	svr_info_ *ProtoMsg.PbSvrBaseInfo
 }
 
 func CreateSession(session *tcp.Session) (cs *ClientSession) {
@@ -57,6 +58,8 @@ func (csession *ClientSession)OnRecv(data interface{})  {
 	msgs := data.([]interface{})
 	msg_head := msgs[0].(*common.ProtocolInnerHead)
 	if msg_head.GetMsgId() == uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT) {
+		//心跳回复
+		csession.Send(msg_head)
 		return
 	}
 
@@ -74,6 +77,7 @@ func (csession *ClientSession)OnClose()  {
 	csession.closed_ = true
 	log.Debug("session:%+v on closed", csession)
 	global.ClusterSvrGlobal.GetWheelTimer().DelTimer(csession.wtId_)
+	global.ClusterSvrGlobal.GetSvrsMgr().RemoveSvr(csession, csession.svr_info_)
 	csession.Session = nil
 }
 
@@ -86,6 +90,16 @@ func (csession *ClientSession)OnHeartBeat(args ...interface{})  {
 	}
 }
 
+func (csession *ClientSession)SetSvrInfo(svr_info *ProtoMsg.PbSvrBaseInfo)  {
+	csession.svr_info_ = svr_info
+}
+
+
 func (csession *ClientSession) String() string {
-	return fmt.Sprintf("last_check_time_:%v", csession.last_check_time_.Format("2006-01-02 15:04:05"))
+	svr_info := "nil"
+	if csession.svr_info_ != nil {
+		svr_info = fmt.Sprintf("%v", csession.svr_info_)
+	}
+
+	return fmt.Sprintf("{svr_info:%s,last_check_time_:%v}", svr_info, csession.last_check_time_.Format("2006-01-02 15:04:05"))
 }

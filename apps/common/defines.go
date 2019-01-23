@@ -27,8 +27,12 @@ var (
 	Default_Chan_Server_Len = 10000
 	Default_Go_Server_Len = 1000
 
-	Default_Net_Endian = binary.BigEndian
+	Default_Net_Endian binary.ByteOrder = binary.BigEndian
 	Default_Net_Head_Len = 4
 	Default_Send_Chan_Len = 100
+	Default_Svr_Send_Chan_Len = 100
 	Default_Svr_Logic_time = time.Millisecond * 50
+
+	Default_Svr_TTL = time.Second * 10
+	Default_Svr_Timeout = time.Second * 30
 )

@@ -18,7 +18,7 @@ func main() {
 		head := &common.ProtocolClientHead{
 			Uid_: 100,
 			Seq_: 100,
-			Protocol_id_: 1001,
+			Msg_id_: 1001,
 		}
 		args[0].(*tcp.Session).Send(head, []byte{1, 2, 55})
 	})

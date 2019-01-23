@@ -32,5 +32,14 @@ func(mgr *SessionMgr) OnClose(tcp_session *tcp.Session) {
 		return
 	}
 
+	delete(mgr.m_sessions_, tcp_session.Id())
 	logic_session.OnClose()
+}
+
+func(mgr *SessionMgr) GetSessionById(id uint64) *ClientSession{
+	logic_session, ok := mgr.m_sessions_[id]
+	if !ok {
+		return logic_session
+	}
+	return nil
 }

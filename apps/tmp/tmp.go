@@ -27,8 +27,11 @@ func fun(obj IA) {
 }
 
 func main() {
-	var obj IA
-	obj = &A{}
-	fun(obj)
+	m_data := make(map[int]map[int]int)
+	m_data[1] = make(map[int]int)
+	a := m_data[1]
+	a[1] = 1
+	fmt.Println(m_data)
+
 	fmt.Println("end")
 }

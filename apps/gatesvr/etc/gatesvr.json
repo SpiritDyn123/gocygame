@@ -14,5 +14,11 @@
     "log_file": "../log/gatesvr.log",
     "log_level": "debug",
     "log_size": 1024000000
+  },
+  "cluster": {
+    "id":1,
+    "addr": "127.0.0.1:17000",
+    "timeout": 30,
+    "ttl": 10
   }
 }

@@ -13,6 +13,13 @@ type Cfg_Json_TLS struct {
 	Key_file_ string		`json:"key_file"`
 }
 
+type Cfg_Json_Svr_Item struct {
+	Id_  int     `json:"id"`
+	Addr_ string `json:"addr"`
+	Timeout_ int `json:"timeout"`
+	Ttl_      int    `json:"ttl"`
+}
+
 type Cfg_Json_SvrBase struct {
 	//基础配置
 	Svr_group_id_ int			`json:"group_id"`
