@@ -1,9 +1,9 @@
 {
   "system": {
     "group_id": 1,
-    "id": 10000,
-    "name": "gatesvr",
-    "addr": "0.0.0.0:11000",
+    "id": 70000,
+    "name": "clustersvr",
+    "addr": "0.0.0.0:17000",
     "ttl": 20,
     "timeout": 60,
     "max_conn": 20000,
@@ -11,7 +11,7 @@
     "out_bytes": 65535
   },
   "log":  {
-    "log_file": "../log/gatesvr.log",
+    "log_file": "../log/clustersvr.log",
     "log_level": "debug",
     "log_size": 1024000000
   }

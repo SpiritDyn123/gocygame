@@ -6,22 +6,34 @@ import (
 	"io"
 )
 
+type IMsgHead interface {
+	GetMsgId() uint32
+}
+
 //外网消息头部
 type ProtocolClientHead struct {
-	Protocol_id_ uint32
+	Msg_id_ uint32
 	Uid_ uint64
 	Seq_ uint32
 }
 
+func(h *ProtocolClientHead) GetMsgId() uint32 {
+	return h.Msg_id_
+}
+
 //内网消息头部，支持广播
 type ProtocolInnerHead struct {
-	Protocol_id_ uint32
+	Msg_id_ uint32
 	Seq_ uint32
 	Uid_lst_ []uint64
 }
 
+func(h *ProtocolInnerHead) GetMsgId() uint32 {
+	return h.Msg_id_
+}
+
 func(head *ProtocolInnerHead) Read(buf io.Reader, order binary.ByteOrder) (err error) {
-	err = binary.Read(buf, order, &head.Protocol_id_)
+	err = binary.Read(buf, order, &head.Msg_id_)
 	if err != nil {
 		return
 	}
@@ -49,7 +61,7 @@ func(head *ProtocolInnerHead) Read(buf io.Reader, order binary.ByteOrder) (err e
 
 func(head *ProtocolInnerHead) Write(order binary.ByteOrder) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
-	err := binary.Write(buf, order, head.Protocol_id_)
+	err := binary.Write(buf, order, head.Msg_id_)
 	if err != nil {
 		return nil, err
 	}

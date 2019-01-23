@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "base.proto";
+
+package ProtoMsg;
+
+
+enum emSvrType {
+    ST_Invalid = 0;
+	Gate = 1;
+	Gs = 2;
+	World =3;
+	Login = 4;
+	Chat = 5;
+	DB = 6;
+	Cluster = 7;
+};
+
+message PbSvrBaseInfo{
+    int32       group_id = 1;
+    int32       svr_id = 2;
+    emSvrType   svr_type = 3;
+    string      addr = 4;
+};
+
+message PbSvrRegisterClusterReqMsg {
+   PbSvrBaseInfo        svr_info = 1;
+   repeated emSvrType   svr_types = 2;
+};
+
+message PbSvrRegisterClusterResMsg {
+   Ret ret = 1;
+};
+
+enum emClusterOprType {
+    COT_Invalid = 0;
+    Add = 1;
+    Del = 2;
+};
+
+message PbSvrBroadClusterMsg {
+    emClusterOprType opr_type = 1;
+    PbSvrBaseInfo svr_info = 2;
+};

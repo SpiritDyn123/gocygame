@@ -5,15 +5,6 @@ import (
 	"time"
 )
 
-const (
-	Svr_type_gate = 1 + iota  //网关服务器
-	Svr_type_gs				//逻辑服务器
-	Svr_type_world  			//大厅服务器
-	Svr_type_login  			//登陆服务器
-	Svr_type_chat   			//聊天服务器
-	Svr_type_db     			//DBproxy服务器
-	Svr_type_manager          //管理服务器
-)
 
 const (
 	Chanrpc_key_tcp_accept 	= "Chanrpc_key_tcp_accept"
@@ -23,6 +14,12 @@ const (
 	Chanrpc_key_tcp_inner_accept 	= "Chanrpc_key_tcp_inner_accept"
 	Chanrpc_key_tcp_inner_recv		= "Chanrpc_key_tcp_inner_recv"
 	Chanrpc_key_tcp_inner_close		= "Chanrpc_key_tcp_inner_close"
+)
+
+const(
+	Server_state_begin = 1 + iota  	//启动中
+	Server_state_start				//启动成功
+	Server_state_end					//关闭
 )
 
 //配置一些svr的公共默认值

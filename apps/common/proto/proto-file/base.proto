@@ -1,0 +1,21 @@
+syntax = "proto3";
+package ProtoMsg;
+
+enum emMsgId {
+    MSG_INVALID = 0;
+    MSG_HEART_BEAT = 1;
+
+    CLI_MSG_BEGIN       = 100000;
+    CLI_MSG_LOGIN       = 100001;
+    CLI_MSG_END         = 199999;
+
+    SVR_MSG_BEGIN               = 200000;
+    SVR_MSG_REGISTER_CLUSTER    = 200001;
+    SVR_MSG_BROAD_CLUSTER       = 200002;
+    SVR_MSG_END                 = 299999;
+};
+
+message Ret {
+    int32  err_code = 1;
+    string err_msg = 2;
+};

@@ -1,34 +1,34 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
-	"github.com/SpiritDyn123/gocygame/apps/common"
+	"reflect"
 )
 
+type IA interface {
+	Func()
+}
 
+type A struct {
+
+}
+func(obj *A) Func() {
+
+}
+
+
+func fun(obj IA) {
+	_, ok1 := obj.(IA)
+	_, ok2 := obj.(*A)
+	fmt.Println(reflect.TypeOf(obj).String(), ok1, ok2)
+
+	rtype := reflect.TypeOf(obj)
+	fmt.Println(reflect.TypeOf(reflect.New(rtype).Elem().Interface()).String())
+}
 
 func main() {
-	h := &common.ProtocolInnerHead{
-		Protocol_id_: 1,
-		Seq_: 2,
-		Uid_lst_: []uint64{2, 3333212},
-	}
-
-	data, err := h.Write(binary.LittleEndian)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(data)
-
-	data = append(data, 1)
-	buf := bytes.NewBuffer(data)
-	h2 := &common.ProtocolInnerHead{}
-	err = h2.Read(buf, binary.LittleEndian)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(h2, buf.Len())
+	var obj IA
+	obj = &A{}
+	fun(obj)
 	fmt.Println("end")
 }

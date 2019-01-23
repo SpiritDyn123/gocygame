@@ -110,6 +110,14 @@ func RunMutli(sers ...IService) {
 	log.Release("关闭成功")
 }
 
+type IPooller interface {
+	Pool(cs chan bool)
+
+	GetGoServer() *g.Go
+	GetTimer() *timer.Dispatcher
+	GetChanServer() *chanrpc.Server
+}
+
 //提供一个默认简单的pooller
 type Pooller struct {
 	ChanServer *chanrpc.Server //主循环管道
@@ -134,3 +142,14 @@ func (pl *Pooller) Pool(cs chan bool) {
 	}
 }
 
+func (pl *Pooller) GetGoServer() *g.Go {
+	return pl.GoServer
+}
+
+func (pl *Pooller) GetTimer() *timer.Dispatcher {
+	return pl.TimerServer
+}
+
+func (pl *Pooller) GetChanServer() *chanrpc.Server {
+	return pl.ChanServer
+}

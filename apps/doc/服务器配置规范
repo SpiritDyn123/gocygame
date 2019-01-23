@@ -1,0 +1,21 @@
+1、服务器 id 按照类型需要不同范围，group_id 暂时必须一样(一开始只支持单集群， 默认为1)（服务器id范围首位就是svr_type枚举值）
+    1> Svr_type_gate 10000-19999
+    2> Svr_type_gs 20000-29999
+    3> Svr_type_world 30000-39999 //
+    4> Svr_type_login 40000-49999 //
+    5> Svr_type_chat 50000-59999 //
+    6> Svr_type_db 60000-69999 //
+    7> Svr_type_cluster 70000-79999 //
+
+2、服务器端口
+    1> Svr_type_gate 11000-11999
+    2> Svr_type_gs 12000-12999
+    3> Svr_type_world 13000-13999 //
+    4> Svr_type_login 14000-14999 //
+    5> Svr_type_chat 15000-15999 //
+    6> Svr_type_db 16000-16999   //
+    7> Svr_type_cluster 17000-17999 //
+
+3、消息id范围 使用六位
+    1> client_msg 100000-199999
+    2> svr_msg   200000-299999
