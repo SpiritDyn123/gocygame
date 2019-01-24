@@ -21,7 +21,7 @@ func init() {
 type svrInfo  struct {
 	svrs_info_ map[int32]*ProtoMsg.PbSvrBaseInfo
 	svr_type_ ProtoMsg.EmSvrType
-	publish_svrs_ []*session.ClientSession
+	publish_svrs_ []*session.ClusterClientSession
 }
 
 
@@ -69,13 +69,13 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 		group_info = mgr.m_svrs_info_[reg_msg.SvrInfo.GroupId]
 	}
 
-	cli_session := sink.(*session.ClientSession)
+	cli_session := sink.(*session.ClusterClientSession)
 	type_info, ok := group_info[reg_msg.SvrInfo.SvrType]
 	if !ok {
 		group_info[reg_msg.SvrInfo.SvrType] = &svrInfo{
 			svr_type_: reg_msg.SvrInfo.SvrType,
 			svrs_info_: make(map[int32]*ProtoMsg.PbSvrBaseInfo),
-			publish_svrs_ : []*session.ClientSession{},
+			publish_svrs_ : []*session.ClusterClientSession{},
 		}
 		type_info = group_info[reg_msg.SvrInfo.SvrType]
 	}
@@ -108,10 +108,10 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 	for _, publish_srv_type := range reg_msg.SvrTypes {
 		p_type_info, ok := group_info[publish_srv_type]
 		if !ok {
-			group_info[reg_msg.SvrInfo.SvrType] = &svrInfo{
-				svr_type_: reg_msg.SvrInfo.SvrType,
+			group_info[publish_srv_type] = &svrInfo{
+				svr_type_: publish_srv_type,
 				svrs_info_: make(map[int32]*ProtoMsg.PbSvrBaseInfo),
-				publish_svrs_ : []*session.ClientSession{ cli_session },
+				publish_svrs_ : []*session.ClusterClientSession{ cli_session },
 			}
 		} else {
 			p_type_info.publish_svrs_ = append(p_type_info.publish_svrs_, cli_session)
@@ -124,7 +124,7 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 	cli_session.SetSvrInfo(reg_msg.SvrInfo)
 	cli_session.Send(head, resp_msg)
 
-	log.Release("svrsMgr onrecv_register session:%v", cli_session)
+	log.Release("svrsMg::onrecv_register session:%v", cli_session)
 }
 
 func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseInfo) {
@@ -153,7 +153,7 @@ func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseI
 
 			for i, s := range type_info.publish_svrs_ {
 				if session ==  s {
-					type_info.publish_svrs_ = append(type_info.publish_svrs_, type_info.publish_svrs_[i+i:]...)
+					type_info.publish_svrs_ = append(type_info.publish_svrs_, type_info.publish_svrs_[i+1:]...)
 					break
 				}
 			}
@@ -187,5 +187,5 @@ func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseI
 		}
 	}
 
-	log.Release("session:%v RemoveSvr", session)
+	log.Release("svrsMgr::RemoveSvr session:%v", session)
 }

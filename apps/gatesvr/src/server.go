@@ -14,7 +14,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
-	"github.com/name5566/leaf/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
 type GateSvrGlobal struct {

@@ -10,7 +10,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/global"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/golang/protobuf/proto"
-	"github.com/name5566/leaf/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
 )
 
@@ -34,8 +34,8 @@ func(mgr *clusterMgr) Start() (err error) {
 	//连接集群管理器
 	chan_server := global.GateSvrGlobal.GetChanServer()
 	chan_server.Register(common.Chanrpc_key_tcp_inner_accept, mgr.onTcpConnect)
-	chan_server.Register(common.Chanrpc_key_tcp_inner_close, mgr.onTcpRecv)
-	chan_server.Register(common.Chanrpc_key_tcp_inner_recv, mgr.onTcpClose)
+	chan_server.Register(common.Chanrpc_key_tcp_inner_close, mgr.onTcpClose)
+	chan_server.Register(common.Chanrpc_key_tcp_inner_recv, mgr.onTcpRecv)
 
 	msg_parser := tcp.NewMsgParser()
 	msg_parser.SetIncludeHead(true)

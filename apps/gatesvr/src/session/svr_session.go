@@ -7,9 +7,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
-	"github.com/SpiritDyn123/gocygame/libs/timer"
-	"github.com/SpiritDyn123/gocygame/libs/log"
-	"time"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 )
 
 
@@ -17,29 +15,18 @@ var Publish_Servers = []ProtoMsg.EmSvrType{
 	ProtoMsg.EmSvrType_Gs,
 }
 
-type SvrSession struct {
-	*tcp.Session
-
-	svr_info_ *ProtoMsg.PbSvrBaseInfo
-
-	last_check_time_ time.Time
-
-	wtId_ uint64
+func CreateSvrSession(tcp_session *tcp.Session, config_info *ProtoMsg.PbSvrBaseInfo) *GateSvrSession {
+	return &GateSvrSession{
+		SvrSession: session.CreateSvrSession(tcp_session, global.GateSvrGlobal.GetWheelTimer(), config_info),
+	}
 }
 
-func (ssession *SvrSession)OnCreate()  {
-	tmp_id, err := global.GateSvrGlobal.GetWheelTimer().SetTimer(
-		uint32(ssession.svr_info_.Ttl) * uint32(time.Second / common.Default_Svr_Logic_time),
-		true, timer.TimerHandlerFunc(ssession.OnHeartBeat), 0)
+type GateSvrSession struct {
+	*session.SvrSession
+}
 
-	ssession.last_check_time_ = time.Now()
-
-	if err != nil {
-		ssession.Close()
-		log.Error("SvrSession register heatbeat timer err:%v", err)
-		return
-	}
-	ssession.wtId_ = tmp_id
+func (ssession *GateSvrSession)OnCreate()  {
+	ssession.SvrSession.OnCreate()
 
 	//发送注册和订阅消息
 	head := &common.ProtocolInnerHead{
@@ -52,8 +39,8 @@ func (ssession *SvrSession)OnCreate()  {
 			SvrId: int32(etc.Gate_Config.System_.Svr_group_id_),
 			SvrType: ProtoMsg.EmSvrType_Gate,
 			Addr: etc.Gate_Config.System_.Svr_addr_,
-			Ttl: int32(ssession.svr_info_.Ttl),
-			Timeout: int32(ssession.svr_info_.Timeout),
+			Ttl: int32(etc.Gate_Config.System_.Svr_ttl_), //用系统监听的ttl
+			Timeout: int32(etc.Gate_Config.System_.Svr_timeout_),
 		},
 		SvrTypes: Publish_Servers,
 	}
@@ -61,24 +48,15 @@ func (ssession *SvrSession)OnCreate()  {
 	ssession.Send(head, reg_msg)
 }
 
-func (ssession *SvrSession) Send(msg ...interface{}) error {
-	if ssession.Session == nil {
-		return fmt.Errorf("send in closed client session")
-	}
-	return ssession.Session.Send(msg...)
-}
-
-
-func (ssession *SvrSession)OnRecv(data interface{})  {
-	//处理内容
-	now := time.Now()
-	ssession.last_check_time_ = now
-	msgs := data.([]interface{})
-	msg_head := msgs[0].(*common.ProtocolInnerHead)
-	if msg_head.GetMsgId() == uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT) {
+func (ssession *GateSvrSession) OnRecv(data interface{})  {
+	_, is_hb := ssession.SvrSession.OnRecv(data)
+	if is_hb {
 		return
 	}
 
+	//处理内容
+	msgs := data.([]interface{})
+	msg_head := msgs[0].(*common.ProtocolInnerHead)
 	var msg_body []byte
 	if len(msgs) > 0 {
 		msg_body = msgs[1].([]byte)
@@ -88,35 +66,8 @@ func (ssession *SvrSession)OnRecv(data interface{})  {
 	global.GateSvrGlobal.GetMsgDispatcher().Dispatch(ssession, msg_head, msg_body)
 }
 
-//关闭连接
-func (ssession *SvrSession)OnClose()  {
-	log.Debug("session:%+v on closed", ssession)
-	global.GateSvrGlobal.GetWheelTimer().DelTimer(ssession.wtId_)
-	ssession.Session = nil
+func (ssession *GateSvrSession) String() string {
+	return fmt.Sprintf("GateSvrSession:{id:%d, info:{%+v}, last_check_time_:%v}", ssession.Id(),
+		ssession.Config_info_, ssession.Last_check_time_.Format("2006-01-02 15:04:05"))
 }
 
-//心跳检测
-func (ssession *SvrSession)OnHeartBeat(args ...interface{})  {
-	now := time.Now()
-	if now.Sub(ssession.last_check_time_) > time.Duration(ssession.svr_info_.Timeout) * time.Second {
-		log.Release("ClientSession:%v onHBTimer timeout", ssession)
-		ssession.Close()
-	}
-
-	//发送心跳
-	ssession.Send(&common.ProtocolInnerHead{
-		Msg_id_: uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT),
-	})
-}
-
-func (ssession *SvrSession) String() string {
-	return fmt.Sprintf("{svr_info:%s, last_check_time_:%v}",
-		fmt.Sprintf("%v", ssession.svr_info_), ssession.last_check_time_.Format("2006-01-02 15:04:05"))
-}
-
-func CreateSvrSession(tcp_session *tcp.Session, svr_info *ProtoMsg.PbSvrBaseInfo) *SvrSession {
-	return &SvrSession{
-		Session: tcp_session,
-		svr_info_: svr_info,
-	}
-}
