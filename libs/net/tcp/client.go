@@ -19,7 +19,7 @@ type Client struct {
 	DialTimeOut time.Duration
 	ConnectNum int
 	Protocol
-	MsgParser *MsgParser
+	MsgParser IMsgParser
 	SendChanSize int
 
 	ChanServer *chanrpc.Server

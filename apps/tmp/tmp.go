@@ -2,36 +2,36 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 )
 
+
 type IA interface {
-	Func()
+	Fun1()
 }
 
-type A struct {
-
-}
-func(obj *A) Func() {
-
+type IA2 interface {
+	Fun2()
 }
 
+type Obj struct {
 
-func fun(obj IA) {
-	_, ok1 := obj.(IA)
-	_, ok2 := obj.(*A)
-	fmt.Println(reflect.TypeOf(obj).String(), ok1, ok2)
+}
 
-	rtype := reflect.TypeOf(obj)
-	fmt.Println(reflect.TypeOf(reflect.New(rtype).Elem().Interface()).String())
+
+func (o *Obj )Fun1() {
+
+}
+
+func (o *Obj )Fun2() {
+
 }
 
 func main() {
-	m_data := make(map[int]map[int]int)
-	m_data[1] = make(map[int]int)
-	a := m_data[1]
-	a[1] = 1
-	fmt.Println(m_data)
 
+	var o IA = &Obj{}
+
+	_, ok := o.(IA2)
+
+	fmt.Println(ok)
 	fmt.Println("end")
 }

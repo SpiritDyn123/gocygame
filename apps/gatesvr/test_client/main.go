@@ -34,7 +34,7 @@ func main() {
 	msg_parser := tcp.NewMsgParser()
 	msg_parser.SetByteOrder(false)
 	msg_parser.SetIncludeHead(true)
-	msg_parser.SetMsgLen(4, 111111, 11111)
+	msg_parser.SetMsgLen(4, common.Default_Svr_Recv_len, common.Default_Svr_Send_len)
 	cli := &tcp.Client{
 		Network:"tcp",
 		Addr: "127.0.0.1:11000",

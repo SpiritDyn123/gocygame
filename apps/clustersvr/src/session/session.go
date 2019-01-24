@@ -2,11 +2,11 @@ package session
 
 import (
 	"fmt"
-	"github.com/SpiritDyn123/gocygame/apps/common"
-	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/apps/clustersvr/src/global"
-	"github.com/SpiritDyn123/gocygame/apps/common/proto"
+	common_global "github.com/SpiritDyn123/gocygame/apps/common/global"
 	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
+	"github.com/SpiritDyn123/gocygame/apps/common/proto"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 )
 
 type ClusterClientSession struct {
@@ -15,30 +15,11 @@ type ClusterClientSession struct {
 	svr_info_ *ProtoMsg.PbSvrBaseInfo
 }
 
-func CreateSession(tcp_session *tcp.Session, config_info *ProtoMsg.PbSvrBaseInfo) (cs *ClusterClientSession) {
+func CreateSession(tcp_session *tcp.Session, svr_global common_global.IServerGlobal, config_info *ProtoMsg.PbSvrBaseInfo) (cs common_global.ILogicSession) {
 	cs = &ClusterClientSession{
-		ClientSession: session.CreateClientSession(tcp_session, global.ClusterSvrGlobal.GetWheelTimer(), config_info),
+		ClientSession: session.CreateClientSession(tcp_session, svr_global, config_info).(*session.ClientSession),
 	}
 	return
-}
-
-func (csession *ClusterClientSession)OnRecv(data interface{})  {
-	_, is_hb := csession.ClientSession.OnRecv(data)
-	if is_hb {
-		return
-	}
-
-	//处理内容
-	msgs := data.([]interface{})
-	msg_head := msgs[0].(*common.ProtocolInnerHead)
-
-	var msg_body []byte
-	if len(msgs) > 0 {
-		msg_body = msgs[1].([]byte)
-	}
-
-	//派发消息
-	global.ClusterSvrGlobal.GetMsgDispatcher().Dispatch(csession, msg_head, msg_body)
 }
 
 //关闭连接

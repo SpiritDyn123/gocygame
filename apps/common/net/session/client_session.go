@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/SpiritDyn123/gocygame/apps/common/global"
 	"time"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"fmt"
@@ -11,11 +12,11 @@ import (
 
 )
 
-func CreateClientSession(tcp_session *tcp.Session, wheel_timer timer.WheelTimer, config_info *ProtoMsg.PbSvrBaseInfo) (cs *ClientSession) {
+func CreateClientSession(tcp_session *tcp.Session, svr_global global.IServerGlobal, config_info *ProtoMsg.PbSvrBaseInfo) (cs global.ILogicSession) {
 	cs = &ClientSession{
 		BaseSession: BaseSession{
 			Session: tcp_session,
-			wheel_timer_: wheel_timer,
+			Svr_global_: svr_global,
 			Config_info_: config_info,
 		},
 	}
@@ -29,7 +30,7 @@ type ClientSession struct {
 func (csession *ClientSession)OnCreate()  {
 	csession.Last_check_time_ = time.Now()
 
-	tmp_id, err := csession.wheel_timer_.SetTimer(
+	tmp_id, err := csession.Svr_global_.GetWheelTimer().SetTimer(
 		uint32(csession.Config_info_.Ttl) * uint32(time.Second / common.Default_Svr_Logic_time),
 		true, timer.TimerHandlerFunc(csession.OnHeartBeat), 0)
 	if err != nil {
@@ -53,13 +54,22 @@ func (csession *ClientSession)OnRecv(data interface{}) (now time.Time, is_hb boo
 	now = time.Now()
 	csession.Last_check_time_ = now
 	msgs := data.([]interface{})
-	msg_head := msgs[0].(*common.ProtocolInnerHead)
+	msg_head := msgs[0].(common.IMsgHead)
 	if msg_head.GetMsgId() == uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT) {
 		is_hb = true
 		//心跳回复
 		csession.Send(msg_head)
 		return
 	}
+
+	//处理内容
+	var msg_body []byte
+	if len(msgs) > 0 {
+		msg_body = msgs[1].([]byte)
+	}
+
+	//派发消息
+	csession.Svr_global_.GetMsgDispatcher().Dispatch(csession, msg_head, msg_body)
 
 	return
 }
@@ -68,7 +78,7 @@ func (csession *ClientSession)OnRecv(data interface{}) (now time.Time, is_hb boo
 func (csession *ClientSession) OnClose()  {
 	csession.closed_ = true
 	//log.Debug("session:%+v on closed", csession)
-	csession.wheel_timer_.DelTimer(csession.wtId_)
+	csession.Svr_global_.GetWheelTimer().DelTimer(csession.wtId_)
 	csession.Session = nil
 }
 

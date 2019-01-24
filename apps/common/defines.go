@@ -35,4 +35,7 @@ var (
 
 	Default_Svr_TTL = time.Second * 10
 	Default_Svr_Timeout = time.Second * 30
+	Default_Svr_Recv_len = uint32(65535)
+	Default_Svr_Send_len = uint32(65535)
+
 )

@@ -8,6 +8,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/golang/protobuf/proto"
+	common_session"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 )
 
 var SvrsMgr global.ISvrsMgr
@@ -69,7 +70,7 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 		group_info = mgr.m_svrs_info_[reg_msg.SvrInfo.GroupId]
 	}
 
-	cli_session := sink.(*session.ClusterClientSession)
+	cli_session := session.GSessionMgr.GetSessionById(sink.(*common_session.ClientSession).Id())
 	type_info, ok := group_info[reg_msg.SvrInfo.SvrType]
 	if !ok {
 		group_info[reg_msg.SvrInfo.SvrType] = &svrInfo{
@@ -127,7 +128,7 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 	log.Release("svrsMg::onrecv_register session:%v", cli_session)
 }
 
-func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseInfo) {
+func (mgr *svrsMgr) RemoveSvr(sink interface{}, svr_info *ProtoMsg.PbSvrBaseInfo) {
 	if svr_info == nil {
 		return
 	}
@@ -138,6 +139,7 @@ func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseI
 		return
 	}
 
+	//
 	//取消订阅
 	if len(publish_info) > 0 {
 		for _, publish_type := range publish_info {
@@ -152,7 +154,7 @@ func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseI
 			}
 
 			for i, s := range type_info.publish_svrs_ {
-				if session ==  s {
+				if sink ==  s {
 					type_info.publish_svrs_ = append(type_info.publish_svrs_, type_info.publish_svrs_[i+1:]...)
 					break
 				}
@@ -187,5 +189,5 @@ func (mgr *svrsMgr) RemoveSvr(session interface{}, svr_info *ProtoMsg.PbSvrBaseI
 		}
 	}
 
-	log.Release("svrsMgr::RemoveSvr session:%v", session)
+	log.Release("svrsMgr::RemoveSvr session:%v", sink)
 }

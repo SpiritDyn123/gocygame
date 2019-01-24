@@ -56,7 +56,7 @@ func (svr *ClusterSvrGlobal) Start() (err error) {
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
 	//session管理器
-	svr.session_mgr_ = &session.SessionMgr{}
+	svr.session_mgr_ = session.GSessionMgr
 
 	//服务管理器
 	svr.svrs_mgr_ = svrs_mgr.SvrsMgr
