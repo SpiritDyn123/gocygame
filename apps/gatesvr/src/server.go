@@ -82,6 +82,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 			Svr_global_: svr,
 			M_create_session_cb_: map[ProtoMsg.EmSvrType]net.CreateSessionCB{
 				ProtoMsg.EmSvrType_Gs: svr.createInnerSvrSession,
+				ProtoMsg.EmSvrType_Login: svr.createInnerSvrSession,
 			},
 		},
 		Cluster_svr_info_: &etc.Gate_Config.Cluster_,
@@ -132,7 +133,10 @@ func (svr *GateSvrGlobal) GetMsgDispatcher() tools.IMsgDispatcher {
 }
 
 func(svr *GateSvrGlobal) GetPublishSvrs() []ProtoMsg.EmSvrType {
-	return  []ProtoMsg.EmSvrType{ProtoMsg.EmSvrType_Gs}
+	return  []ProtoMsg.EmSvrType{
+		ProtoMsg.EmSvrType_Gs,
+		ProtoMsg.EmSvrType_Login,
+	}
 }
 
 func (svr *GateSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
@@ -197,6 +201,9 @@ func (svr *GateSvrGlobal) regSvrCallBack(s common_global.ILogicSession){
 		}
 	case ProtoMsg.EmSvrType_Login:
 		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN)
+		m_body =  &ProtoMsg.PbSvrRegisterLoginReqMsg{
+			SvrInfo: svr.GetSvrBaseInfo(),
+		}
 	default:
 		return
 	}

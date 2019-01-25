@@ -1,0 +1,37 @@
+{
+  "system": {
+    "group_id": 1,
+    "id": 60000,
+    "name": "dbsvr",
+    "addr": "127.0.0.1:16000",
+    "ttl": 20,
+    "timeout": 60,
+    "max_conn": 20000,
+    "in_bytes": 1024000,
+    "out_bytes": 1024000
+  },
+  "log":  {
+    "log_file": "../log/dbsvr.log",
+    "log_level": "debug",
+    "log_size": 1024000000
+  },
+  "cluster": {
+    "id":1,
+    "addr": "127.0.0.1:17000",
+    "timeout": 30,
+    "ttl": 10
+  },
+  "redis": [
+    {
+      "addr": "",
+      "user": "",
+      "pwd": ""
+    }
+  ],
+  "mysql": {
+    "addr": "",
+    "user": "",
+    "pwd": "",
+    "db": ""
+  }
+}

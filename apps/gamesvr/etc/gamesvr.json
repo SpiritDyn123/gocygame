@@ -2,7 +2,7 @@
   "system": {
     "group_id": 1,
     "id": 20000,
-    "name": "clustersvr",
+    "name": "gamesvr",
     "addr": "127.0.0.1:12000",
     "ttl": 20,
     "timeout": 60,

@@ -1,0 +1,24 @@
+{
+  "system": {
+    "group_id": 1,
+    "id": 40000,
+    "name": "loginsvr",
+    "addr": "127.0.0.1:14000",
+    "ttl": 20,
+    "timeout": 60,
+    "max_conn": 20000,
+    "in_bytes": 65535,
+    "out_bytes": 65535
+  },
+  "log":  {
+    "log_file": "../log/loginsvr.log",
+    "log_level": "debug",
+    "log_size": 1024000000
+  },
+  "cluster": {
+    "id":1,
+    "addr": "127.0.0.1:17000",
+    "timeout": 30,
+    "ttl": 10
+  }
+}

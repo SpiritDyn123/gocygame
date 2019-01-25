@@ -25,7 +25,9 @@ type svrsMgr struct {
 
 func(mgr *svrsMgr) Start() (err error) {
 	global.GateSvrGlobal.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME,
-		&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onRegGame)
+		&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onRegSvr)
+	global.GateSvrGlobal.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN,
+		&ProtoMsg.PbSvrRegisterLoginResMsg{}, mgr.onRegSvr)
 
 	mgr.m_svrs_info_ = make(map[ProtoMsg.EmSvrType]*svrTypeInfo)
 	return
@@ -58,14 +60,21 @@ func (mgr *svrsMgr) OnSvrClose(sssesion *session.SvrSession) {
 	return
 }
 
-func (mgr *svrsMgr) onRegGame(sink interface{}, head common.IMsgHead, msg proto.Message) {
-	resp_msg := msg.(*ProtoMsg.PbSvrRegisterGameResMsg)
-	if resp_msg.Ret.ErrCode != 0 {
+func (mgr *svrsMgr) onRegSvr(sink interface{}, head common.IMsgHead, msg proto.Message) {
+	sssesion := sink.(*session.SvrSession)
+	cfg_svr_info := sssesion.Config_info_
+
+	ret_code := int32(0)
+	switch ProtoMsg.EmMsgId(head.GetMsgId()) {
+	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME:
+		ret_code = msg.(*ProtoMsg.PbSvrRegisterGameResMsg).Ret.ErrCode
+	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN:
+		ret_code = msg.(*ProtoMsg.PbSvrRegisterLoginResMsg).Ret.ErrCode
+	}
+	if ret_code != 0 {
 		return
 	}
 
-	sssesion := sink.(*session.SvrSession)
-	cfg_svr_info := sssesion.Config_info_
 	type_info, ok := mgr.m_svrs_info_[cfg_svr_info.SvrType]
 	if !ok {
 		type_info = &svrTypeInfo{
@@ -87,5 +96,5 @@ func (mgr *svrsMgr) onRegGame(sink interface{}, head common.IMsgHead, msg proto.
 		session_: sssesion,
 	}
 
-	log.Release("onRegGame svr info:%+v success", cfg_svr_info)
+	log.Release("onRegSvr svr info:%+v success", cfg_svr_info)
 }
