@@ -70,7 +70,7 @@ func (mgr *TcpClientMgr) AddClient(svr_info *ProtoMsg.PbSvrBaseInfo) (err error)
 
 	client_info, ok := type_info[svr_info.SvrId]
 	if ok {
-		if client_info.svr_info_.Addr == svr_info.Addr {
+		if client_info.svr_info_.Addr == svr_info.Addr { //如果tcp假死，可能需要等待心跳超时自动重连(有延迟效果)
 			return
 		}
 
@@ -171,7 +171,8 @@ func (mgr *TcpClientMgr) onSessionClose(args []interface{}) {
 	}
 
 	client_info.session_.OnClose()
-	delete(type_info, svr_info.SvrId)
+	client_info.session_ = nil
+	//delete(type_info, svr_info.SvrId)
 }
 
 func (mgr *TcpClientMgr) onSessionRecv(args []interface{}) {

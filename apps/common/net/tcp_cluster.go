@@ -1,7 +1,6 @@
 package net
 
 import (
-	"fmt"
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/apps/common/global"
 	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
@@ -11,49 +10,11 @@ import (
 	"github.com/name5566/leaf/log"
 )
 
-
-type ClusterSession struct {
-	*session.SvrSession
-}
-
-func (ssession *ClusterSession)OnCreate()  {
-	ssession.SvrSession.OnCreate()
-
-	svr_publish, ok := ssession.Svr_global_.(global.IServerGlobal_Publish)
-	if !ok || svr_publish.GetPublishSvrs() == nil || svr_publish.GetSvrBaseInfo() == nil {
-		log.Error("ClusterSession Svr_global_ is not publish svr")
-		return
-	}
-
-	//发送注册和订阅消息
-	head := &common.ProtocolInnerHead{
-		Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_CLUSTER),
-	}
-
-	reg_msg := &ProtoMsg.PbSvrRegisterClusterReqMsg{
-		SvrInfo: svr_publish.GetSvrBaseInfo(),
-		SvrTypes: svr_publish.GetPublishSvrs(),
-	}
-
-	ssession.Send(head, reg_msg)
-}
-
-func (ssession *ClusterSession) String() string {
-	return fmt.Sprintf("ClusterSession:{id:%d, info:{%+v}, last_check_time_:%v}", ssession.Id(),
-		ssession.Config_info_, ssession.Last_check_time_.Format("2006-01-02 15:04:05"))
-}
-
-func CreateSvrSession(tcp_session *tcp.Session, svr_global global.IServerGlobal, config_info *ProtoMsg.PbSvrBaseInfo) global.ILogicSession {
-	return &ClusterSession{
-		SvrSession: session.CreateSvrSession(tcp_session, svr_global, config_info).(*session.SvrSession),
-	}
-}
-
-
 type TcpClientCluster struct {
 	TcpClientMgr
 
-	Svr_info_ *common.Cfg_Json_Svr_Item //集群服务器地址
+	Cluster_svr_info_ *common.Cfg_Json_Svr_Item //集群服务器地址
+	Svr_info_ *ProtoMsg.PbSvrBaseInfo 			//服务器信息
 	Publish_svrs_ []ProtoMsg.EmSvrType
 }
 
@@ -69,14 +30,14 @@ func (cluster *TcpClientCluster) Start() (err error){
 	cluster.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_BROAD_CLUSTER, &ProtoMsg.PbSvrBroadClusterMsg{},
 		cluster.onRecvBroadSvr)
 
-	cluster.M_create_session_cb_[ProtoMsg.EmSvrType_Cluster] = CreateSvrSession
+	cluster.M_create_session_cb_[ProtoMsg.EmSvrType_Cluster] = cluster.createClusterSession
 	err = cluster.AddClient(&ProtoMsg.PbSvrBaseInfo{
 		GroupId: int32(0),
-		SvrId: int32(cluster.Svr_info_.Id_),
+		SvrId: int32(cluster.Cluster_svr_info_.Id_),
 		SvrType: ProtoMsg.EmSvrType_Cluster,
-		Addr: cluster.Svr_info_.Addr_,
-		Ttl: int32(cluster.Svr_info_.Ttl_), //用系统监听的ttl
-		Timeout: int32(cluster.Svr_info_.Timeout_),
+		Addr: cluster.Cluster_svr_info_.Addr_,
+		Ttl: int32(cluster.Cluster_svr_info_.Ttl_), //用系统监听的ttl
+		Timeout: int32(cluster.Cluster_svr_info_.Timeout_),
 	},)
 	if err != nil {
 		return
@@ -89,8 +50,30 @@ func (cluster *TcpClientCluster) Stop() {
 	cluster.TcpClientMgr.Stop()
 }
 
+func (cluster *TcpClientCluster) createClusterSession(tcp_session *tcp.Session, svr_global global.IServerGlobal,
+	config_info *ProtoMsg.PbSvrBaseInfo) global.ILogicSession {
+	cluster_session := session.CreateSvrSession(tcp_session, svr_global, config_info).(*session.SvrSession)
+
+	//连接成功的回调里需要注册服务器信息
+	cluster_session.SetSessionEventCB(session.SessionEvent_Accept, func(logic_session global.ILogicSession) {
+		//发送注册和订阅消息
+		head := &common.ProtocolInnerHead{
+			Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_CLUSTER),
+		}
+
+		reg_msg := &ProtoMsg.PbSvrRegisterClusterReqMsg{
+			SvrInfo: cluster.Svr_info_,
+			SvrTypes: cluster.Publish_svrs_,
+		}
+
+		logic_session.Send(head, reg_msg)
+	})
+
+	return cluster_session
+}
+
 func(cluster *TcpClientCluster) onRecvRegisterSvr(sink interface{}, head common.IMsgHead, msg proto.Message) {
-	_ = sink.(*ClusterSession)
+	_ = sink.(*session.SvrSession)
 	_ = head.(*common.ProtocolInnerHead)
 
 	resp_msg := msg.(*ProtoMsg.PbSvrRegisterClusterResMsg)
@@ -101,7 +84,7 @@ func(cluster *TcpClientCluster) onRecvRegisterSvr(sink interface{}, head common.
 }
 
 func(cluster *TcpClientCluster) onRecvBroadSvr(sink interface{}, head common.IMsgHead, msg proto.Message) {
-	_ = sink.(*ClusterSession)
+	_ = sink.(*session.SvrSession)
 	_ = head.(*common.ProtocolInnerHead)
 
 	resp_msg := msg.(*ProtoMsg.PbSvrBroadClusterMsg)

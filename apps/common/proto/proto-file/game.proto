@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "cluster.proto";
+import "base.proto";
+package ProtoMsg;
+
+//SVR_MSG_REGISTER_GAME
+message PbSvrRegisterGameReqMsg {
+   PbSvrBaseInfo        svr_info = 1;
+};
+
+message PbSvrRegisterGameResMsg {
+   Ret ret = 1;
+};

@@ -1,9 +1,9 @@
 {
   "system": {
     "group_id": 1,
-    "id": 70000,
+    "id": 20000,
     "name": "clustersvr",
-    "addr": "0.0.0.0:17000",
+    "addr": "127.0.0.1:12000",
     "ttl": 20,
     "timeout": 60,
     "max_conn": 20000,
@@ -11,8 +11,14 @@
     "out_bytes": 65535
   },
   "log":  {
-    "log_file": "../log/clustersvr.log",
+    "log_file": "../log/gamesvr.log",
     "log_level": "debug",
     "log_size": 1024000000
+  },
+  "cluster": {
+    "id":1,
+    "addr": "127.0.0.1:17000",
+    "timeout": 30,
+    "ttl": 10
   }
 }

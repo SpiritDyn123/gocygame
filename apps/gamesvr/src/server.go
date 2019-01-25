@@ -13,7 +13,10 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/net"
 	"github.com/SpiritDyn123/gocygame/apps/gamesvr/src/global"
 	"github.com/SpiritDyn123/gocygame/apps/common/tools"
-	"github.com/SpiritDyn123/gocygame/apps/gamesvr/src/session"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
+	"encoding/binary"
+	"github.com/SpiritDyn123/gocygame/apps/common/proto"
+	"github.com/SpiritDyn123/gocygame/apps/gamesvr/src/svrs_mgr"
 )
 
 
@@ -26,7 +29,8 @@ type GameSvrGlobal struct {
 	msg_dispatcher_ tools.IMsgDispatcher
 
 
-	session_mgr_ *session.SessionMgr
+	cluster_  *net.TcpClientCluster
+	svrs_mgr_ global.ISvrsMgr
 }
 
 func (svr *GameSvrGlobal) GetName() string {
@@ -53,8 +57,39 @@ func (svr *GameSvrGlobal) Start() (err error) {
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
-	//session管理器
-	svr.session_mgr_ = &session.SessionMgr{}
+	//服务管理器
+	svr.svrs_mgr_ = svrs_mgr.SvrsMgr
+	if err = svr.svrs_mgr_.Start(); err != nil {
+		return
+	}
+
+	//集群管理器
+	clus_msg_parser := tcp.NewMsgParser()
+	clus_msg_parser.SetByteOrder(common.Default_Net_Endian == binary.LittleEndian)
+	clus_msg_parser.SetIncludeHead(true)
+	clus_msg_parser.SetMsgLen(common.Default_Net_Head_Len, common.Default_Svr_Recv_len, common.Default_Svr_Send_len)
+	svr.cluster_ = &net.TcpClientCluster{
+		TcpClientMgr: net.TcpClientMgr{
+			Msg_parser_: clus_msg_parser,
+			Protocol_ : &codec.ProtoInnerProtocol{ Endian_: common.Default_Net_Endian },
+			Send_chan_size_: common.Default_Svr_Send_Chan_Len,
+			Chan_server_: svr.ChanServer,
+			Connect_key_: common.Chanrpc_key_tcp_inner_accept,
+			Close_key_: common.Chanrpc_key_tcp_inner_close,
+			Recv_key_ : common.Chanrpc_key_tcp_inner_recv,
+			Tls_: false,
+			Svr_global_: svr,
+			M_create_session_cb_: map[ProtoMsg.EmSvrType]net.CreateSessionCB{
+				ProtoMsg.EmSvrType_Gs: session.CreateSvrSession,
+			},
+		},
+		Cluster_svr_info_: &etc.Game_Config.Cluster_,
+		Svr_info_: svr.GetSvrBaseInfo(), //
+		Publish_svrs_: []ProtoMsg.EmSvrType{}, //暂时不订阅
+	}
+	if err = svr.cluster_.Start(); err != nil {
+		return
+	}
 
 	//启动socket
 	protocol := &codec.ProtoInnerProtocol{
@@ -75,6 +110,7 @@ func (svr *GameSvrGlobal) Start() (err error) {
 
 func (svr *GameSvrGlobal) Close() {
 	svr.net_ser.Stop()
+	svr.cluster_.Stop()
 }
 
 func (svr *GameSvrGlobal) Pool(cs chan bool) {
@@ -93,23 +129,34 @@ func (svr *GameSvrGlobal) GetWheelTimer() timer.WheelTimer {
 	return svr.wheel_timer_
 }
 
+func (svr *GameSvrGlobal) GetSvrsMgr() global.ISvrsMgr {
+	return svr.svrs_mgr_
+}
+
+func (svr *GameSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
+	return &ProtoMsg.PbSvrBaseInfo{
+		GroupId: int32(etc.Game_Config.System_.Svr_group_id_),
+		SvrId: int32(etc.Game_Config.System_.Svr_id_),
+		SvrType: ProtoMsg.EmSvrType_Gs,
+		Addr: etc.Game_Config.System_.Svr_addr_,
+		Ttl: int32(etc.Game_Config.System_.Svr_ttl_), //用系统监听的ttl
+		Timeout: int32(etc.Game_Config.System_.Svr_timeout_),
+	}
+}
+
 func (svr *GameSvrGlobal) onTimer() {
 	svr.wheel_timer_.Step()
 	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
 }
 
 func (svr *GameSvrGlobal) onTcpAccept(args []interface{}) {
-	tcp_session := args[0].(*tcp.Session)
-	svr.session_mgr_.OnAccept(tcp_session)
-
+	svr.svrs_mgr_.OnAccept(args[0].(*tcp.Session))
 }
 
 func (svr *GameSvrGlobal) onTcpRecv(args []interface{}) {
-	tcp_session := args[0].(*tcp.Session)
-	svr.session_mgr_.OnRecv(tcp_session, args[1])
+	svr.svrs_mgr_.OnRecv(args[0].(*tcp.Session), args[1])
 }
 
 func (svr *GameSvrGlobal) onTcpClose(args []interface{}) {
-	tcp_session := args[0].(*tcp.Session)
-	svr.session_mgr_.OnClose(tcp_session)
+	svr.svrs_mgr_.OnClose(args[0].(*tcp.Session))
 }

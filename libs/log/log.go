@@ -8,6 +8,7 @@ import (
 	"strings"
 	"runtime"
 	"sync"
+	"encoding/json"
 )
 
 // levels
@@ -28,6 +29,8 @@ const (
 const (
 	Logger_Go_Num = 1
 )
+
+type LogSon map[string]interface{}
 
 type loggerItem struct {
 	line string
@@ -133,7 +136,7 @@ func (logger *Logger) goLogWrite() {
 	}
 }
 
-func (logger *Logger) doPrintf(level int, printLevel string, format string, a ...interface{}) {
+func (logger *Logger) doPrintf(level int, printLevel string, format interface{}, a ...interface{}) {
 	if level < logger.level {
 		return
 	}
@@ -160,28 +163,36 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 		header = fmt.Sprintf("%s:%d ", file, line)
 	}
 
-	format = header + printLevel + format
+	whole_fmt := header + printLevel
+	switch format.(type) {
+	case string:
+		whole_fmt +=  format.(string)
+		whole_fmt = fmt.Sprintf(whole_fmt, a...)
+	case LogSon:
+		son_fmt, _ := json.Marshal(format)
+		whole_fmt += string(son_fmt)
+	}
 
 	logger.lock.RLock()
 	if !logger.closed {
-		logger.logChan <- &loggerItem{fmt.Sprintf(format, a...), level}
+		logger.logChan <- &loggerItem{whole_fmt, level}
 	}
- 	logger.lock.RUnlock()
+	logger.lock.RUnlock()
 }
 
-func (logger *Logger) Debug(format string, a ...interface{}) {
+func (logger *Logger) Debug(format interface{}, a ...interface{}) {
 	logger.doPrintf(debugLevel, printDebugLevel, format, a...)
 }
 
-func (logger *Logger) Release(format string, a ...interface{}) {
+func (logger *Logger) Release(format interface{}, a ...interface{}) {
 	logger.doPrintf(releaseLevel, printReleaseLevel, format, a...)
 }
 
-func (logger *Logger) Error(format string, a ...interface{}) {
+func (logger *Logger) Error(format interface{}, a ...interface{}) {
 	logger.doPrintf(errorLevel, printErrorLevel, format, a...)
 }
 
-func (logger *Logger) Fatal(format string, a ...interface{}) {
+func (logger *Logger) Fatal(format interface{}, a ...interface{}) {
 	logger.doPrintf(fatalLevel, printFatalLevel, format, a...)
 }
 
@@ -213,19 +224,19 @@ func Export(logger *Logger) {
 	}
 }
 
-func Debug(format string, a ...interface{}) {
+func Debug(format interface{}, a ...interface{}) {
 	gLogger.doPrintf(debugLevel, printDebugLevel, format, a...)
 }
 
-func Release(format string, a ...interface{}) {
+func Release(format interface{}, a ...interface{}) {
 	gLogger.doPrintf(releaseLevel, printReleaseLevel, format, a...)
 }
 
-func Error(format string, a ...interface{}) {
+func Error(format interface{}, a ...interface{}) {
 	gLogger.doPrintf(errorLevel, printErrorLevel, format, a...)
 }
 
-func Fatal(format string, a ...interface{}) {
+func Fatal(format interface{}, a ...interface{}) {
 	gLogger.doPrintf(fatalLevel, printFatalLevel, format, a...)
 }
 

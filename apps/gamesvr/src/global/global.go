@@ -10,6 +10,8 @@ type IGameSvrGlobal interface {
 	utils.IPooller
 	GetMsgDispatcher() tools.IMsgDispatcher
 	GetWheelTimer() timer.WheelTimer
+
+	GetSvrsMgr() ISvrsMgr
 }
 
 var GameSvrGlobal IGameSvrGlobal

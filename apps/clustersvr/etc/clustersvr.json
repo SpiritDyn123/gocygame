@@ -3,7 +3,7 @@
     "group_id": 1,
     "id": 70000,
     "name": "clustersvr",
-    "addr": "0.0.0.0:17000",
+    "addr": "127.0.0.1:17000",
     "ttl": 20,
     "timeout": 60,
     "max_conn": 20000,

@@ -3,7 +3,7 @@
     "group_id": 1,
     "id": 10000,
     "name": "gatesvr",
-    "addr": "0.0.0.0:11000",
+    "addr": "127.0.0.1:11000",
     "ttl": 20,
     "timeout": 60,
     "max_conn": 20000,

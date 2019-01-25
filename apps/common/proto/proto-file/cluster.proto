@@ -24,6 +24,7 @@ message PbSvrBaseInfo{
     int32       timeout = 6;
 };
 
+//SVR_MSG_REGISTER_CLUSTER
 message PbSvrRegisterClusterReqMsg {
    PbSvrBaseInfo        svr_info = 1;
    repeated emSvrType   svr_types = 2;
@@ -40,6 +41,7 @@ enum emClusterOprType {
     Del = 2;
 };
 
+//SVR_MSG_BROAD_CLUSTER
 message PbSvrBroadClusterMsg {
     emClusterOprType opr_type = 1;
     PbSvrBaseInfo svr_info = 2;

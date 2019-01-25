@@ -14,11 +14,14 @@ type Cfg_Json_Game struct {
 	System_ common.Cfg_Json_SvrBase `json:"system"`
 
 	Log_ common.Cfg_Json_Log `json:"log"`
+
+	Cluster_ common.Cfg_Json_Svr_Item `json:"cluster"`
 }
 
 var (
 	Game_Config_File = "../etc/gamesvr.json"
 	Game_Config Cfg_Json_Game
+
 )
 
 var (

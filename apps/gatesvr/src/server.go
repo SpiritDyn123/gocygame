@@ -10,13 +10,16 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/etc"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/global"
-	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/session"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
+	common_global"github.com/SpiritDyn123/gocygame/apps/common/global"
+	"github.com/golang/protobuf/proto"
+	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/svrs_mgr"
 )
 
 type GateSvrGlobal struct {
@@ -28,6 +31,8 @@ type GateSvrGlobal struct {
 	msg_dispatcher_ tools.IMsgDispatcher
 
 	cluster_  *net.TcpClientCluster
+
+	svrs_mgr_ global.ISvrsMgr
 }
 
 func (svr *GateSvrGlobal) GetName() string {
@@ -53,6 +58,12 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
+	//服务管理器
+	svr.svrs_mgr_ = svrs_mgr.SvrsMgr
+	if err = svr.svrs_mgr_.Start(); err != nil {
+		return
+	}
+
 	//集群管理器
 	clus_msg_parser := tcp.NewMsgParser()
 	clus_msg_parser.SetByteOrder(common.Default_Net_Endian == binary.LittleEndian)
@@ -70,10 +81,11 @@ func (svr *GateSvrGlobal) Start() (err error) {
 			Tls_: false,
 			Svr_global_: svr,
 			M_create_session_cb_: map[ProtoMsg.EmSvrType]net.CreateSessionCB{
-				ProtoMsg.EmSvrType_Gs: session.CreateSvrSession,
+				ProtoMsg.EmSvrType_Gs: svr.createInnerSvrSession,
 			},
 		},
-		Svr_info_: &etc.Gate_Config.Cluster_,
+		Cluster_svr_info_: &etc.Gate_Config.Cluster_,
+		Svr_info_: svr.GetSvrBaseInfo(),
 		Publish_svrs_: svr.GetPublishSvrs(),
 	}
 	if err = svr.cluster_.Start(); err != nil {
@@ -100,6 +112,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 func (svr *GateSvrGlobal) Close() {
 	svr.net_ser.Stop()
 	svr.cluster_.Stop()
+	svr.svrs_mgr_.Stop()
 }
 
 func (svr *GateSvrGlobal) Pool(cs chan bool) {
@@ -151,4 +164,42 @@ func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
 	session := args[0].(*tcp.Session)
 	log.Release("onTcpClose session:%v", session)
+}
+
+func (svr *GateSvrGlobal) createInnerSvrSession(tcp_session *tcp.Session, svr_global common_global.IServerGlobal,
+	config_info *ProtoMsg.PbSvrBaseInfo) common_global.ILogicSession {
+	cs := session.CreateSvrSession(tcp_session, svr_global, config_info)
+
+	//注册连接事件
+	cs.(*session.SvrSession).SetSessionEventCB(session.SessionEvent_Accept, svr.regSvrCallBack)
+	cs.(*session.SvrSession).SetSessionEventCB(session.SessionEvent_Close, func(s common_global.ILogicSession){
+		svr.svrs_mgr_.OnSvrClose(s.(*session.SvrSession))
+	})
+
+	return cs
+}
+
+func (svr *GateSvrGlobal) regSvrCallBack(s common_global.ILogicSession){
+
+	ssession := s.(*session.SvrSession)
+
+	//注册服务器
+	m_head := &common.ProtocolInnerHead{
+		Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME),
+	}
+
+	var m_body proto.Message
+	switch ssession.Config_info_.SvrType{
+	case ProtoMsg.EmSvrType_Gs:
+		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME)
+		m_body =  &ProtoMsg.PbSvrRegisterGameReqMsg{
+			SvrInfo: svr.GetSvrBaseInfo(),
+		}
+	case ProtoMsg.EmSvrType_Login:
+		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN)
+	default:
+		return
+	}
+
+	ssession.Send(m_head, m_body)
 }

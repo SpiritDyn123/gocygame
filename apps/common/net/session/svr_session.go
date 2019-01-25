@@ -17,6 +17,9 @@ func CreateSvrSession(tcp_session *tcp.Session, svr_global global.IServerGlobal,
 			Session: tcp_session,
 			Svr_global_: svr_global,
 			Config_info_: config_info,
+			M_event_cbs_: make(map[SessionEvent]SessionEventCallBack),
+
+			m_attribute_: make(map[string]interface{}),
 		},
 	}
 	return
@@ -40,15 +43,12 @@ func (ssession *SvrSession)OnCreate()  {
 		return
 	}
 	ssession.wtId_ = tmp_id
-}
 
-func (ssession *SvrSession) Send(msg ...interface{}) error {
-	if ssession.Session == nil {
-		return fmt.Errorf("send in closed client session")
+	//连接回调
+	if cb, ok := ssession.M_event_cbs_[SessionEvent_Accept]; ok {
+		cb(ssession)
 	}
-	return ssession.Session.Send(msg...)
 }
-
 
 func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool)   {
 	//处理内容
@@ -69,6 +69,12 @@ func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool) 
 
 	//派发消息
 	ssession.Svr_global_.GetMsgDispatcher().Dispatch(ssession, msg_head, msg_body)
+
+	//连接回调
+	if cb, ok := ssession.M_event_cbs_[SessionEvent_Recv]; ok {
+		cb(ssession)
+	}
+
 	return
 }
 
@@ -76,6 +82,11 @@ func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool) 
 func (ssession *SvrSession)OnClose()  {
 	//log.Debug("session:%+v on closed", ssession)
 	ssession.Svr_global_.GetWheelTimer().DelTimer(ssession.wtId_)
+	//连接回调
+	if cb, ok := ssession.M_event_cbs_[SessionEvent_Close]; ok {
+		cb(ssession)
+	}
+
 	ssession.Session = nil
 }
 
@@ -83,7 +94,7 @@ func (ssession *SvrSession)OnClose()  {
 func (ssession *SvrSession)OnHeartBeat(args ...interface{})  {
 	now := time.Now()
 	if now.Sub(ssession.Last_check_time_) > time.Duration(ssession.Config_info_.Timeout) * time.Second {
-		log.Release("ClientSession:%v onHBTimer timeout", ssession)
+		log.Release("%v onHBTimer timeout second:%d", ssession, ssession.Config_info_.Timeout)
 		ssession.Close()
 	} else {
 		//发送心跳
