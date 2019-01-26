@@ -56,7 +56,7 @@ func (mgr *TcpClientMgr) AddClient(svr_info *ProtoMsg.PbSvrBaseInfo) (err error)
 	if svr_info == nil {
 		return
 	}
-
+	
 	_, ok := mgr.M_create_session_cb_[svr_info.SvrType]
 	if !ok {
 		return fmt.Errorf("ClientMgr::AddClient has no CreateSessionCB")

@@ -88,6 +88,10 @@ func (ssession *SvrSession)OnClose()  {
 	}
 
 	ssession.Session = nil
+	ssession.Svr_global_ = nil
+	ssession.Config_info_ = nil
+	ssession.m_attribute_ = nil
+	ssession.M_event_cbs_ = nil
 }
 
 //心跳检测

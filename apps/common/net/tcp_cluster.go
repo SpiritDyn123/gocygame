@@ -88,6 +88,13 @@ func(cluster *TcpClientCluster) onRecvBroadSvr(sink interface{}, head common.IMs
 	_ = head.(*common.ProtocolInnerHead)
 
 	resp_msg := msg.(*ProtoMsg.PbSvrBroadClusterMsg)
+	//不能连接自己的服务
+	if resp_msg.SvrInfo.SvrType == cluster.Svr_info_.SvrType &&
+		resp_msg.SvrInfo.GroupId == cluster.Svr_info_.GroupId &&
+		resp_msg.SvrInfo.SvrId == cluster.Svr_info_.SvrId {
+		return
+	}
+
 	if resp_msg.OprType == ProtoMsg.EmClusterOprType_Add {
 		cluster.AddClient( resp_msg.SvrInfo)
 	} else if resp_msg.OprType == ProtoMsg.EmClusterOprType_Del {
