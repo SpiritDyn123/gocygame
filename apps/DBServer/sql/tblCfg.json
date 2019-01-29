@@ -1,0 +1,41 @@
+{
+	"mysql" :{
+			"id" : 1,
+			"host" : "127.0.0.1",
+			"port" : 3306,
+			"user" : "root",
+			"pwd" : "123456"
+	},
+	"table_info" : [
+		{
+			"db_prefix" : "digimon",
+			"db_cnt" : 100,
+			"tbl_cnt" : 100,
+			"sql_path" : "BtlReplay.sql"
+		},
+		{
+			"db_prefix" : "digimon",
+			"db_cnt" : 100,
+			"tbl_cnt" : 100,
+			"sql_path" : "SocialStranger.sql"
+		},
+		{
+			"db_prefix" : "digimon",
+			"db_cnt" : 100,
+			"tbl_cnt" : 100,
+			"sql_path" : "SocialInteract.sql"
+		},
+		{
+			"db_prefix" : "digimon",
+			"db_cnt" : 100,
+			"tbl_cnt" : 100,
+			"sql_path" : "LoginRecord.sql"
+		},
+		{
+			"db_prefix" : "digimon",
+			"db_cnt" : 100,
+			"tbl_cnt" : 100,
+			"sql_path" : "LotteryRecord.sql"
+		}
+	]
+}

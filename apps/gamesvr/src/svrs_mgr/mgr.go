@@ -9,6 +9,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 	"github.com/SpiritDyn123/gocygame/libs/log"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/strategy"
 )
 
 var SvrsMgr global.ISvrsMgr
@@ -16,12 +17,9 @@ func init() {
 	SvrsMgr = &svrsMgr{}
 }
 
-type svrTypeInfo struct {
-	m_svrs_info_ map[int32]*svrInfo
-}
 
 type svrsMgr struct {
-	m_svrs_info_ map[ProtoMsg.EmSvrType]*svrTypeInfo
+	m_svrs_info_ map[ProtoMsg.EmSvrType]*strategy.SvrGroup
 
 	m_tmp_session_ map[uint64]common_global.ILogicSession
 }
@@ -31,7 +29,7 @@ func (mgr *svrsMgr) Start() (err error) {
 	global.GameSvrGlobal.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME,
 		&ProtoMsg.PbSvrRegisterGameReqMsg{}, mgr.onReqRegister)
 
-	mgr.m_svrs_info_ = make(map[ProtoMsg.EmSvrType]*svrTypeInfo)
+	mgr.m_svrs_info_ = make(map[ProtoMsg.EmSvrType]*strategy.SvrGroup)
 	mgr.m_tmp_session_ = make(map[uint64]common_global.ILogicSession)
 
 	return
@@ -71,35 +69,15 @@ func (mgr *svrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg pr
 	req_msg := msg.(*ProtoMsg.PbSvrRegisterGameReqMsg)
 	logic_session := sink.(*session.ClientSession)
 
-	type_info, ok := mgr.m_svrs_info_[req_msg.SvrInfo.SvrType]
+	group_info, ok := mgr.m_svrs_info_[req_msg.SvrInfo.SvrType]
 	if !ok {
-		mgr.m_svrs_info_[req_msg.SvrInfo.SvrType] = &svrTypeInfo{
-			m_svrs_info_: make(map[int32]*svrInfo),
-		}
-		type_info = mgr.m_svrs_info_[req_msg.SvrInfo.SvrType]
+		mgr.m_svrs_info_[req_msg.SvrInfo.SvrType] = strategy.NewSvrGroup(req_msg.SvrInfo.SvrType)
+		group_info = mgr.m_svrs_info_[req_msg.SvrInfo.SvrType]
 	}
 
-	svr_info, ok := type_info.m_svrs_info_[req_msg.SvrInfo.SvrId]
-	//todo 重复注册或者是旧的死链接
-	if ok {
-		//重复注册
-		if svr_info.session_ == logic_session {
-			log.Release("onReqRegister svr info:%+v repeate register", req_msg.SvrInfo)
-			return
-		}
-
-		//踢掉旧连接
-		svr_info.session_.Close()
-		svr_info.session_ = nil
+	if !group_info.AddSession(logic_session, req_msg.SvrInfo) {
+		return
 	}
-
-	logic_session.SetAttribute(global.Session_attribute_key_svr_info, req_msg.SvrInfo)
-	svr_info =  &svrInfo{
-		session_: logic_session,
-		svr_info_: req_msg.SvrInfo,
-	}
-
-	type_info.m_svrs_info_[req_msg.SvrInfo.SvrId] = svr_info
 
 	resp_msg := &ProtoMsg.PbSvrRegisterGameResMsg{
 		Ret: &ProtoMsg.Ret{
@@ -107,7 +85,7 @@ func (mgr *svrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg pr
 		},
 	}
 
-	svr_info.session_.Send(head, resp_msg)
+	logic_session.Send(head, resp_msg)
 	log.Release("onReqRegister svr info:%+v", req_msg.SvrInfo)
 }
 
@@ -120,40 +98,17 @@ func (mgr *svrsMgr) onSvrOffline(s common_global.ILogicSession) {
 
 	cfg_svr_info := i_svr_info.(*ProtoMsg.PbSvrBaseInfo)
 
-	type_info, ok := mgr.m_svrs_info_[cfg_svr_info.SvrType]
+	group_info, ok := mgr.m_svrs_info_[cfg_svr_info.SvrType]
 	if !ok {
 		return
 	}
 
-	svr_info, ok := type_info.m_svrs_info_[cfg_svr_info.SvrId]
-	//todo 重复注册或者是旧的死链接
-	if !ok {
+	if !group_info.RemoveSession(logic_session, cfg_svr_info) {
 		return
 	}
-
-	//可能是被踢掉的
-	if svr_info.session_ != s {
-		return
-	}
-
-	delete(type_info.m_svrs_info_, cfg_svr_info.SvrId)
 	log.Release("onSvrOffline svr info:%+v", cfg_svr_info)
 }
 
 func (mgr *svrsMgr) SendToSvr(svr_type ProtoMsg.EmSvrType, svr_id int32, head common.IMsgHead, msg proto.Message) {
-	type_info, ok := mgr.m_svrs_info_[svr_type]
-	if !ok {
-		return
-	}
 
-	svr_info, ok := type_info.m_svrs_info_[svr_id]
-	if !ok {
-		return
-	}
-
-	if svr_info.session_ == nil {
-		return
-	}
-
-	svr_info.session_.Send(head, msg)
 }

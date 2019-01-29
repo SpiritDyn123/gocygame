@@ -10,11 +10,22 @@ enum emMsgId {
     CLI_MSG_END         = 199999;
 
     SVR_MSG_BEGIN               = 200000;
+    //集群服务
     SVR_MSG_REGISTER_CLUSTER    = 200001; //注册集群服务器
     SVR_MSG_BROAD_CLUSTER       = 200002; //集群服务器更新广播
-    SVR_MSG_REGISTER_GAME       = 200003; //注册game服务器
-    SVR_MSG_REGISTER_WORLD      = 200004;  //注册大厅服务器
-    SVR_MSG_REGISTER_LOGIN      = 200005;  //注册登陆服务器
+
+    //game
+    SVR_MSG_REGISTER_GAME       = 201001; //注册game服务器
+
+    //world
+    SVR_MSG_REGISTER_WORLD      = 202001;  //注册大厅服务器
+
+    //登陆
+    SVR_MSG_REGISTER_LOGIN      = 203001;  //注册登陆服务器
+
+    //db相关
+    SVR_MSG_REGISTER_DB         = 204001;  //注册DB服务器
+    SVR_MSG_DB_SERVICE          = 204002;
 
     SVR_MSG_END                 = 299999;
 };

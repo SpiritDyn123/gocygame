@@ -1,0 +1,1 @@
+mysql -uroot -p123456 global < SpamRecord.sql

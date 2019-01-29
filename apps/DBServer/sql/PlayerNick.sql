@@ -1,0 +1,22 @@
+CREATE DATABASE IF NOT EXISTS gnick DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+USE gnick;
+
+CREATE TABLE IF NOT EXISTS player_nick
+(
+	`nick` CHAR(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+	`player_id` INT UNSIGNED,
+	`expire_tm` INT UNSIGNED,
+	PRIMARY KEY(`nick`),
+	INDEX(nick)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS corp_nick
+(
+	`nick` CHAR(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+	`corp_id` INT UNSIGNED,
+	PRIMARY KEY(`nick`),
+	INDEX(nick)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
