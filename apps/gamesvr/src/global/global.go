@@ -1,9 +1,10 @@
 package global
 
 import (
+	"github.com/SpiritDyn123/gocygame/apps/common/net"
 	"github.com/SpiritDyn123/gocygame/apps/common/tools"
-	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
+	"github.com/SpiritDyn123/gocygame/libs/utils"
 )
 
 type IGameSvrGlobal interface {
@@ -11,7 +12,7 @@ type IGameSvrGlobal interface {
 	GetMsgDispatcher() tools.IMsgDispatcher
 	GetWheelTimer() timer.WheelTimer
 
-	GetSvrsMgr() ISvrsMgr
+	GetSvrsMgr() *net.SvrsMgr
 }
 
 var GameSvrGlobal IGameSvrGlobal

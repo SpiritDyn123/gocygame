@@ -11,4 +11,5 @@ type ILogicSession interface {
 	OnClose()
 	OnCreate()
 	SetAttribute(key string, value interface{})
+	GetAttribute(key string) interface{}
 }

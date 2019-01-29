@@ -1,21 +1,19 @@
 package src
 
 import (
-	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
-	"github.com/SpiritDyn123/gocygame/libs/utils"
-	"github.com/SpiritDyn123/gocygame/libs/timer"
+	"fmt"
+	"github.com/SpiritDyn123/gocygame/apps/common"
+	"github.com/SpiritDyn123/gocygame/apps/common/net"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/codec"
+	"github.com/SpiritDyn123/gocygame/apps/common/proto"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
+	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/etc"
+	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/global"
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/SpiritDyn123/gocygame/libs/go"
-	"fmt"
-	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/etc"
-	"github.com/SpiritDyn123/gocygame/apps/common"
-	"github.com/SpiritDyn123/gocygame/apps/common/net/codec"
-	"github.com/SpiritDyn123/gocygame/apps/common/net"
-	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/global"
-	"github.com/SpiritDyn123/gocygame/apps/common/tools"
-	"encoding/binary"
-	"github.com/SpiritDyn123/gocygame/apps/common/proto"
-	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/svrs_mgr"
+	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
+	"github.com/SpiritDyn123/gocygame/libs/timer"
+	"github.com/SpiritDyn123/gocygame/libs/utils"
 )
 
 
@@ -28,8 +26,7 @@ type DBSvrGlobal struct {
 	msg_dispatcher_ tools.IMsgDispatcher
 
 
-	cluster_  *net.TcpClientCluster
-	svrs_mgr_ global.ISvrsMgr
+	svrs_mgr_ *net.SvrsMgr
 }
 
 func (svr *DBSvrGlobal) GetName() string {
@@ -57,34 +54,13 @@ func (svr *DBSvrGlobal) Start() (err error) {
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
 	//服务管理器
-	svr.svrs_mgr_ = svrs_mgr.SvrsMgr
-	if err = svr.svrs_mgr_.Start(); err != nil {
-		return
+	svr.svrs_mgr_ = &net.SvrsMgr{
+		Svr_global_: svr,
+		Publish_svrs_: []ProtoMsg.EmSvrType{},
+		Cluster_svr_info_: &etc.DB_Config.Cluster_,
 	}
 
-	//集群管理器
-	clus_msg_parser := tcp.NewMsgParser()
-	clus_msg_parser.SetByteOrder(common.Default_Net_Endian == binary.LittleEndian)
-	clus_msg_parser.SetIncludeHead(true)
-	clus_msg_parser.SetMsgLen(common.Default_Net_Head_Len, common.Default_Svr_Recv_len, common.Default_Svr_Send_len)
-	svr.cluster_ = &net.TcpClientCluster{
-		TcpClientMgr: net.TcpClientMgr{
-			Msg_parser_: clus_msg_parser,
-			Protocol_ : &codec.ProtoInnerProtocol{ Endian_: common.Default_Net_Endian },
-			Send_chan_size_: common.Default_Svr_Send_Chan_Len,
-			Chan_server_: svr.ChanServer,
-			Connect_key_: common.Chanrpc_key_tcp_inner_accept,
-			Close_key_: common.Chanrpc_key_tcp_inner_close,
-			Recv_key_ : common.Chanrpc_key_tcp_inner_recv,
-			Tls_: false,
-			Svr_global_: svr,
-			M_create_session_cb_: map[ProtoMsg.EmSvrType]net.CreateSessionCB{},
-		},
-		Cluster_svr_info_: &etc.DB_Config.Cluster_,
-		Svr_info_: svr.GetSvrBaseInfo(), //
-		Publish_svrs_: []ProtoMsg.EmSvrType{}, //暂时不订阅
-	}
-	if err = svr.cluster_.Start(); err != nil {
+	if err = svr.svrs_mgr_.Start(); err != nil {
 		return
 	}
 
@@ -107,7 +83,6 @@ func (svr *DBSvrGlobal) Start() (err error) {
 
 func (svr *DBSvrGlobal) Close() {
 	svr.net_ser.Stop()
-	svr.cluster_.Stop()
 }
 
 func (svr *DBSvrGlobal) Pool(cs chan bool) {
@@ -126,7 +101,7 @@ func (svr *DBSvrGlobal) GetWheelTimer() timer.WheelTimer {
 	return svr.wheel_timer_
 }
 
-func (svr *DBSvrGlobal) GetSvrsMgr() global.ISvrsMgr {
+func (svr *DBSvrGlobal) GetSvrsMgr() *net.SvrsMgr {
 	return svr.svrs_mgr_
 }
 

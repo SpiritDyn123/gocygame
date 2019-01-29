@@ -1,6 +1,7 @@
 package src
 
 import (
+	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
@@ -34,6 +35,10 @@ type ClusterSvrGlobal struct {
 func (svr *ClusterSvrGlobal) GetName() string {
 	return fmt.Sprintf("%s_%d_%d", etc.Cluster_Config.System_.Svr_name_,
 		etc.Cluster_Config.System_.Svr_group_id_, etc.Cluster_Config.System_.Svr_id_)
+}
+
+func (svr *ClusterSvrGlobal)GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo {
+	return nil
 }
 
 func (svr *ClusterSvrGlobal) Start() (err error) {

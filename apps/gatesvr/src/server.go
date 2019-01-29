@@ -1,7 +1,6 @@
 package src
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/apps/common/net"
@@ -10,16 +9,13 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/etc"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/global"
-	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
+
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
-	common_global"github.com/SpiritDyn123/gocygame/apps/common/global"
-	"github.com/golang/protobuf/proto"
-	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/svrs_mgr"
 )
 
 type GateSvrGlobal struct {
@@ -30,9 +26,7 @@ type GateSvrGlobal struct {
 
 	msg_dispatcher_ tools.IMsgDispatcher
 
-	cluster_  *net.TcpClientCluster
-
-	svrs_mgr_ global.ISvrsMgr
+	svrs_mgr_ *net.SvrsMgr
 }
 
 func (svr *GateSvrGlobal) GetName() string {
@@ -59,37 +53,16 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
 	//服务管理器
-	svr.svrs_mgr_ = svrs_mgr.SvrsMgr
-	if err = svr.svrs_mgr_.Start(); err != nil {
-		return
-	}
-
-	//集群管理器
-	clus_msg_parser := tcp.NewMsgParser()
-	clus_msg_parser.SetByteOrder(common.Default_Net_Endian == binary.LittleEndian)
-	clus_msg_parser.SetIncludeHead(true)
-	clus_msg_parser.SetMsgLen(common.Default_Net_Head_Len, common.Default_Svr_Recv_len, common.Default_Svr_Send_len)
-	svr.cluster_ = &net.TcpClientCluster{
-		TcpClientMgr: net.TcpClientMgr{
-			Msg_parser_: clus_msg_parser,
-			Protocol_ : &codec.ProtoInnerProtocol{ Endian_: common.Default_Net_Endian },
-			Send_chan_size_: common.Default_Svr_Send_Chan_Len,
-			Chan_server_: svr.ChanServer,
-			Connect_key_: common.Chanrpc_key_tcp_inner_accept,
-			Close_key_: common.Chanrpc_key_tcp_inner_close,
-			Recv_key_ : common.Chanrpc_key_tcp_inner_recv,
-			Tls_: false,
-			Svr_global_: svr,
-			M_create_session_cb_: map[ProtoMsg.EmSvrType]net.CreateSessionCB{
-				ProtoMsg.EmSvrType_Gs: svr.createInnerSvrSession,
-				ProtoMsg.EmSvrType_Login: svr.createInnerSvrSession,
-			},
+	svr.svrs_mgr_ = &net.SvrsMgr{
+		Svr_global_: svr,
+		Publish_svrs_: []ProtoMsg.EmSvrType{
+			ProtoMsg.EmSvrType_Login,
+			ProtoMsg.EmSvrType_Gs,
 		},
 		Cluster_svr_info_: &etc.Gate_Config.Cluster_,
-		Svr_info_: svr.GetSvrBaseInfo(),
-		Publish_svrs_: svr.GetPublishSvrs(),
 	}
-	if err = svr.cluster_.Start(); err != nil {
+
+	if err = svr.svrs_mgr_.Start(); err != nil {
 		return
 	}
 
@@ -112,7 +85,6 @@ func (svr *GateSvrGlobal) Start() (err error) {
 
 func (svr *GateSvrGlobal) Close() {
 	svr.net_ser.Stop()
-	svr.cluster_.Stop()
 	svr.svrs_mgr_.Stop()
 }
 
@@ -168,45 +140,4 @@ func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
 	session := args[0].(*tcp.Session)
 	log.Release("onTcpClose session:%v", session)
-}
-
-func (svr *GateSvrGlobal) createInnerSvrSession(tcp_session *tcp.Session, svr_global common_global.IServerGlobal,
-	config_info *ProtoMsg.PbSvrBaseInfo) common_global.ILogicSession {
-	cs := session.CreateSvrSession(tcp_session, svr_global, config_info)
-
-	//注册连接事件
-	cs.(*session.SvrSession).SetSessionEventCB(session.SessionEvent_Accept, svr.regSvrCallBack)
-	cs.(*session.SvrSession).SetSessionEventCB(session.SessionEvent_Close, func(s common_global.ILogicSession){
-		svr.svrs_mgr_.OnSvrClose(s.(*session.SvrSession))
-	})
-
-	return cs
-}
-
-func (svr *GateSvrGlobal) regSvrCallBack(s common_global.ILogicSession){
-
-	ssession := s.(*session.SvrSession)
-
-	//注册服务器
-	m_head := &common.ProtocolInnerHead{
-		Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME),
-	}
-
-	var m_body proto.Message
-	switch ssession.Config_info_.SvrType{
-	case ProtoMsg.EmSvrType_Gs:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME)
-		m_body =  &ProtoMsg.PbSvrRegisterGameReqMsg{
-			SvrInfo: svr.GetSvrBaseInfo(),
-		}
-	case ProtoMsg.EmSvrType_Login:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN)
-		m_body =  &ProtoMsg.PbSvrRegisterLoginReqMsg{
-			SvrInfo: svr.GetSvrBaseInfo(),
-		}
-	default:
-		return
-	}
-
-	ssession.Send(m_head, m_body)
 }

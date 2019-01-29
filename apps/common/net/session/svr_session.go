@@ -68,7 +68,10 @@ func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool) 
 	}
 
 	//派发消息
-	ssession.Svr_global_.GetMsgDispatcher().Dispatch(ssession, msg_head, msg_body)
+	err := ssession.Svr_global_.GetMsgDispatcher().Dispatch(ssession, msg_head, msg_body)
+	if err != nil {
+		log.Error("ClientSession::OnRecv err:%v", err)
+	}
 
 	//连接回调
 	if cb, ok := ssession.M_event_cbs_[SessionEvent_Recv]; ok {

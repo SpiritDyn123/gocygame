@@ -12,7 +12,7 @@ type consHashSelector struct {
 func (s *consHashSelector) Select() interface{} {
 	id := s.hash_ring_.GetNode(s.cur_id_)
 	obj, ok := s.m_objs_[id]
-	if !ok {
+	if ok {
 		return obj
 	}
 
