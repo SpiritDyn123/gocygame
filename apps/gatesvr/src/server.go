@@ -50,7 +50,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
 
 	//消息管理器
-	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
+	svr.msg_dispatcher_ = tools.CreateMsgDispatcherWithTransmit(svr.onRecvTransmit)
 
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
@@ -140,4 +140,8 @@ func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
 	session := args[0].(*tcp.Session)
 	log.Release("onTcpClose session:%v", session)
+}
+
+func (svr *GateSvrGlobal) onRecvTransmit(sink interface{}, head common.IMsgHead, msg []byte) {
+
 }

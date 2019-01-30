@@ -9,6 +9,7 @@ import (
 
 //sink 可以是玩家或者session， head是消息的头部 msg是proto包体
 type MsgCallBack func(sink interface{}, head common.IMsgHead, msg proto.Message)
+type MsgTransmitCallBack  func(sink interface{}, head common.IMsgHead, msg []byte)
 type IMsgDispatcher interface {
 	Register(mid ProtoMsg.EmMsgId, msg proto.Message, cb MsgCallBack) error
 	Dispatch(sink interface{}, head common.IMsgHead, msg_data []byte) error
@@ -20,6 +21,7 @@ type cbInfo struct {
 }
 
 type msgDispatcher struct {
+	transmit_cb_ MsgTransmitCallBack
 	m_reg_cbs_ map[uint32]*cbInfo
 }
 
@@ -39,6 +41,10 @@ func(disp *msgDispatcher) Dispatch(sink interface{}, head common.IMsgHead, msg_d
 
 	cb_info, ok := disp.m_reg_cbs_[mid]
 	if !ok {
+		if disp.transmit_cb_ != nil {
+			disp.transmit_cb_(sink, head, msg_data)
+			return
+		}
 		return Error_not_found
 	}
 
@@ -58,5 +64,12 @@ func(disp *msgDispatcher) Dispatch(sink interface{}, head common.IMsgHead, msg_d
 func CreateMsgDispatcher() IMsgDispatcher {
 	return &msgDispatcher{
 		m_reg_cbs_: make(map[uint32]*cbInfo),
+	}
+}
+
+func CreateMsgDispatcherWithTransmit(cb MsgTransmitCallBack) IMsgDispatcher {
+	return &msgDispatcher{
+		m_reg_cbs_: make(map[uint32]*cbInfo),
+		transmit_cb_: cb,
 	}
 }
