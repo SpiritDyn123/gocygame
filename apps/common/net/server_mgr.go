@@ -37,6 +37,8 @@ func (mgr *SvrsMgr) hasSvr(svr_type ProtoMsg.EmSvrType) bool {
 }
 
 func (mgr *SvrsMgr) Start() (err error) {
+
+	cur_svr_type := mgr.Svr_global_.GetSvrBaseInfo().SvrType
 	//注册消息
 	if mgr.hasSvr(ProtoMsg.EmSvrType_Gs) {
 		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME,
@@ -73,6 +75,16 @@ func (mgr *SvrsMgr) Start() (err error) {
 
 	mgr.m_svrs_info_ = make(map[ProtoMsg.EmSvrType]*svr_info.SvrGroup)
 	mgr.m_tmp_session_ = make(map[uint64]global.ILogicSession)
+
+	//db客户端
+	if cur_svr_type != ProtoMsg.EmSvrType_DB {
+		mgr.dbengin_client_ = &dbengine.DBEngineClient{
+			Svr_global_: mgr.Svr_global_,
+		}
+		if err = mgr.dbengin_client_.Start(); err != nil {
+			return
+		}
+	}
 
 	//集群管理器
 	clus_msg_parser := tcp.NewMsgParser()
@@ -210,11 +222,6 @@ func (mgr *SvrsMgr) onResRegister(sink interface{}, head common.IMsgHead, msg pr
 
 	//dbengine客户端更新链接
 	if is_db {
-		if mgr.dbengin_client_ == nil {
-			mgr.dbengin_client_ = &dbengine.DBEngineClient{
-				Svr_global_: mgr.Svr_global_,
-			}
-		}
 		mgr.dbengin_client_.Svr_group_ = group_info
 	}
 
@@ -240,9 +247,7 @@ func (mgr *SvrsMgr) OnSvrOffline(logic_session global.ILogicSession) {
 
 	//dbengine客户端更新链接
 	if cfg_svr_info.SvrType == ProtoMsg.EmSvrType_DB {
-		if mgr.dbengin_client_ != nil {
-			mgr.dbengin_client_.Svr_group_ = group_info
-		}
+		mgr.dbengin_client_.Svr_group_ = group_info
 	}
 
 	log.Release("OnSvrOffline svr info:%+v", cfg_svr_info)

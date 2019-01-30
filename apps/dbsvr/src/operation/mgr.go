@@ -15,7 +15,7 @@ func init() {
 	DbOperationMgr = &dbOperationMgr{}
 }
 
-type dbOprHandler func(req_msg proto.Message) (proto.Message, error, bool)
+type dbOprHandler func(req_msg proto.Message) (proto.Message, error)
 type dbOperationMgr struct {
 	m_operations_ map[string]dbOprHandler
 }
@@ -45,8 +45,10 @@ func (mgr *dbOperationMgr) regOpr(msg proto.Message, handler dbOprHandler) {
 }
 
 func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg proto.Message) {
+	req_msg := msg.(*ProtoMsg.PbSvrDBServiceReqMsg)
+	var handler_resp_msg proto.Message
+	var handler_err error
 	global.DBSvrGlobal.GetGoServer().Go(func(){
-		req_msg := msg.(*ProtoMsg.PbSvrDBServiceReqMsg)
 		if req_msg.ReqMsgName == "" {
 			return
 		}
@@ -70,9 +72,10 @@ func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg
 			return
 		}
 
-		res_logic_msg, err, b_resp := handler(logic_msg)
+		handler_resp_msg, handler_err = handler(logic_msg)
+	}, func(){
 		//需要回复
-		if b_resp {
+		if handler_resp_msg != nil || handler_err != nil {
 			resp_msg := &ProtoMsg.PbSvrDBServiceResMsg{
 				Ret: &ProtoMsg.Ret{
 					ErrCode: 0,
@@ -80,12 +83,12 @@ func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg
 				DbEngine: req_msg.DbEngine,
 			}
 
-			if err != nil {
+			if handler_err != nil {
 				resp_msg.Ret.ErrCode = -1
-				resp_msg.Ret.ErrMsg = err.Error()
+				resp_msg.Ret.ErrMsg = handler_err.Error()
 			} else {
-				resp_msg.ResMsgName = reflect.ValueOf(res_logic_msg).Elem().Type().String()
-				resp_data, err := proto.Marshal(res_logic_msg)
+				resp_msg.ResMsgName = reflect.ValueOf(handler_resp_msg).Elem().Type().String()
+				resp_data, err := proto.Marshal(handler_resp_msg)
 				if err != nil {
 					resp_msg.Ret.ErrCode = -2
 					resp_msg.Ret.ErrMsg = err.Error()
@@ -96,6 +99,6 @@ func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg
 
 			sink.(common_global.ILogicSession).Send(head, resp_msg)
 		}
-	}, func(){})
+	})
 
 }

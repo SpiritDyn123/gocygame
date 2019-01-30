@@ -34,13 +34,13 @@ func (rec *DBEngineClient) Start() (err error) {
 
 func (rec *DBEngineClient) Register(resp_msg proto.Message, handler DBClientHandler) (err error){
 	if resp_msg == nil || handler == nil {
-		err = fmt.Errorf("RedisEngineClient::Register resp msg nil")
+		err = fmt.Errorf("DBEngineClient::Register resp msg nil")
 		return
 	}
 
 	res_msg_name := reflect.ValueOf(resp_msg).Elem().Type().String()
 	if _, ok := rec.m_res_msg_info_[res_msg_name]; ok {
-		err = fmt.Errorf("RedisEngineClient::Register repeated res msg:%s", res_msg_name)
+		err = fmt.Errorf("DBEngineClient::Register repeated res msg:%s", res_msg_name)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (rec *DBEngineClient) Register(resp_msg proto.Message, handler DBClientHand
 
 func (rec *DBEngineClient) Do(engine ProtoMsg.EmDBEngin, uid uint64, req_msg proto.Message) (err error) {
 	if req_msg == nil {
-		err = fmt.Errorf("RedisEngineClient::DoRedis req msg nil")
+		err = fmt.Errorf("DBEngineClient::Do req msg nil")
 		return
 	}
 
@@ -92,7 +92,7 @@ func (rec *DBEngineClient) DoMysql(uid uint64, req_msg proto.Message) (err error
 func (rec *DBEngineClient) onRecvData(sink interface{}, head common.IMsgHead, msg proto.Message) {
 	resp_msg := msg.(*ProtoMsg.PbSvrDBServiceResMsg)
 	if resp_msg.Ret.ErrCode != 0 {
-		log.Error("RedisEngineClient::onRecvData Ret err:%+v", resp_msg.Ret)
+		log.Error("DBEngineClient::onRecvData Ret err:%+v", resp_msg.Ret)
 		return
 	}
 
@@ -102,13 +102,13 @@ func (rec *DBEngineClient) onRecvData(sink interface{}, head common.IMsgHead, ms
 
 	resp_info, ok := rec.m_res_msg_info_[resp_msg.ResMsgName]
 	if !ok {
-		log.Error("RedisEngineClient::onRecvData msg:%s no handler", resp_msg.ResMsgName)
+		log.Error("DBEngineClient::onRecvData msg:%s no handler", resp_msg.ResMsgName)
 		return
 	}
 
 	err := proto.Unmarshal([]byte(resp_msg.ResData), resp_info.resp_msg_)
 	if err != nil {
-		log.Error("RedisEngineClient::onRecvData proto Unmarsal msg:%s err:%v", resp_msg.ResMsgName, err)
+		log.Error("DBEngineClient::onRecvData proto Unmarsal msg:%s err:%v", resp_msg.ResMsgName, err)
 		return
 	}
 

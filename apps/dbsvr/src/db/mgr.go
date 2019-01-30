@@ -7,7 +7,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/etc"
 	"fmt"
 	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/global"
-	"libs/log"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
 var DBMgr global.IDBMgr
@@ -28,7 +28,9 @@ func (mgr *dbMgr) Start() (err error) {
 	for _, cfg := range  etc.DB_Config.Redis_cfgs_ {
 		redis_pool := &redis.Pool{
 			Dial:  func() (redis.Conn, error){
-				dial_opts := []redis.DialOption{}
+				dial_opts := []redis.DialOption{
+					redis.DialConnectTimeout(time.Second * 3),
+				}
 				if cfg.Pwd_ != "" {
 					dial_opts = append(dial_opts, redis.DialPassword(cfg.Pwd_))
 				}
