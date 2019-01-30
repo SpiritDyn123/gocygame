@@ -23,15 +23,18 @@
   },
   "redis": [
     {
-      "addr": "",
-      "user": "",
-      "pwd": ""
+      "id": 1,
+      "addr": "10.216.251.98:6379",
+      "user": "root",
+      "pwd": "1234560.",
+      "max_idle": 100,
+      "max_active": 500
     }
   ],
   "mysql": {
-    "addr": "",
-    "user": "",
-    "pwd": "",
-    "db": ""
+    "addr": "127.0.0.1:3306",
+    "user": "root",
+    "pwd": "spirit",
+    "db": "spirit_db"
   }
 }

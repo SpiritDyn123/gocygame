@@ -22,7 +22,6 @@ message PbSvrDBServiceReqMsg {
     emDBEngin  db_engine = 1;
     string req_msg_name = 2; //请求的消息名
     string req_data = 3;     //请求的数据
-    string res_msg_name = 4;  //响应的消息名
 };
 
 message PbSvrDBServiceResMsg {
@@ -30,4 +29,14 @@ message PbSvrDBServiceResMsg {
     emDBEngin  db_engine = 2;
     string res_msg_name = 3;     //响应的消息名
     string res_data = 4;        //响应的数据
+};
+
+message PbSvrDBTestRecvReqMsg {
+    int32 id = 1;
+    string name = 2;
+};
+
+message PbSvrDBTestRecvResMsg {
+    int32 id = 1;
+    string name = 2;
 };

@@ -7,7 +7,6 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/net/strategy"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/golang/protobuf/proto"
-	"strconv"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
@@ -80,7 +79,7 @@ func (svr *SvrGroup) AddSession(logic_session global.ILogicSession, cfg_svr_info
 
 	svr.m_svrs_info_[cfg_svr_info.SvrId] = svr_info
 
-	svr.selector_.AddElement(strconv.Itoa(int(cfg_svr_info.SvrId)), logic_session)
+	svr.selector_.AddElement(cfg_svr_info.SvrId, logic_session)
 	return true
 }
 
@@ -102,10 +101,9 @@ func (svr *SvrGroup) RemoveSession(logic_session global.ILogicSession, cfg_svr_i
 
 	delete(svr.m_svrs_info_, cfg_svr_info.SvrId)
 
-	svr.selector_.RemoveElement(strconv.Itoa(int(cfg_svr_info.SvrId)), logic_session)
+	svr.selector_.RemoveElement(cfg_svr_info.SvrId, logic_session)
 	return true
 }
-
 
 //指定id的发送
 func (svr *SvrGroup) SendToSvr(svr_id int32, head common.IMsgHead, msg proto.Message) (err error) {
@@ -121,14 +119,15 @@ func (svr *SvrGroup) SendToSvr(svr_id int32, head common.IMsgHead, msg proto.Mes
 }
 
 //不指定id的发送，key用uid
-func (svr *SvrGroup) Send(key string, head common.IMsgHead, msg proto.Message) (err error) {
+func (svr *SvrGroup) Send(key interface{}, head common.IMsgHead, msg proto.Message) (err error) {
 	svr.selector_.SetElementId(key)
-	session := svr.selector_.Select().(global.ILogicSession)
-	if session == nil {
+	s_obj := svr.selector_.Select()
+
+	if s_obj == nil {
 		err = fmt.Errorf("SvrGroup Send no svr key:%s", key)
 		return
 	}
 
-	session.Send(head, msg)
+	s_obj.(global.ILogicSession).Send(head, msg)
 	return
 }

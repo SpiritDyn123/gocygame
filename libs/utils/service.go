@@ -11,6 +11,8 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/go"
 	"sort"
 	"strings"
+	"runtime"
+	"fmt"
 )
 
 type IService interface {
@@ -60,6 +62,10 @@ func RunMutli(sers ...IService) {
 	defer func() {
 		err := recover()//捕捉异常错误
 		if err != nil {
+			buf := make([]byte, 4096)
+			l := runtime.Stack(buf, false)
+			err = fmt.Errorf("%v: %s", err, buf[:l])
+
 			log.Error("进程退出异常：%v", err)
 		}
 		log.Close()

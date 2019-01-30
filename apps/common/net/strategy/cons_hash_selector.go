@@ -10,25 +10,30 @@ type consHashSelector struct {
 }
 
 func (s *consHashSelector) Select() interface{} {
-	id := s.hash_ring_.GetNode(s.cur_id_)
+	str_id := s.idToString(s.cur_id_)
+
+	id := s.hash_ring_.GetNode(str_id)
 	obj, ok := s.m_objs_[id]
 	if ok {
 		return obj
 	}
-
 	return nil
 }
 
-func (s *consHashSelector) AddElement(id string, obj interface{}) {
-	s.m_objs_[id] = obj
-	s.hash_ring_.AddNode(id, 1)
+func (s *consHashSelector) AddElement(id interface{}, obj interface{}) {
+	str_id := s.idToString(id)
+	s.m_objs_[str_id] = obj
+
+	s.hash_ring_.AddNode(str_id, 1)
 }
 
-func (s *consHashSelector) RemoveElement(id string, obj interface{}) {
-	delete(s.m_objs_, id)
-	s.hash_ring_.RemoveNode(id)
+func (s *consHashSelector) RemoveElement(id interface{}, obj interface{}) {
+	str_id := s.idToString(id)
+	delete(s.m_objs_, str_id)
+
+	s.hash_ring_.RemoveNode(str_id)
 }
 
-func (s *consHashSelector) SetElementId(id string) {
+func (s *consHashSelector) SetElementId(id interface{}) {
 	s.cur_id_ = id
 }

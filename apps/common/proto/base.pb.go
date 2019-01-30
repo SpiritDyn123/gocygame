@@ -23,6 +23,8 @@ It has these top-level messages:
 	PbSvrRegisterDBResMsg
 	PbSvrDBServiceReqMsg
 	PbSvrDBServiceResMsg
+	PbSvrDBTestRecvReqMsg
+	PbSvrDBTestRecvResMsg
 	PbSvrRegisterGameReqMsg
 	PbSvrRegisterGameResMsg
 	PbSvrRegisterLoginReqMsg

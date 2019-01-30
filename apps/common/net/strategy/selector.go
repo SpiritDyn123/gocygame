@@ -1,6 +1,9 @@
 package strategy
 
-import "github.com/SpiritDyn123/gocygame/libs/utils"
+import (
+	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"fmt"
+)
 
 type StrategyType int
 const (
@@ -11,25 +14,29 @@ const (
 
 type Selector interface {
 	Select() interface{}
-	AddElement(string, interface{})
-	RemoveElement(string, interface{})
-	SetElementId(string)
+	AddElement(interface{}, interface{})
+	RemoveElement(interface{}, interface{})
+	SetElementId(interface{})
 }
 
 type BaseSelector struct {
 	m_objs_ map[string]interface{}
-	cur_id_ string
+	cur_id_ interface{}
 }
 
-func (s *BaseSelector) AddElement(id string, obj interface{}) {
-	s.m_objs_[id] = obj
+func (s *BaseSelector) idToString(id interface{}) string {
+	return fmt.Sprintf("%v", id)
 }
 
-func (s *BaseSelector) RemoveElement(id string, obj interface{}) {
-	delete(s.m_objs_, id)
+func (s *BaseSelector) AddElement(id interface{}, obj interface{}) {
+	s.m_objs_[s.idToString(id)] = obj
 }
 
-func (s *BaseSelector) SetElementId(id string) {
+func (s *BaseSelector) RemoveElement(id interface{}, obj interface{}) {
+	delete(s.m_objs_, s.idToString(id))
+}
+
+func (s *BaseSelector) SetElementId(id interface{}) {
 	s.cur_id_ = id
 }
 

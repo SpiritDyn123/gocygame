@@ -14,6 +14,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"time"
 )
 
 
@@ -48,6 +49,22 @@ func (svr *GameSvrGlobal) Start() (err error) {
 	svr.wheel_timer_ = timer.CreateWheelTimer()
 	svr.TimerServer = timer.NewDispatcher(10)
 	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
+
+	//测试
+	svr.wheel_timer_.SetTimer(uint32(5 * time.Second / common.Default_Svr_Logic_time), true, timer.TimerHandlerFunc(func(args ...interface{}){
+		db_client := svr.svrs_mgr_.GetDBEngineClient()
+		if db_client == nil {
+			return
+		}
+
+		err = db_client.DoRedis(1000, &ProtoMsg.PbSvrDBTestRecvReqMsg{
+			Id: 1111,
+			Name: "sb",
+		})
+		if err != nil {
+			fmt.Println("PbSvrDBTestRecvReqMsg send error")
+		}
+	}), 0)
 
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()

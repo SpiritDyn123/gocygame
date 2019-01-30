@@ -20,6 +20,15 @@ type Cfg_Json_Svr_Item struct {
 	Ttl_      int    `json:"ttl"`
 }
 
+type Cfg_Json_Redis_Item struct {
+	Id_ 			int `json:"id"`
+	Addr_ 			string `json:"addr"`
+	User_ 			string  `json:"user"`
+	Pwd_  			string  `json:"pwd"`
+	Max_idle_ 		int `json:"max_idle"`
+	Max_active_ 	int  `json:"max_active"`
+}
+
 type Cfg_Json_SvrBase struct {
 	//基础配置
 	Svr_group_id_ int			`json:"group_id"`

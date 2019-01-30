@@ -16,6 +16,8 @@ type Cfg_Json_DB struct {
 	Log_ common.Cfg_Json_Log `json:"log"`
 
 	Cluster_ common.Cfg_Json_Svr_Item `json:"cluster"`
+
+	Redis_cfgs_ []*common.Cfg_Json_Redis_Item `json:"redis"`
 }
 
 var (

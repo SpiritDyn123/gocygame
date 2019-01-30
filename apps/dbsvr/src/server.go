@@ -14,6 +14,8 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/db"
+	"github.com/SpiritDyn123/gocygame/apps/dbsvr/src/operation"
 )
 
 
@@ -25,8 +27,10 @@ type DBSvrGlobal struct {
 
 	msg_dispatcher_ tools.IMsgDispatcher
 
-
 	svrs_mgr_ *net.SvrsMgr
+
+	db_mgr_ global.IDBMgr
+	db_opr_mgr_ global.IDbOperationMgr
 }
 
 func (svr *DBSvrGlobal) GetName() string {
@@ -52,6 +56,18 @@ func (svr *DBSvrGlobal) Start() (err error) {
 
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
+
+	//db管理器
+	svr.db_mgr_ = db.DBMgr
+	if err = svr.db_mgr_.Start(); err != nil {
+		return
+	}
+
+	//db操作管理器
+	svr.db_opr_mgr_ = operation.DbOperationMgr
+	if err = svr.db_opr_mgr_.Start(); err != nil {
+		return
+	}
 
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
@@ -83,6 +99,9 @@ func (svr *DBSvrGlobal) Start() (err error) {
 
 func (svr *DBSvrGlobal) Close() {
 	svr.net_ser.Stop()
+	svr.svrs_mgr_.Stop()
+	svr.db_mgr_.Stop()
+	svr.db_opr_mgr_.Stop()
 }
 
 func (svr *DBSvrGlobal) Pool(cs chan bool) {
@@ -103,6 +122,14 @@ func (svr *DBSvrGlobal) GetWheelTimer() timer.WheelTimer {
 
 func (svr *DBSvrGlobal) GetSvrsMgr() *net.SvrsMgr {
 	return svr.svrs_mgr_
+}
+
+func (svr *DBSvrGlobal) GetDBMgr() global.IDBMgr {
+	return svr.db_mgr_
+}
+
+func (svr *DBSvrGlobal) GetDBOperaitonMgr() global.IDbOperationMgr {
+	return svr.db_opr_mgr_
 }
 
 func (svr *DBSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{

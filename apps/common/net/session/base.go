@@ -31,7 +31,7 @@ type BaseSession struct {
 	m_attribute_ map[string]interface{}
 }
 
-func (session *ClientSession) Send(msg ...interface{}) error {
+func (session *BaseSession) Send(msg ...interface{}) error {
 	if session == nil || session.Session == nil {
 		return fmt.Errorf("send in closed client session")
 	}

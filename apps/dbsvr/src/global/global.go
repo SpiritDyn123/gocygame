@@ -13,6 +13,9 @@ type IDBSvrGlobal interface {
 	GetWheelTimer() timer.WheelTimer
 
 	GetSvrsMgr() *net.SvrsMgr
+
+	GetDBMgr() IDBMgr
+	GetDBOperaitonMgr() IDbOperationMgr
 }
 
 var DBSvrGlobal IDBSvrGlobal
