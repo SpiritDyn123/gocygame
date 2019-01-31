@@ -21,7 +21,7 @@ type dbOperationMgr struct {
 }
 
 func (mgr *dbOperationMgr) Start() (err  error) {
-	global.DBSvrGlobal.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_DB_SERVICE,
+	global.DBSvrGlobal.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_DB_SERVICE),
 		&ProtoMsg.PbSvrDBServiceReqMsg{}, mgr.onRecvMsg)
 
 	//注册操作

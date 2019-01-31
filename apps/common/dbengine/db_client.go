@@ -27,7 +27,7 @@ type DBEngineClient struct {
 func (rec *DBEngineClient) Start() (err error) {
 	rec.m_res_msg_info_ = make(map[string]*dbMsgInfo)
 
-	rec.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_DB_SERVICE, &ProtoMsg.PbSvrDBServiceResMsg{}, rec.onRecvData)
+	rec.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_DB_SERVICE), &ProtoMsg.PbSvrDBServiceResMsg{}, rec.onRecvData)
 
 	return
 }
@@ -74,7 +74,7 @@ func (rec *DBEngineClient) Do(engine ProtoMsg.EmDBEngin, uid uint64, req_msg pro
 	send_msg.ReqData = string(req_data)
 
 	rec.Svr_group_.Send(uid,
-		&common.ProtocolInnerHead{Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_DB_SERVICE)},
+		&common.ProtocolInnerHead{Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_DB_SERVICE)},
 		send_msg)
 	return
 }

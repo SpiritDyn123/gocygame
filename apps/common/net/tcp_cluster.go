@@ -25,9 +25,9 @@ func (cluster *TcpClientCluster) Start() (err error){
 	}
 
 	//注册消息处理
-	cluster.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_CLUSTER, &ProtoMsg.PbSvrRegisterClusterResMsg{},
+	cluster.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_CLUSTER), &ProtoMsg.PbSvrRegisterClusterResMsg{},
 		cluster.onRecvRegisterSvr)
-	cluster.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_BROAD_CLUSTER, &ProtoMsg.PbSvrBroadClusterMsg{},
+	cluster.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_BROAD_CLUSTER), &ProtoMsg.PbSvrBroadClusterMsg{},
 		cluster.onRecvBroadSvr)
 
 	cluster.M_create_session_cb_[ProtoMsg.EmSvrType_Cluster] = cluster.createClusterSession
@@ -58,7 +58,7 @@ func (cluster *TcpClientCluster) createClusterSession(tcp_session *tcp.Session, 
 	cluster_session.SetSessionEventCB(session.SessionEvent_Accept, func(logic_session global.ILogicSession) {
 		//发送注册和订阅消息
 		head := &common.ProtocolInnerHead{
-			Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_CLUSTER),
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_CLUSTER),
 		}
 
 		reg_msg := &ProtoMsg.PbSvrRegisterClusterReqMsg{

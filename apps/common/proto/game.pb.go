@@ -20,7 +20,7 @@ type PbSvrRegisterGameReqMsg struct {
 func (m *PbSvrRegisterGameReqMsg) Reset()                    { *m = PbSvrRegisterGameReqMsg{} }
 func (m *PbSvrRegisterGameReqMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterGameReqMsg) ProtoMessage()               {}
-func (*PbSvrRegisterGameReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*PbSvrRegisterGameReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
 
 func (m *PbSvrRegisterGameReqMsg) GetSvrInfo() *PbSvrBaseInfo {
 	if m != nil {
@@ -36,7 +36,7 @@ type PbSvrRegisterGameResMsg struct {
 func (m *PbSvrRegisterGameResMsg) Reset()                    { *m = PbSvrRegisterGameResMsg{} }
 func (m *PbSvrRegisterGameResMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterGameResMsg) ProtoMessage()               {}
-func (*PbSvrRegisterGameResMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (*PbSvrRegisterGameResMsg) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
 
 func (m *PbSvrRegisterGameResMsg) GetRet() *Ret {
 	if m != nil {
@@ -50,9 +50,9 @@ func init() {
 	proto.RegisterType((*PbSvrRegisterGameResMsg)(nil), "ProtoMsg.PbSvrRegisterGameResMsg")
 }
 
-func init() { proto.RegisterFile("game.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("game.proto", fileDescriptor4) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor4 = []byte{
 	// 157 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x4f, 0xcc, 0x4d,
 	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x08, 0x00, 0x51, 0xbe, 0xc5, 0xe9, 0x52, 0xbc,

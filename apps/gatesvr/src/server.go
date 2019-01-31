@@ -12,10 +12,10 @@ import (
 
 	"github.com/SpiritDyn123/gocygame/libs/chanrpc"
 	"github.com/SpiritDyn123/gocygame/libs/go"
-	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/player"
 )
 
 type GateSvrGlobal struct {
@@ -27,6 +27,8 @@ type GateSvrGlobal struct {
 	msg_dispatcher_ tools.IMsgDispatcher
 
 	svrs_mgr_ *net.SvrsMgr
+
+	player_mgr_ global.IPlayerMgr
 }
 
 func (svr *GateSvrGlobal) GetName() string {
@@ -51,6 +53,13 @@ func (svr *GateSvrGlobal) Start() (err error) {
 
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcherWithTransmit(svr.onRecvTransmit)
+
+
+	//玩家管理器
+	svr.player_mgr_ = player.PlayerMgr
+	if err = svr.player_mgr_.Start(); err != nil {
+		return
+	}
 
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
@@ -86,6 +95,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 func (svr *GateSvrGlobal) Close() {
 	svr.net_ser.Stop()
 	svr.svrs_mgr_.Stop()
+	svr.player_mgr_.Stop()
 }
 
 func (svr *GateSvrGlobal) Pool(cs chan bool) {
@@ -128,18 +138,17 @@ func (svr *GateSvrGlobal) onTimer() {
 
 func (svr *GateSvrGlobal) onTcpAccept(args []interface{}) {
 	session := args[0].(*tcp.Session)
-	log.Release("onTcpAccept session:%v", session)
+	svr.player_mgr_.OnAccept(session)
 }
 
 func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
 	session := args[0].(*tcp.Session)
-	log.Release("onTcpRecv session:%v recv:%v", session, args[1:])
-	session.Send(args[1].([]interface{})...)
+	svr.player_mgr_.OnRecv(session, args[1])
 }
 
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
 	session := args[0].(*tcp.Session)
-	log.Release("onTcpClose session:%v", session)
+	svr.player_mgr_.OnClose(session)
 }
 
 func (svr *GateSvrGlobal) onRecvTransmit(sink interface{}, head common.IMsgHead, msg []byte) {

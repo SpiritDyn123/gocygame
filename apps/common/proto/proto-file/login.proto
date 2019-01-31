@@ -11,3 +11,43 @@ message PbSvrRegisterLoginReqMsg {
 message PbSvrRegisterLoginResMsg {
    Ret ret = 1;
 };
+
+enum emLoginType {
+    Login_type_invalid = 0;
+    Login_type_visitor = 1;  //游客
+    Login_type_user = 2;  //账号密码登陆
+    Login_type_qq = 3;     //qq
+    Login_type_wechat = 4; //微信
+    Login_type_alipay = 5; //支付宝
+};
+
+enum emDeviceType {
+    Device_type_invalid = 0;
+    Device_type_android = 1;
+    Device_type_ios = 2;
+    Device_type_ipad = 3;
+    Device_type_mac = 4;
+    Device_type_windows = 5;
+};
+
+message PbCsPlayerLoginReqMsg {
+   emLoginType login_type = 1;
+   emDeviceType device_type = 2;
+   string device_desc = 3;
+   string version = 4;
+   string platfom_token = 5; //第三方登陆
+   string user_name = 6;
+   string user_pwd = 7;
+};
+
+message PbCsPlayerLoginResMsg {
+   Ret ret = 1;
+};
+
+message PbCsPlayerBindReqMsg {
+
+};
+
+message PbCsPlayerBindResMsg {
+   Ret ret = 1;
+};

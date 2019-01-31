@@ -41,34 +41,34 @@ func (mgr *SvrsMgr) Start() (err error) {
 	cur_svr_type := mgr.Svr_global_.GetSvrBaseInfo().SvrType
 	//注册消息
 	if mgr.hasSvr(ProtoMsg.EmSvrType_Gs) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
 			&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
 			&ProtoMsg.PbSvrRegisterGameReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_DB) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
 			&ProtoMsg.PbSvrRegisterDBResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
 			&ProtoMsg.PbSvrRegisterDBReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_World) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_WORLD,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
 			&ProtoMsg.PbSvrRegisterWorldResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_WORLD,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
 			&ProtoMsg.PbSvrRegisterWorldReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_Login) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
 			&ProtoMsg.PbSvrRegisterLoginResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN,
+		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
 			&ProtoMsg.PbSvrRegisterLoginReqMsg{}, mgr.onReqRegister)
 	}
 
@@ -135,6 +135,8 @@ func (mgr *SvrsMgr) OnAccept(tcp_session *tcp.Session) {
 		mgr.OnSvrOffline(s)
 	})
 
+	logic_session.OnCreate()
+
 	mgr.m_tmp_session_[logic_session.Id()] = logic_session
 }
 
@@ -156,14 +158,14 @@ func (mgr *SvrsMgr) OnClose(tcp_session *tcp.Session) {
 func (mgr *SvrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg proto.Message) {
 
 	var cfg_svr_info *ProtoMsg.PbSvrBaseInfo
-	switch ProtoMsg.EmMsgId(head.GetMsgId()) {
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB:
+	switch ProtoMsg.EmSSMsgId(head.GetMsgId()) {
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterDBReqMsg).SvrInfo
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_WORLD:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterWorldReqMsg).SvrInfo
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterGameReqMsg).SvrInfo
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterLoginReqMsg).SvrInfo
 	}
 
@@ -195,15 +197,15 @@ func (mgr *SvrsMgr) onResRegister(sink interface{}, head common.IMsgHead, msg pr
 	cfg_svr_info := sssesion.Config_info_
 	ret_code := int32(0)
 	is_db := false
-	switch ProtoMsg.EmMsgId(head.GetMsgId()) {
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB:
+	switch ProtoMsg.EmSSMsgId(head.GetMsgId()) {
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB:
 		is_db = true
 		ret_code = msg.(*ProtoMsg.PbSvrRegisterDBResMsg).Ret.ErrCode
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_WORLD:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD:
 		ret_code = msg.(*ProtoMsg.PbSvrRegisterWorldResMsg).Ret.ErrCode
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME:
 		ret_code = msg.(*ProtoMsg.PbSvrRegisterGameResMsg).Ret.ErrCode
-	case ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN:
+	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN:
 		ret_code = msg.(*ProtoMsg.PbSvrRegisterLoginResMsg).Ret.ErrCode
 	}
 	if ret_code != 0 {
@@ -271,28 +273,28 @@ func (mgr *SvrsMgr) regSvrCallBack(s global.ILogicSession){
 
 	//注册服务器
 	m_head := &common.ProtocolInnerHead{
-		Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB),
+		Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
 	}
 
 	var m_body proto.Message
 	switch ssession.Config_info_.SvrType{
 	case ProtoMsg.EmSvrType_DB:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_DB)
+		m_head.Msg_id_ = uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB)
 		m_body =  &ProtoMsg.PbSvrRegisterDBReqMsg{
 			SvrInfo: mgr.Svr_global_.GetSvrBaseInfo(),
 		}
 	case ProtoMsg.EmSvrType_Gs:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_GAME)
+		m_head.Msg_id_ = uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME)
 		m_body =  &ProtoMsg.PbSvrRegisterGameReqMsg{
 			SvrInfo: mgr.Svr_global_.GetSvrBaseInfo(),
 		}
 	case ProtoMsg.EmSvrType_Login:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_LOGIN)
+		m_head.Msg_id_ = uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN)
 		m_body =  &ProtoMsg.PbSvrRegisterLoginReqMsg{
 			SvrInfo: mgr.Svr_global_.GetSvrBaseInfo(),
 		}
 	case ProtoMsg.EmSvrType_World:
-		m_head.Msg_id_ = uint32(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_WORLD)
+		m_head.Msg_id_ = uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD)
 		m_body =  &ProtoMsg.PbSvrRegisterWorldReqMsg{
 			SvrInfo: mgr.Svr_global_.GetSvrBaseInfo(),
 		}

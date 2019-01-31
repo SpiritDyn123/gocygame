@@ -56,7 +56,7 @@ func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool) 
 	ssession.Last_check_time_ = now
 	msgs := data.([]interface{})
 	msg_head := msgs[0].(common.IMsgHead)
-	if msg_head.GetMsgId() == uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT) {
+	if msg_head.GetMsgId() == uint32(ProtoMsg.EmSSMsgId_SVR_MSG_HEART_BEAT) {
 		is_hb = true
 		return
 	}
@@ -106,7 +106,7 @@ func (ssession *SvrSession)OnHeartBeat(args ...interface{})  {
 	} else {
 		//发送心跳
 		ssession.Send(&common.ProtocolInnerHead{
-			Msg_id_: uint32(ProtoMsg.EmMsgId_MSG_HEART_BEAT),
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_HEART_BEAT),
 		})
 	}
 }

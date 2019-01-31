@@ -42,7 +42,7 @@ type svrsMgr struct {
 
 func(mgr *svrsMgr) Start() (err error) {
 	//注册消息
-	err = global.ClusterSvrGlobal.GetMsgDispatcher().Register(ProtoMsg.EmMsgId_SVR_MSG_REGISTER_CLUSTER,
+	err = global.ClusterSvrGlobal.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_CLUSTER),
 		&ProtoMsg.PbSvrRegisterClusterReqMsg{}, mgr.onrecv_register)
 	if err != nil {
 		return
@@ -85,7 +85,7 @@ func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg pro
 	//广播到关注此服务的服务
 	if len(type_info.publish_svrs_) > 0 {
 		b_head := &common.ProtocolInnerHead{
-			Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_BROAD_CLUSTER),
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_BROAD_CLUSTER),
 		}
 		b_body := &ProtoMsg.PbSvrBroadClusterMsg{
 			OprType: ProtoMsg.EmClusterOprType_Add,
@@ -179,7 +179,7 @@ func (mgr *svrsMgr) RemoveSvr(session *common_session.ClientSession) {
 	delete(type_info.svrs_info_, svr_info.SvrId)
 	if len(type_info.publish_svrs_) > 0 {
 		b_head := &common.ProtocolInnerHead{
-			Msg_id_: uint32(ProtoMsg.EmMsgId_SVR_MSG_BROAD_CLUSTER),
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_BROAD_CLUSTER),
 		}
 		b_body := &ProtoMsg.PbSvrBroadClusterMsg{
 			OprType: ProtoMsg.EmClusterOprType_Del,

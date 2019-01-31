@@ -1,0 +1,15 @@
+syntax = "proto3";
+package ProtoMsg;
+
+enum emCSMsgId {
+    CS_MSG_INVALID = 0;
+    CS_MSG_HEART_BEAT = 1;
+
+    CS_MSG_BEGIN       = 100000;
+
+    //登陆相关
+    CS_MSG_PLAYER_LOGIN             = 100001;
+    CS_MSG_PLAYER_BIND       = 100002;
+
+    CS_MSG_END         = 199999;
+};

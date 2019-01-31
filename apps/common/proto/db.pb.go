@@ -34,7 +34,7 @@ var EmDBEngin_value = map[string]int32{
 func (x EmDBEngin) String() string {
 	return proto.EnumName(EmDBEngin_name, int32(x))
 }
-func (EmDBEngin) EnumDescriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (EmDBEngin) EnumDescriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 // SVR_MSG_REGISTER_DB
 type PbSvrRegisterDBReqMsg struct {
@@ -44,7 +44,7 @@ type PbSvrRegisterDBReqMsg struct {
 func (m *PbSvrRegisterDBReqMsg) Reset()                    { *m = PbSvrRegisterDBReqMsg{} }
 func (m *PbSvrRegisterDBReqMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterDBReqMsg) ProtoMessage()               {}
-func (*PbSvrRegisterDBReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*PbSvrRegisterDBReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *PbSvrRegisterDBReqMsg) GetSvrInfo() *PbSvrBaseInfo {
 	if m != nil {
@@ -60,7 +60,7 @@ type PbSvrRegisterDBResMsg struct {
 func (m *PbSvrRegisterDBResMsg) Reset()                    { *m = PbSvrRegisterDBResMsg{} }
 func (m *PbSvrRegisterDBResMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterDBResMsg) ProtoMessage()               {}
-func (*PbSvrRegisterDBResMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*PbSvrRegisterDBResMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 func (m *PbSvrRegisterDBResMsg) GetRet() *Ret {
 	if m != nil {
@@ -78,7 +78,7 @@ type PbSvrDBServiceReqMsg struct {
 func (m *PbSvrDBServiceReqMsg) Reset()                    { *m = PbSvrDBServiceReqMsg{} }
 func (m *PbSvrDBServiceReqMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrDBServiceReqMsg) ProtoMessage()               {}
-func (*PbSvrDBServiceReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*PbSvrDBServiceReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *PbSvrDBServiceReqMsg) GetDbEngine() EmDBEngin {
 	if m != nil {
@@ -111,7 +111,7 @@ type PbSvrDBServiceResMsg struct {
 func (m *PbSvrDBServiceResMsg) Reset()                    { *m = PbSvrDBServiceResMsg{} }
 func (m *PbSvrDBServiceResMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrDBServiceResMsg) ProtoMessage()               {}
-func (*PbSvrDBServiceResMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (*PbSvrDBServiceResMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
 
 func (m *PbSvrDBServiceResMsg) GetRet() *Ret {
 	if m != nil {
@@ -149,7 +149,7 @@ type PbSvrDBTestRecvReqMsg struct {
 func (m *PbSvrDBTestRecvReqMsg) Reset()                    { *m = PbSvrDBTestRecvReqMsg{} }
 func (m *PbSvrDBTestRecvReqMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrDBTestRecvReqMsg) ProtoMessage()               {}
-func (*PbSvrDBTestRecvReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (*PbSvrDBTestRecvReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
 
 func (m *PbSvrDBTestRecvReqMsg) GetId() int32 {
 	if m != nil {
@@ -173,7 +173,7 @@ type PbSvrDBTestRecvResMsg struct {
 func (m *PbSvrDBTestRecvResMsg) Reset()                    { *m = PbSvrDBTestRecvResMsg{} }
 func (m *PbSvrDBTestRecvResMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrDBTestRecvResMsg) ProtoMessage()               {}
-func (*PbSvrDBTestRecvResMsg) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (*PbSvrDBTestRecvResMsg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
 
 func (m *PbSvrDBTestRecvResMsg) GetId() int32 {
 	if m != nil {
@@ -199,9 +199,9 @@ func init() {
 	proto.RegisterEnum("ProtoMsg.EmDBEngin", EmDBEngin_name, EmDBEngin_value)
 }
 
-func init() { proto.RegisterFile("db.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("db.proto", fileDescriptor3) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor3 = []byte{
 	// 356 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x4f, 0xea, 0x40,
 	0x14, 0x85, 0x5f, 0x0b, 0xef, 0x51, 0xee, 0x13, 0xc4, 0x41, 0x22, 0xb2, 0x91, 0x74, 0x45, 0x5c,

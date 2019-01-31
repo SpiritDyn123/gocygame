@@ -2,22 +2,22 @@ package tools
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"errors"
+	"reflect"
 )
 
 //sink 可以是玩家或者session， head是消息的头部 msg是proto包体
 type MsgCallBack func(sink interface{}, head common.IMsgHead, msg proto.Message)
 type MsgTransmitCallBack  func(sink interface{}, head common.IMsgHead, msg []byte)
 type IMsgDispatcher interface {
-	Register(mid ProtoMsg.EmMsgId, msg proto.Message, cb MsgCallBack) error
+	Register(mid uint32, msg proto.Message, cb MsgCallBack) error
 	Dispatch(sink interface{}, head common.IMsgHead, msg_data []byte) error
 }
 
 type cbInfo struct {
 	cb MsgCallBack
-	msg proto.Message
+	msg reflect.Type
 }
 
 type msgDispatcher struct {
@@ -25,10 +25,10 @@ type msgDispatcher struct {
 	m_reg_cbs_ map[uint32]*cbInfo
 }
 
-func(disp *msgDispatcher) Register(mid ProtoMsg.EmMsgId, msg proto.Message, cb MsgCallBack) (err error) {
+func(disp *msgDispatcher) Register(mid uint32, msg proto.Message, cb MsgCallBack) (err error) {
 	disp.m_reg_cbs_[uint32(mid)] = &cbInfo{
 		cb: cb,
-		msg: msg,
+		msg: reflect.TypeOf(msg),
 	}
 
 	return
@@ -49,11 +49,13 @@ func(disp *msgDispatcher) Dispatch(sink interface{}, head common.IMsgHead, msg_d
 	}
 
 	if msg_data != nil {
-		err = proto.Unmarshal(msg_data, cb_info.msg)
+		//new 一条消息
+		msg := reflect.New(cb_info.msg.Elem()).Interface().(proto.Message)
+		err = proto.Unmarshal(msg_data, msg)
 		if err != nil {
 			return
 		}
-		cb_info.cb(sink, head, cb_info.msg)
+		cb_info.cb(sink, head, msg)
 	} else {
 		cb_info.cb(sink, head, nil)
 	}
