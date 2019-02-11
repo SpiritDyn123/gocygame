@@ -8,8 +8,13 @@ enum emCSMsgId {
     CS_MSG_BEGIN       = 100000;
 
     //登陆相关
-    CS_MSG_PLAYER_LOGIN             = 100001;
-    CS_MSG_PLAYER_BIND       = 100002;
+    CS_MSG_PLAYER_LOGIN         = 100001;
+    CS_MSG_PLAYER_BIND          = 100002;
+    CS_MSG_LOGIN_END           = 109999;
+
+    //game服协议
+    CS_MSG_GAME_BEGIN             = 110000;
+    CS_MSG_GAME_END               = 119999;
 
     CS_MSG_END         = 199999;
 };

@@ -6,7 +6,6 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/global"
 	"github.com/SpiritDyn123/gocygame/apps/common/net/strategy"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
-	"github.com/golang/protobuf/proto"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
@@ -48,8 +47,13 @@ func NewSvrGroup(svr_type ProtoMsg.EmSvrType) *SvrGroup {
 
 type SvrGroup struct {
 	svr_type_ ProtoMsg.EmSvrType
+	svr_info_ *ProtoMsg.PbSvrBaseInfo
 	m_svrs_info_ map[int32]*SvrInfo
 	selector_ strategy.Selector
+}
+
+func (svr *SvrGroup) GetSvrInfo() *ProtoMsg.PbSvrBaseInfo {
+	return svr.svr_info_
 }
 
 func (svr *SvrGroup) AddSession(logic_session global.ILogicSession, cfg_svr_info *ProtoMsg.PbSvrBaseInfo) bool {
@@ -79,6 +83,10 @@ func (svr *SvrGroup) AddSession(logic_session global.ILogicSession, cfg_svr_info
 
 	svr.m_svrs_info_[cfg_svr_info.SvrId] = svr_info
 
+	if svr.svr_info_ == nil {
+		svr.svr_info_ = cfg_svr_info
+	}
+
 	svr.selector_.AddElement(cfg_svr_info.SvrId, logic_session)
 	return true
 }
@@ -106,7 +114,7 @@ func (svr *SvrGroup) RemoveSession(logic_session global.ILogicSession, cfg_svr_i
 }
 
 //指定id的发送
-func (svr *SvrGroup) SendToSvr(svr_id int32, head common.IMsgHead, msg proto.Message) (err error) {
+func (svr *SvrGroup) SendToSvr(svr_id int32, head common.IMsgHead, msg interface{}) (err error) {
 	svr_info, ok := svr.m_svrs_info_[svr_id]
 	//todo 重复注册或者是旧的死链接
 	if !ok {
@@ -119,7 +127,7 @@ func (svr *SvrGroup) SendToSvr(svr_id int32, head common.IMsgHead, msg proto.Mes
 }
 
 //不指定id的发送，key用uid
-func (svr *SvrGroup) Send(key interface{}, head common.IMsgHead, msg proto.Message) (err error) {
+func (svr *SvrGroup) Send(key interface{}, head common.IMsgHead, msg interface{}) (svr_id int32, err error) {
 	svr.selector_.SetElementId(key)
 	s_obj := svr.selector_.Select()
 
@@ -128,6 +136,8 @@ func (svr *SvrGroup) Send(key interface{}, head common.IMsgHead, msg proto.Messa
 		return
 	}
 
-	s_obj.(global.ILogicSession).Send(head, msg)
+	session := s_obj.(global.ILogicSession)
+	svr_id = session.GetAttribute(Session_attribute_key_svr_info).(*ProtoMsg.PbSvrBaseInfo).SvrId
+	session.Send(head, msg)
 	return
 }

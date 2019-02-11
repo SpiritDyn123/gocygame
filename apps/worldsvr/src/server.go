@@ -55,6 +55,8 @@ func (svr *WorldSvrGlobal) Start() (err error) {
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
 		Svr_global_: svr,
+		Client_msg_dispatcher_: svr.GetMsgDispatcher(),
+		Svr_msg_dispatcher_: svr.GetMsgDispatcher(),
 		Publish_svrs_: []ProtoMsg.EmSvrType{},
 		Cluster_svr_info_: &etc.World_Config.Cluster_,
 	}

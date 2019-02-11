@@ -44,7 +44,7 @@ func (mgr *dbOperationMgr) regOpr(msg proto.Message, handler dbOprHandler) {
 	mgr.m_operations_[msg_name] = handler
 }
 
-func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func (mgr *dbOperationMgr) onRecvMsg(sink interface{}, head common.IMsgHead, msg interface{}) {
 	req_msg := msg.(*ProtoMsg.PbSvrDBServiceReqMsg)
 	var handler_resp_msg proto.Message
 	var handler_err error

@@ -9,16 +9,17 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"time"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 )
 
-func CreateSvrSession(tcp_session *tcp.Session, svr_global global.IServerGlobal, config_info *ProtoMsg.PbSvrBaseInfo) (ss global.ILogicSession) {
+func CreateSvrSession(tcp_session *tcp.Session, svr_global global.IServerGlobal, msg_dispatcher tools.IMsgDispatcher, config_info *ProtoMsg.PbSvrBaseInfo) (ss global.ILogicSession) {
 	ss = &SvrSession{
 		BaseSession: BaseSession{
 			Session: tcp_session,
 			Svr_global_: svr_global,
 			Config_info_: config_info,
 			M_event_cbs_: make(map[SessionEvent]SessionEventCallBack),
-
+			Msg_dispatcher_: msg_dispatcher,
 			m_attribute_: make(map[string]interface{}),
 		},
 	}
@@ -68,9 +69,13 @@ func (ssession *SvrSession)OnRecv(data interface{}) (now time.Time, is_hb bool) 
 	}
 
 	//派发消息
-	err := ssession.Svr_global_.GetMsgDispatcher().Dispatch(ssession, msg_head, msg_body)
-	if err != nil {
-		log.Error("ClientSession::OnRecv err:%v", err)
+	if ssession.Msg_dispatcher_ != nil {
+		err := ssession.Msg_dispatcher_.Dispatch(ssession, msg_head, msg_body)
+		if err != nil {
+			log.Error("SvrSession::OnRecv err:%v", err)
+		}
+	} else {
+		log.Error("SvrSession::OnRecv has no msg dispather")
 	}
 
 	//连接回调

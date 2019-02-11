@@ -20,7 +20,7 @@ type PbSvrRegisterWorldReqMsg struct {
 func (m *PbSvrRegisterWorldReqMsg) Reset()                    { *m = PbSvrRegisterWorldReqMsg{} }
 func (m *PbSvrRegisterWorldReqMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterWorldReqMsg) ProtoMessage()               {}
-func (*PbSvrRegisterWorldReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
+func (*PbSvrRegisterWorldReqMsg) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{0} }
 
 func (m *PbSvrRegisterWorldReqMsg) GetSvrInfo() *PbSvrBaseInfo {
 	if m != nil {
@@ -36,7 +36,7 @@ type PbSvrRegisterWorldResMsg struct {
 func (m *PbSvrRegisterWorldResMsg) Reset()                    { *m = PbSvrRegisterWorldResMsg{} }
 func (m *PbSvrRegisterWorldResMsg) String() string            { return proto.CompactTextString(m) }
 func (*PbSvrRegisterWorldResMsg) ProtoMessage()               {}
-func (*PbSvrRegisterWorldResMsg) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{1} }
+func (*PbSvrRegisterWorldResMsg) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{1} }
 
 func (m *PbSvrRegisterWorldResMsg) GetRet() *Ret {
 	if m != nil {
@@ -50,11 +50,11 @@ func init() {
 	proto.RegisterType((*PbSvrRegisterWorldResMsg)(nil), "ProtoMsg.PbSvrRegisterWorldResMsg")
 }
 
-func init() { proto.RegisterFile("world.proto", fileDescriptor7) }
+func init() { proto.RegisterFile("world.proto", fileDescriptor8) }
 
-var fileDescriptor7 = []byte{
+var fileDescriptor8 = []byte{
 	// 158 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2e, 0xcf, 0x2f, 0xca,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x2e, 0xcf, 0x2f, 0xca,
 	0x49, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x08, 0x00, 0x51, 0xbe, 0xc5, 0xe9, 0x52,
 	0xbc, 0xc9, 0x39, 0xa5, 0xc5, 0x25, 0xa9, 0x45, 0x10, 0x09, 0x29, 0xae, 0xa4, 0xc4, 0xe2, 0x54,
 	0x08, 0x5b, 0xc9, 0x8f, 0x4b, 0x22, 0x20, 0x29, 0xb8, 0xac, 0x28, 0x28, 0x35, 0x3d, 0x13, 0xa4,

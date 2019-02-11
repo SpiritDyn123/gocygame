@@ -12,12 +12,22 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/log"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/golang/protobuf/proto"
+	"fmt"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 )
 
 type SvrsMgr struct {
 	Svr_global_ global.IServerGlobal
 	Publish_svrs_ []ProtoMsg.EmSvrType
 	Cluster_svr_info_ *common.Cfg_Json_Svr_Item
+
+	Client_msg_dispatcher_ tools.IMsgDispatcher
+	Svr_msg_dispatcher_ tools.IMsgDispatcher
+
+	//回调函数
+	CB_Registered_ 	func(svr_info *ProtoMsg.PbSvrBaseInfo)
+	CB_Closed_ 		func(svr_info *ProtoMsg.PbSvrBaseInfo)
+
 	cluster_ *TcpClientCluster
 
 	m_svrs_info_ map[ProtoMsg.EmSvrType]*svr_info.SvrGroup
@@ -41,34 +51,34 @@ func (mgr *SvrsMgr) Start() (err error) {
 	cur_svr_type := mgr.Svr_global_.GetSvrBaseInfo().SvrType
 	//注册消息
 	if mgr.hasSvr(ProtoMsg.EmSvrType_Gs) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
+		mgr.Svr_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
 			&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
+		mgr.Client_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME),
 			&ProtoMsg.PbSvrRegisterGameReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_DB) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
+		mgr.Svr_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
 			&ProtoMsg.PbSvrRegisterDBResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
+		mgr.Client_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB),
 			&ProtoMsg.PbSvrRegisterDBReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_World) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
+		mgr.Svr_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
 			&ProtoMsg.PbSvrRegisterWorldResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
+		mgr.Client_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD),
 			&ProtoMsg.PbSvrRegisterWorldReqMsg{}, mgr.onReqRegister)
 	}
 
 	if mgr.hasSvr(ProtoMsg.EmSvrType_Login) {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
+		mgr.Svr_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
 			&ProtoMsg.PbSvrRegisterLoginResMsg{}, mgr.onResRegister)
 	} else {
-		mgr.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
+		mgr.Client_msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN),
 			&ProtoMsg.PbSvrRegisterLoginReqMsg{}, mgr.onReqRegister)
 	}
 
@@ -107,6 +117,7 @@ func (mgr *SvrsMgr) Start() (err error) {
 		Cluster_svr_info_: mgr.Cluster_svr_info_,
 		Svr_info_: mgr.Svr_global_.GetSvrBaseInfo(),
 		Publish_svrs_: mgr.Publish_svrs_,
+		Msg_dispatcher_: mgr.Svr_msg_dispatcher_,
 	}
 
 	for _, svr_type := range mgr.Publish_svrs_ {
@@ -128,7 +139,8 @@ func (mgr *SvrsMgr) Stop() {
 }
 
 func (mgr *SvrsMgr) OnAccept(tcp_session *tcp.Session) {
-	logic_session := session.CreateClientSession(tcp_session, mgr.Svr_global_, &ProtoMsg.PbSvrBaseInfo{})
+	logic_session := session.CreateClientSession(tcp_session, mgr.Svr_global_, mgr.Client_msg_dispatcher_,
+		mgr.Svr_global_.GetSvrBaseInfo())
 
 	//注册关闭事件
 	logic_session.(*session.ClientSession).SetSessionEventCB(session.SessionEvent_Close, func(s global.ILogicSession){
@@ -155,18 +167,111 @@ func (mgr *SvrsMgr) OnClose(tcp_session *tcp.Session) {
 	}
 }
 
-func (mgr *SvrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func (mgr *SvrsMgr) SendBySvrType(key interface{}, svr_type ProtoMsg.EmSvrType, head common.IMsgHead, msg interface{}) (svr_id int32, err error) {
+	sg := mgr.m_svrs_info_[svr_type]
+	if sg == nil {
+		err = fmt.Errorf("SvrsMgr::SendBySvrType has no svr group:%v", svr_type)
+		return
+	}
 
+	return sg.Send(key, head, msg)
+}
+
+func (mgr *SvrsMgr) SendBySvrId(svr_type ProtoMsg.EmSvrType, svr_id int32, head common.IMsgHead, msg interface{}) (err error) {
+	sg := mgr.m_svrs_info_[svr_type]
+
+	if sg == nil {
+		err = fmt.Errorf("SvrsMgr::SendBySvrId has no svr group:%v", svr_type)
+		return
+	}
+
+	return sg.SendToSvr(svr_id, head, msg)
+}
+
+func (mgr *SvrsMgr) GetSvrTypeCSId(cs_msg_id uint32) (ProtoMsg.EmSvrType) {
+	cs_id := ProtoMsg.EmCSMsgId(cs_msg_id)
+	for _, sg := range mgr.m_svrs_info_ {
+		cfg_info := sg.GetSvrInfo()
+		if cfg_info != nil {
+			if cfg_info.CsMsgBegin <= cs_id && cfg_info.CsMsgEnd >= cs_id {
+				return cfg_info.SvrType
+			}
+		}
+	}
+
+	return ProtoMsg.EmSvrType_ST_Invalid
+}
+
+func (mgr *SvrsMgr) SendByCSId(key interface{}, head common.IMsgHead, msg interface{}) (svr_type ProtoMsg.EmSvrType,
+	svr_id int32, err error) {
+	cs_id := ProtoMsg.EmCSMsgId(head.GetMsgId())
+	for _, sg := range mgr.m_svrs_info_ {
+		cfg_info := sg.GetSvrInfo()
+		if cfg_info != nil {
+			if cfg_info.CsMsgBegin <= cs_id && cfg_info.CsMsgEnd >= cs_id {
+				svr_type = cfg_info.SvrType
+				svr_id, err = sg.Send(key, head, msg)
+				return
+			}
+		}
+	}
+
+	err = fmt.Errorf("SvrsMgr::SendByCSId has no svr group")
+	return
+}
+
+func (mgr *SvrsMgr) SendBySSId(key interface{}, head common.IMsgHead, msg interface{}) (svr_type ProtoMsg.EmSvrType,
+	svr_id int32, err error) {
+	ss_id := ProtoMsg.EmSSMsgId(head.GetMsgId())
+	for _, sg := range mgr.m_svrs_info_ {
+		cfg_info := sg.GetSvrInfo()
+		if cfg_info != nil {
+			if cfg_info.SsMsgBegin <= ss_id && cfg_info.SsMsgEnd >= ss_id {
+				svr_type = cfg_info.SvrType
+				svr_id, err = sg.Send(key, head, msg)
+				return
+			}
+		}
+	}
+
+	err = fmt.Errorf("SvrsMgr::SendBySSId has no svr group")
+	return
+}
+
+
+func (mgr *SvrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg interface{}) {
+
+	var resp_msg proto.Message
 	var cfg_svr_info *ProtoMsg.PbSvrBaseInfo
 	switch ProtoMsg.EmSSMsgId(head.GetMsgId()) {
 	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_DB:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterDBReqMsg).SvrInfo
+		resp_msg = &ProtoMsg.PbSvrRegisterDBResMsg{
+			Ret: &ProtoMsg.Ret{
+				ErrCode: 0,
+			},
+		}
 	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_WORLD:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterWorldReqMsg).SvrInfo
+		resp_msg = &ProtoMsg.PbSvrRegisterWorldResMsg{
+			Ret: &ProtoMsg.Ret{
+				ErrCode: 0,
+			},
+		}
 	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_GAME:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterGameReqMsg).SvrInfo
+		resp_msg = &ProtoMsg.PbSvrRegisterGameResMsg{
+			Ret: &ProtoMsg.Ret{
+				ErrCode: 0,
+			},
+		}
 	case ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_LOGIN:
 		cfg_svr_info = msg.(*ProtoMsg.PbSvrRegisterLoginReqMsg).SvrInfo
+		resp_msg = &ProtoMsg.PbSvrRegisterLoginResMsg{
+			Ret: &ProtoMsg.Ret{
+				ErrCode: 0,
+			},
+		}
 	}
 
 	logic_session := sink.(*session.ClientSession)
@@ -181,17 +286,17 @@ func (mgr *SvrsMgr) onReqRegister(sink interface{}, head common.IMsgHead, msg pr
 		return
 	}
 
-	resp_msg := &ProtoMsg.PbSvrRegisterGameResMsg{
-		Ret: &ProtoMsg.Ret{
-			ErrCode: 0,
-		},
-	}
 
 	logic_session.Send(head, resp_msg)
+
+	if mgr.CB_Registered_ != nil {
+		mgr.CB_Registered_(cfg_svr_info)
+	}
+
 	log.Release("onReqRegister svr info:%+v", cfg_svr_info)
 }
 
-func (mgr *SvrsMgr) onResRegister(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func (mgr *SvrsMgr) onResRegister(sink interface{}, head common.IMsgHead, msg interface{}) {
 
 	sssesion := sink.(*session.SvrSession)
 	cfg_svr_info := sssesion.Config_info_
@@ -227,6 +332,10 @@ func (mgr *SvrsMgr) onResRegister(sink interface{}, head common.IMsgHead, msg pr
 		mgr.dbengin_client_.Svr_group_ = group_info
 	}
 
+	if mgr.CB_Registered_ != nil {
+		mgr.CB_Registered_(cfg_svr_info)
+	}
+
 	log.Release("onResRegister svr info:%+v", sssesion)
 }
 
@@ -252,12 +361,16 @@ func (mgr *SvrsMgr) OnSvrOffline(logic_session global.ILogicSession) {
 		mgr.dbengin_client_.Svr_group_ = group_info
 	}
 
+	if mgr.CB_Closed_ != nil {
+		mgr.CB_Closed_(cfg_svr_info)
+	}
+
 	log.Release("OnSvrOffline svr info:%+v", cfg_svr_info)
 }
 
 func (mgr *SvrsMgr) createInnerSvrSession(tcp_session *tcp.Session, svr_global global.IServerGlobal,
 	config_info *ProtoMsg.PbSvrBaseInfo) global.ILogicSession {
-	cs := session.CreateSvrSession(tcp_session, svr_global, config_info)
+	cs := session.CreateSvrSession(tcp_session, svr_global, mgr.Svr_msg_dispatcher_, config_info)
 
 	//注册连接事件
 	cs.(*session.SvrSession).SetSessionEventCB(session.SessionEvent_Accept, mgr.regSvrCallBack)

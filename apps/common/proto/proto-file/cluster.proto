@@ -1,5 +1,7 @@
 syntax = "proto3";
 import "base.proto";
+import "cs_protoid.proto";
+import "ss_protoid.proto";
 
 package ProtoMsg;
 
@@ -22,7 +24,12 @@ message PbSvrBaseInfo{
     string      addr = 4;
     int32       ttl = 5;
     int32       timeout = 6;
+    emCSMsgId   cs_msg_begin = 7;
+    emCSMsgId   cs_msg_end = 8;
+    emSSMsgId   ss_msg_begin = 9;
+    emSSMsgId   ss_msg_end = 10;
 };
+
 
 //SVR_MSG_REGISTER_CLUSTER
 message PbSvrRegisterClusterReqMsg {

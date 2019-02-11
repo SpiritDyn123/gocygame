@@ -1,0 +1,11 @@
+syntax = "proto3";
+package ProtoMsg;
+import "cluster.proto";
+
+//SVR_MSG_COMMON_PUSH_PLAYER_SVRID
+message PbSvrCommonPushPlayerSvrId {
+    uint64 uid = 1;
+    emSvrType svr_type = 2;
+    int32 svr_id = 3;
+    bool  add = 4; //添加还是删除
+}

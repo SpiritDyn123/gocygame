@@ -8,8 +8,8 @@ import (
 )
 
 //sink 可以是玩家或者session， head是消息的头部 msg是proto包体
-type MsgCallBack func(sink interface{}, head common.IMsgHead, msg proto.Message)
-type MsgTransmitCallBack  func(sink interface{}, head common.IMsgHead, msg []byte)
+type MsgCallBack func(sink interface{}, head common.IMsgHead, msg interface{})
+type MsgTransmitCallBack  func(sink interface{}, head common.IMsgHead, msg interface{})
 type IMsgDispatcher interface {
 	Register(mid uint32, msg proto.Message, cb MsgCallBack) error
 	Dispatch(sink interface{}, head common.IMsgHead, msg_data []byte) error
@@ -48,7 +48,7 @@ func(disp *msgDispatcher) Dispatch(sink interface{}, head common.IMsgHead, msg_d
 		return Error_not_found
 	}
 
-	if msg_data != nil {
+	if msg_data != nil && cb_info.msg != nil {
 		//new 一条消息
 		msg := reflect.New(cb_info.msg.Elem()).Interface().(proto.Message)
 		err = proto.Unmarshal(msg_data, msg)
@@ -57,7 +57,7 @@ func(disp *msgDispatcher) Dispatch(sink interface{}, head common.IMsgHead, msg_d
 		}
 		cb_info.cb(sink, head, msg)
 	} else {
-		cb_info.cb(sink, head, nil)
+		cb_info.cb(sink, head, msg_data)
 	}
 
 	return

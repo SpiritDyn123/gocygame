@@ -6,13 +6,14 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
-	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/log"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 )
 
 type TcpClientCluster struct {
 	TcpClientMgr
 
+	Msg_dispatcher_ tools.IMsgDispatcher
 	Cluster_svr_info_ *common.Cfg_Json_Svr_Item //集群服务器地址
 	Svr_info_ *ProtoMsg.PbSvrBaseInfo 			//服务器信息
 	Publish_svrs_ []ProtoMsg.EmSvrType
@@ -25,9 +26,9 @@ func (cluster *TcpClientCluster) Start() (err error){
 	}
 
 	//注册消息处理
-	cluster.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_CLUSTER), &ProtoMsg.PbSvrRegisterClusterResMsg{},
+	cluster.Msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_REGISTER_CLUSTER), &ProtoMsg.PbSvrRegisterClusterResMsg{},
 		cluster.onRecvRegisterSvr)
-	cluster.Svr_global_.GetMsgDispatcher().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_BROAD_CLUSTER), &ProtoMsg.PbSvrBroadClusterMsg{},
+	cluster.Msg_dispatcher_.Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_BROAD_CLUSTER), &ProtoMsg.PbSvrBroadClusterMsg{},
 		cluster.onRecvBroadSvr)
 
 	cluster.M_create_session_cb_[ProtoMsg.EmSvrType_Cluster] = cluster.createClusterSession
@@ -52,7 +53,7 @@ func (cluster *TcpClientCluster) Stop() {
 
 func (cluster *TcpClientCluster) createClusterSession(tcp_session *tcp.Session, svr_global global.IServerGlobal,
 	config_info *ProtoMsg.PbSvrBaseInfo) global.ILogicSession {
-	cluster_session := session.CreateSvrSession(tcp_session, svr_global, config_info).(*session.SvrSession)
+	cluster_session := session.CreateSvrSession(tcp_session, svr_global, cluster.Msg_dispatcher_, config_info).(*session.SvrSession)
 
 	//连接成功的回调里需要注册服务器信息
 	cluster_session.SetSessionEventCB(session.SessionEvent_Accept, func(logic_session global.ILogicSession) {
@@ -72,7 +73,7 @@ func (cluster *TcpClientCluster) createClusterSession(tcp_session *tcp.Session, 
 	return cluster_session
 }
 
-func(cluster *TcpClientCluster) onRecvRegisterSvr(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func(cluster *TcpClientCluster) onRecvRegisterSvr(sink interface{}, head common.IMsgHead, msg interface{}) {
 	_ = sink.(*session.SvrSession)
 	_ = head.(*common.ProtocolInnerHead)
 
@@ -83,7 +84,7 @@ func(cluster *TcpClientCluster) onRecvRegisterSvr(sink interface{}, head common.
 	}
 }
 
-func(cluster *TcpClientCluster) onRecvBroadSvr(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func(cluster *TcpClientCluster) onRecvBroadSvr(sink interface{}, head common.IMsgHead, msg interface{}) {
 	_ = sink.(*session.SvrSession)
 	_ = head.(*common.ProtocolInnerHead)
 

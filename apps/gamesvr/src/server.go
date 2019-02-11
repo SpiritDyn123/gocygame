@@ -72,6 +72,8 @@ func (svr *GameSvrGlobal) Start() (err error) {
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
 		Svr_global_: svr,
+		Client_msg_dispatcher_: svr.GetMsgDispatcher(),
+		Svr_msg_dispatcher_: svr.GetMsgDispatcher(),
 		Publish_svrs_: []ProtoMsg.EmSvrType{
 			ProtoMsg.EmSvrType_DB,
 			ProtoMsg.EmSvrType_World,
@@ -133,6 +135,8 @@ func (svr *GameSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
 		Addr: etc.Game_Config.System_.Svr_addr_,
 		Ttl: int32(etc.Game_Config.System_.Svr_ttl_), //用系统监听的ttl
 		Timeout: int32(etc.Game_Config.System_.Svr_timeout_),
+		CsMsgBegin: ProtoMsg.EmCSMsgId_CS_MSG_GAME_BEGIN,
+		CsMsgEnd: ProtoMsg.EmCSMsgId_CS_MSG_GAME_END,
 	}
 }
 

@@ -19,7 +19,8 @@ func(mgr *SessionMgr) OnAccept(tcp_session *tcp.Session) {
 		mgr.m_sessions_ = make(map[uint64]*session.ClientSession)
 	}
 
-	logic_session := session.CreateClientSession(tcp_session, global.ClusterSvrGlobal, &ProtoMsg.PbSvrBaseInfo{
+	logic_session := session.CreateClientSession(tcp_session, global.ClusterSvrGlobal, global.ClusterSvrGlobal.GetMsgDispatcher(),
+		&ProtoMsg.PbSvrBaseInfo{
 		GroupId: int32(etc.Cluster_Config.System_.Svr_group_id_),
 		SvrId: int32(etc.Cluster_Config.System_.Svr_id_),
 		SvrType: ProtoMsg.EmSvrType_Cluster,

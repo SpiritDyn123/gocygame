@@ -6,7 +6,6 @@ import (
 	"github.com/SpiritDyn123/gocygame/apps/common"
 	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 	"github.com/SpiritDyn123/gocygame/libs/log"
-	"github.com/golang/protobuf/proto"
 	common_session"github.com/SpiritDyn123/gocygame/apps/common/net/session"
 )
 
@@ -55,7 +54,7 @@ func(mgr *svrsMgr) Stop() {
 
 }
 
-func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg proto.Message) {
+func (mgr *svrsMgr) onrecv_register(sink interface{}, h common.IMsgHead, msg interface{}) {
 	cli_session := sink.(*common_session.ClientSession)
 
 	head := h.(*common.ProtocolInnerHead)

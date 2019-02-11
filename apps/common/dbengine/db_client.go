@@ -58,6 +58,11 @@ func (rec *DBEngineClient) Do(engine ProtoMsg.EmDBEngin, uid uint64, req_msg pro
 		return
 	}
 
+	if rec.Svr_group_ == nil {
+		err = fmt.Errorf("DBEngineClient::Do has no db svr group")
+		return
+	}
+
 	req_msg_name := reflect.ValueOf(req_msg).Elem().Type().String()
 
 	send_msg := &ProtoMsg.PbSvrDBServiceReqMsg{
@@ -86,10 +91,9 @@ func (rec *DBEngineClient) DoRedis(uid uint64, req_msg proto.Message) (err error
 //
 func (rec *DBEngineClient) DoMysql(uid uint64, req_msg proto.Message) (err error) {
 	return rec.Do(ProtoMsg.EmDBEngin_DB_engine_mysql, uid, req_msg)
-	return
 }
 
-func (rec *DBEngineClient) onRecvData(sink interface{}, head common.IMsgHead, msg proto.Message) {
+func (rec *DBEngineClient) onRecvData(sink interface{}, head common.IMsgHead, msg interface{}) {
 	resp_msg := msg.(*ProtoMsg.PbSvrDBServiceResMsg)
 	if resp_msg.Ret.ErrCode != 0 {
 		log.Error("DBEngineClient::onRecvData Ret err:%+v", resp_msg.Ret)

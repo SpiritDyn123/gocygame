@@ -6,6 +6,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"time"
 	"fmt"
+	"github.com/SpiritDyn123/gocygame/apps/common/tools"
 )
 
 type SessionEvent int
@@ -29,6 +30,8 @@ type BaseSession struct {
 	M_event_cbs_ map[SessionEvent]SessionEventCallBack
 
 	m_attribute_ map[string]interface{}
+
+	Msg_dispatcher_ tools.IMsgDispatcher
 }
 
 func (session *BaseSession) Send(msg ...interface{}) error {

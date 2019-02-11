@@ -16,6 +16,8 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
 	"github.com/SpiritDyn123/gocygame/apps/gatesvr/src/player"
+	"github.com/SpiritDyn123/gocygame/apps/common/net/session"
+	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
 type GateSvrGlobal struct {
@@ -25,6 +27,7 @@ type GateSvrGlobal struct {
 	wheel_timer_ timer.WheelTimer
 
 	msg_dispatcher_ tools.IMsgDispatcher
+	svr_msg_dispatcher_ tools.IMsgDispatcher
 
 	svrs_mgr_ *net.SvrsMgr
 
@@ -53,7 +56,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcherWithTransmit(svr.onRecvTransmit)
-
+	svr.svr_msg_dispatcher_ = tools.CreateMsgDispatcherWithTransmit(svr.onRecvSvrTransmit)
 
 	//玩家管理器
 	svr.player_mgr_ = player.PlayerMgr
@@ -64,6 +67,8 @@ func (svr *GateSvrGlobal) Start() (err error) {
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
 		Svr_global_: svr,
+		Client_msg_dispatcher_: svr.GetClientMsgParser(),
+		Svr_msg_dispatcher_: svr.GetSvrMsgParser(),
 		Publish_svrs_: []ProtoMsg.EmSvrType{
 			ProtoMsg.EmSvrType_Login,
 			ProtoMsg.EmSvrType_Gs,
@@ -114,11 +119,23 @@ func (svr *GateSvrGlobal) GetMsgDispatcher() tools.IMsgDispatcher {
 	return svr.msg_dispatcher_
 }
 
+func (svr *GateSvrGlobal) GetClientMsgParser() tools.IMsgDispatcher {
+	return svr.msg_dispatcher_
+}
+
+func (svr *GateSvrGlobal) GetSvrMsgParser() tools.IMsgDispatcher {
+	return svr.svr_msg_dispatcher_
+}
+
 func(svr *GateSvrGlobal) GetPublishSvrs() []ProtoMsg.EmSvrType {
 	return  []ProtoMsg.EmSvrType{
 		ProtoMsg.EmSvrType_Gs,
 		ProtoMsg.EmSvrType_Login,
 	}
+}
+
+func (svr *GateSvrGlobal) GetSvrsMgr() *net.SvrsMgr {
+	return svr.svrs_mgr_
 }
 
 func (svr *GateSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
@@ -131,6 +148,11 @@ func (svr *GateSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
 		Timeout: int32(etc.Gate_Config.System_.Svr_timeout_),
 	}
 }
+
+func (svr *GateSvrGlobal) GetPlayerMgr() global.IPlayerMgr {
+	return svr.player_mgr_
+}
+
 func (svr *GateSvrGlobal) onTimer() {
 	svr.wheel_timer_.Step()
 	svr.TimerServer.AfterFunc(common.Default_Svr_Logic_time, svr.onTimer)
@@ -151,6 +173,44 @@ func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
 	svr.player_mgr_.OnClose(session)
 }
 
-func (svr *GateSvrGlobal) onRecvTransmit(sink interface{}, head common.IMsgHead, msg []byte) {
+//客户端转发回调
+func (svr *GateSvrGlobal) onRecvTransmit(sink interface{}, head common.IMsgHead, msg interface{}) {
+	mhead := head.(*common.ProtocolClientHead)
+	csession := sink.(*session.ClientSession)
+	iplayerid := csession.GetAttribute(global.Session_attribute_player_id)
+	if iplayerid == nil {
+		log.Error("GateSvrGlobal::onRecvTransmit not login")
+		return
+	}
+
+	if iplayerid != mhead.Uid_ {
+		csession.Close()
+		return
+	}
+
+	player := svr.player_mgr_.GetPlayerById(mhead.Uid_)
+	if player == nil {
+		log.Error("GateSvrGlobal::onRecvTransmit GetPlayerById:%d empty", mhead.Uid_)
+
+		csession.Close()
+		return
+	}
+	player.OnRecv(head, msg)
+}
+
+//服务器转发回调
+func (svr *GateSvrGlobal) onRecvSvrTransmit(sink interface{}, head common.IMsgHead, msg interface{}) {
+	mhead := head.(*common.ProtocolInnerHead)
+
+	if len(mhead.Uid_lst_) == 0 { //广播
+		svr.GetPlayerMgr().BroadClientMsg(head, msg)
+	} else {
+		for _, uid := range mhead.Uid_lst_ {
+			p := svr.GetPlayerMgr().GetPlayerById(uid)
+			if p != nil {
+				p.OnRecvSvr(head, msg)
+			}
+		}
+	}
 
 }

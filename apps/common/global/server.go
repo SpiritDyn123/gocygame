@@ -9,7 +9,7 @@ import (
 
 type IServerGlobal interface {
 	utils.IPooller
-	GetMsgDispatcher() tools.IMsgDispatcher
+	GetMsgDispatcher() tools.IMsgDispatcher //通用的消息派发器
 	GetWheelTimer() timer.WheelTimer
 	GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo
 }
