@@ -18,13 +18,15 @@ enum emSSMsgId {
     SVR_MSG_CLUSTER_END       = 201999;
 
     //game
-    SVR_MSG_GAME_BEGIN       = 210000;
-    SVR_MSG_REGISTER_GAME       = 210001; //注册game服务器
-    SVR_MSG_GAME_END      = 219999;
+    SVR_MSG_GAME_BEGIN              = 210000;
+    SVR_MSG_REGISTER_GAME           = 210001; //注册game服务器
+    SVR_MSG_GAME_LOGIN              = 210002;   //游戏服登陆
+    SVR_MSG_GAME_END                = 219999;
 
     //world
     SVR_MSG_WORLD_BEGIN       = 220000;
     SVR_MSG_REGISTER_WORLD      = 220001;  //注册大厅服务器
+    SVR_MSG_WORLD_LOGIN         = 220002;   //世界服登陆
     SVR_MSG_WORLD_END       = 229999;
 
     //登陆

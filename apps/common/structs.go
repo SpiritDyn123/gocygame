@@ -87,3 +87,34 @@ func(head *ProtocolInnerHead) Write(order binary.ByteOrder) ([]byte, error) {
 
 	return buf.Bytes(), nil
 }
+
+func ClientToInnerHead(head IMsgHead) IMsgHead {
+	if _, ok := head.(*ProtocolInnerHead);ok {
+		return head
+	}
+
+	chead := head.(*ProtocolClientHead)
+	return &ProtocolInnerHead{
+		Msg_id_:chead.Msg_id_,
+		Seq_: chead.Seq_,
+		Uid_lst_: []uint64{ chead.Uid_ },
+	}
+}
+
+func InnerToClientHead(head IMsgHead) IMsgHead {
+	if _, ok := head.(*ProtocolClientHead);ok {
+		return head
+	}
+
+	ihead := head.(*ProtocolInnerHead)
+	var uid uint64
+	if len(ihead.Uid_lst_) > 0 {
+		uid = ihead.Uid_lst_[0]
+	}
+
+	return &ProtocolClientHead{
+		Msg_id_:ihead.Msg_id_,
+		Seq_: ihead.Seq_,
+		Uid_: uid,
+	}
+}

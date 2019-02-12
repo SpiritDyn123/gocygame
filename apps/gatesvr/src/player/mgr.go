@@ -10,6 +10,12 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
+type playerState int
+const (
+	player_state_login = playerState(1) + iota
+	player_state_login_suc
+)
+
 var PlayerMgr global.IPlayerMgr
 func init() {
 	PlayerMgr = &playerMgr{
@@ -27,9 +33,11 @@ type playerMgr struct {
 
 func (mgr *playerMgr) Start() (err error) {
 	global.GateSvrGlobal.GetMsgDispatcher().Register(uint32(ProtoMsg.EmCSMsgId_CS_MSG_PLAYER_LOGIN),
-		&ProtoMsg.PbCsPlayerLoginReqMsg{}, mgr.onRecvPlayerLogin) //登陆消息
+		nil, mgr.onRecvPlayerLogin) //客户端登陆消息，不解包
 	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmCSMsgId_CS_MSG_PLAYER_LOGIN),
-		&ProtoMsg.PbCsPlayerLoginReqMsg{}, mgr.onRecvLoginRet) //登陆消息
+		&ProtoMsg.PbCsPlayerLoginResMsg{}, mgr.onRecvLoginRet) //登陆服登陆消息
+	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_GAME_LOGIN),
+		&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onRecvGameLoginRet) //游戏服登陆消息
 
 	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_COMMON_PUSH_PLAYER_SVRID),
 		&ProtoMsg.PbSvrCommonPushPlayerSvrId{}, mgr.onPlayerEnterSvr) //玩家进入服务的id
@@ -83,11 +91,27 @@ func (mgr *playerMgr) OnClose(tcp_session *tcp.Session) {
 		p.session_.OnClose()
 		p.session_ = nil
 		delete(mgr.m_player_, tcp_session.Id())
+		delete(mgr.m_player_by_id_, p.uid_)
 	}
 }
 
 func (mgr *playerMgr) OnPlayerOffline(logic_session common_global.ILogicSession) {
+	session := logic_session.(common_global.ILogicSession)
+	player := mgr.m_player_[session.Id()]
+	if player == nil {
+		return
+	}
 
+	//通知Game服务器 玩家下线
+	if gs_id, ok := player.svr_type_in_[ProtoMsg.EmSvrType_Gs]; ok {
+		global.GateSvrGlobal.GetSvrsMgr().SendBySvrId(ProtoMsg.EmSvrType_Gs, gs_id, &common.ProtocolInnerHead{
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_GAME_LOGIN),
+			Uid_lst_: []uint64{ player.uid_ },
+		}, &ProtoMsg.PbSvrGameLoginReqMsg{
+			Uid: player.uid_,
+			Online: false,
+		})
+	}
 }
 
 func (mgr *playerMgr) GetPlayerById(uid uint64) global.IPlayer {
@@ -108,12 +132,21 @@ func (mgr *playerMgr) BroadClientMsg(head common.IMsgHead, msg interface{}) {
 
 func (mgr *playerMgr) onRecvPlayerLogin(sink interface{}, head common.IMsgHead, msg interface{}) {
 	session := sink.(common_global.ILogicSession)
-	player := mgr.m_player_[session.Id()]
+	player := mgr.m_tmp_player_[session.Id()]
 
-	if player.uid_ != 0 {
+	if player == nil {
+		session.Close()
 		return
 	}
 
+	//防止重新发登陆消息
+	player = mgr.m_player_[session.Id()]
+	if player != nil {
+		return
+	}
+
+	c_mhead := head.(*common.ProtocolClientHead)
+	c_mhead.Uid_ = session.Id()
 	_, err := global.GateSvrGlobal.GetSvrsMgr().SendBySvrType(session.Id(), ProtoMsg.EmSvrType_Login, head, msg)
 	if err != nil {
 		log.Error("playerMgr::onRecvLogin SendBySvrType err:%v", err)
@@ -126,9 +159,51 @@ func (mgr *playerMgr) onRecvPlayerLogin(sink interface{}, head common.IMsgHead, 
 
 }
 
+//登陆服登陆返回
 func (mgr *playerMgr) onRecvLoginRet(sink interface{}, head common.IMsgHead, msg interface{}) {
+	login_res_msg := msg.(*ProtoMsg.PbCsPlayerLoginResMsg)
+	ihead := head.(*common.ProtocolInnerHead)
+	player := mgr.m_tmp_player_[ihead.Uid_lst_[0]]
+	if player == nil {
+		return
+	}
 
+	if login_res_msg.Ret.ErrCode != 0 {
+		player.session_.Send(common.InnerToClientHead(head), msg)
+		return
+	}
 
+	//登陆Game服务器
+	global.GateSvrGlobal.GetSvrsMgr().SendBySvrType(login_res_msg.Uid, ProtoMsg.EmSvrType_Gs, head, &ProtoMsg.PbSvrGameLoginReqMsg{
+		Uid: login_res_msg.Uid,
+		Online: true,
+	})
+}
+
+//游戏服登陆返回
+func (mgr *playerMgr)onRecvGameLoginRet(sink interface{}, head common.IMsgHead, msg interface{}) {
+	game_login_res_msg := msg.(*ProtoMsg.PbSvrGameLoginResMsg)
+	ihead := head.(*common.ProtocolInnerHead)
+	player := mgr.m_tmp_player_[ihead.Uid_lst_[0]]
+	if player == nil {
+		return
+	}
+
+	if game_login_res_msg.Ret.ErrCode != 0 {
+		player.session_.Send(common.ClientToInnerHead(head), msg)
+		return
+	}
+
+	//登陆成功
+	delete(mgr.m_tmp_player_, ihead.Uid_lst_[0])
+
+	player.uid_= game_login_res_msg.Uid
+
+	mgr.m_player_[ihead.Uid_lst_[0]] = player
+	mgr.m_player_by_id_[game_login_res_msg.Uid] = player
+	player.session_.Send(common.ClientToInnerHead(head), msg)
+
+	log.Release("playerMgr::onRecvGameLoginRet player:%d login success", player.uid_)
 }
 
 func (mgr *playerMgr) onPlayerEnterSvr(sink interface{}, head common.IMsgHead, msg interface{}) {

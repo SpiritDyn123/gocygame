@@ -14,6 +14,7 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/libs/timer"
 	"github.com/SpiritDyn123/gocygame/libs/utils"
+	"github.com/SpiritDyn123/gocygame/apps/loginsvr/src/login"
 )
 
 
@@ -26,6 +27,7 @@ type LoginSvrGlobal struct {
 	msg_dispatcher_ tools.IMsgDispatcher
 
 	svrs_mgr_ *net.SvrsMgr
+	login_mgr_ global.ILoginMgr
 }
 
 func (svr *LoginSvrGlobal) GetName() string {
@@ -52,12 +54,20 @@ func (svr *LoginSvrGlobal) Start() (err error) {
 	//消息管理器
 	svr.msg_dispatcher_ = tools.CreateMsgDispatcher()
 
+	//登陆器
+	svr.login_mgr_ = login.LoginMgr
+	if err = svr.login_mgr_.Start(); err != nil {
+		return
+	}
+
 	//服务管理器
 	svr.svrs_mgr_ = &net.SvrsMgr{
 		Svr_global_: svr,
 		Client_msg_dispatcher_: svr.GetMsgDispatcher(),
 		Svr_msg_dispatcher_: svr.GetMsgDispatcher(),
-		Publish_svrs_: []ProtoMsg.EmSvrType{},
+		Publish_svrs_: []ProtoMsg.EmSvrType{
+			ProtoMsg.EmSvrType_DB,
+		},
 		Cluster_svr_info_: &etc.Login_Config.Cluster_,
 	}
 
@@ -85,6 +95,7 @@ func (svr *LoginSvrGlobal) Start() (err error) {
 func (svr *LoginSvrGlobal) Close() {
 	svr.net_ser.Stop()
 	svr.svrs_mgr_.Stop()
+	svr.login_mgr_.Stop()
 }
 
 func (svr *LoginSvrGlobal) Pool(cs chan bool) {
@@ -116,6 +127,10 @@ func (svr *LoginSvrGlobal) GetSvrBaseInfo() *ProtoMsg.PbSvrBaseInfo{
 		Ttl: int32(etc.Login_Config.System_.Svr_ttl_), //用系统监听的ttl
 		Timeout: int32(etc.Login_Config.System_.Svr_timeout_),
 	}
+}
+
+func (svr *LoginSvrGlobal)	GetLoginMgr() global.ILoginMgr {
+	return svr.login_mgr_
 }
 
 func (svr *LoginSvrGlobal) onTimer() {

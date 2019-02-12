@@ -42,6 +42,7 @@ message PbCsPlayerLoginReqMsg {
 
 message PbCsPlayerLoginResMsg {
    Ret ret = 1;
+   uint64 uid = 2;
 };
 
 message PbCsPlayerBindReqMsg {

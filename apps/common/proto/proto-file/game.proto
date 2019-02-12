@@ -11,3 +11,14 @@ message PbSvrRegisterGameReqMsg {
 message PbSvrRegisterGameResMsg {
    Ret ret = 1;
 };
+
+//SVR_MSG_GAME_LOGIN
+message PbSvrGameLoginReqMsg {
+    uint64 uid = 1;
+    bool  online = 2;
+};
+
+message PbSvrGameLoginResMsg {
+   Ret        ret = 1;
+   uint64     uid = 2;
+};

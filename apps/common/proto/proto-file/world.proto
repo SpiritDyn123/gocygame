@@ -11,3 +11,9 @@ message PbSvrRegisterWorldReqMsg {
 message PbSvrRegisterWorldResMsg {
    Ret ret = 1;
 };
+
+//SVR_MSG_WORLD_LOGIN
+message PbSvWorldLoginReqMsg {
+    uint64      uid = 1;
+    bool        online = 2;
+};

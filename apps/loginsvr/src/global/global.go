@@ -13,6 +13,7 @@ type ILoginSvrGlobal interface {
 	GetWheelTimer() timer.WheelTimer
 
 	GetSvrsMgr() *net.SvrsMgr
+	GetLoginMgr() ILoginMgr
 }
 
 var LoginSvrGlobal ILoginSvrGlobal

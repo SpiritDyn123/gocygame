@@ -174,7 +174,7 @@ func (mgr *SvrsMgr) SendBySvrType(key interface{}, svr_type ProtoMsg.EmSvrType, 
 		return
 	}
 
-	return sg.Send(key, head, msg)
+	return sg.Send(key, common.ClientToInnerHead(head), msg)
 }
 
 func (mgr *SvrsMgr) SendBySvrId(svr_type ProtoMsg.EmSvrType, svr_id int32, head common.IMsgHead, msg interface{}) (err error) {
@@ -185,7 +185,7 @@ func (mgr *SvrsMgr) SendBySvrId(svr_type ProtoMsg.EmSvrType, svr_id int32, head 
 		return
 	}
 
-	return sg.SendToSvr(svr_id, head, msg)
+	return sg.SendToSvr(svr_id, common.ClientToInnerHead(head), msg)
 }
 
 func (mgr *SvrsMgr) GetSvrTypeCSId(cs_msg_id uint32) (ProtoMsg.EmSvrType) {
@@ -210,7 +210,7 @@ func (mgr *SvrsMgr) SendByCSId(key interface{}, head common.IMsgHead, msg interf
 		if cfg_info != nil {
 			if cfg_info.CsMsgBegin <= cs_id && cfg_info.CsMsgEnd >= cs_id {
 				svr_type = cfg_info.SvrType
-				svr_id, err = sg.Send(key, head, msg)
+				svr_id, err = sg.Send(key, common.ClientToInnerHead(head), msg)
 				return
 			}
 		}
@@ -228,7 +228,7 @@ func (mgr *SvrsMgr) SendBySSId(key interface{}, head common.IMsgHead, msg interf
 		if cfg_info != nil {
 			if cfg_info.SsMsgBegin <= ss_id && cfg_info.SsMsgEnd >= ss_id {
 				svr_type = cfg_info.SvrType
-				svr_id, err = sg.Send(key, head, msg)
+				svr_id, err = sg.Send(key, common.ClientToInnerHead(head), msg)
 				return
 			}
 		}
