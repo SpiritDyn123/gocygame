@@ -30,7 +30,6 @@ It has these top-level messages:
 	PbSvrRegisterGameReqMsg
 	PbSvrRegisterGameResMsg
 	PbSvrGameLoginReqMsg
-	PbSvrGameLoginResMsg
 	PbSvrRegisterLoginReqMsg
 	PbSvrRegisterLoginResMsg
 	PbCsPlayerLoginReqMsg
@@ -40,7 +39,7 @@ It has these top-level messages:
 	PbSvrCommonPushPlayerSvrId
 	PbSvrRegisterWorldReqMsg
 	PbSvrRegisterWorldResMsg
-	PbSvWorldLoginReqMsg
+	PbSvrWorldLoginReqMsg
 */
 package ProtoMsg
 

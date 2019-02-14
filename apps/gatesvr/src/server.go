@@ -74,6 +74,7 @@ func (svr *GateSvrGlobal) Start() (err error) {
 			ProtoMsg.EmSvrType_Gs,
 		},
 		Cluster_svr_info_: &etc.Gate_Config.Cluster_,
+		CB_Closed_: svr.onInnerSvrClosed,
 	}
 
 	if err = svr.svrs_mgr_.Start(); err != nil {
@@ -165,7 +166,11 @@ func (svr *GateSvrGlobal) onTcpAccept(args []interface{}) {
 
 func (svr *GateSvrGlobal) onTcpRecv(args []interface{}) {
 	session := args[0].(*tcp.Session)
-	svr.player_mgr_.OnRecv(session, args[1])
+	var data interface{}
+	if len(args) > 0 {
+		data = args[1]
+	}
+	svr.player_mgr_.OnRecv(session, data)
 }
 
 func (svr *GateSvrGlobal) onTcpClose(args []interface{}) {
@@ -213,4 +218,8 @@ func (svr *GateSvrGlobal) onRecvSvrTransmit(sink interface{}, head common.IMsgHe
 		}
 	}
 
+}
+
+func (svr *GateSvrGlobal) onInnerSvrClosed(svr_info *ProtoMsg.PbSvrBaseInfo) {
+	svr.player_mgr_.OnSvrClosed(svr_info)
 }

@@ -58,7 +58,8 @@ func (csession *ClientSession)OnRecv(data interface{}) (now time.Time, is_hb boo
 	csession.Last_check_time_ = now
 	msgs := data.([]interface{})
 	msg_head := msgs[0].(common.IMsgHead)
-	if msg_head.GetMsgId() == uint32(ProtoMsg.EmSSMsgId_SVR_MSG_HEART_BEAT) {
+	msg_id := msg_head.GetMsgId()
+	if msg_id == uint32(ProtoMsg.EmSSMsgId_SVR_MSG_HEART_BEAT) || msg_id == uint32(ProtoMsg.EmCSMsgId_CS_MSG_HEART_BEAT) {
 		is_hb = true
 		//心跳回复
 		csession.Send(msg_head)

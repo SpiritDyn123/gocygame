@@ -72,3 +72,33 @@ class clientCodec(defaultCodec):
         if len(data) > 16:
             msgs.append(data[16:])
         return msgs, None
+
+class msgSympolHead(object):
+    def __init__(self):
+        self.cmd = 0  # uint32 I
+        self.seq = 0  # uint32 I
+        self.uid = 0  # uint64 Q
+
+class clientNoEncryptCodec(defaultCodec):
+    def __init__(self):
+        pass
+    def Marshal(self, *msgs):
+        if len(msgs) < 1:
+            return None, "msgs must > 1"
+        data = struct.pack("!IIQ", msgs[0].cmd, msgs[0].seq, msgs[0].uid)
+        if len(msgs) > 1:
+            proto_data = msgs[1].SerializeToString()
+            data += proto_data
+
+        return data, None
+
+    def Unmarshal(self, data):
+        if len(data) < 16:
+            return None, "msg head len <16"
+
+        msg_head = msgHead()
+        (msg_head.cmd, msg_head.seq, msg_head.uid) = struct.unpack("!IIQ", data[:16])
+        msgs = [msg_head]
+        if len(data) > 16:
+            msgs.append(data[16:])
+        return msgs, None

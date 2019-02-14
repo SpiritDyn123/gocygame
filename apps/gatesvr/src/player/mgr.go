@@ -10,11 +10,6 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
-type playerState int
-const (
-	player_state_login = playerState(1) + iota
-	player_state_login_suc
-)
 
 var PlayerMgr global.IPlayerMgr
 func init() {
@@ -37,7 +32,7 @@ func (mgr *playerMgr) Start() (err error) {
 	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmCSMsgId_CS_MSG_PLAYER_LOGIN),
 		&ProtoMsg.PbCsPlayerLoginResMsg{}, mgr.onRecvLoginRet) //登陆服登陆消息
 	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_GAME_LOGIN),
-		&ProtoMsg.PbSvrRegisterGameResMsg{}, mgr.onRecvGameLoginRet) //游戏服登陆消息
+		&ProtoMsg.PbCsPlayerLoginResMsg{}, mgr.onRecvGameLoginRet) //游戏服登陆消息
 
 	global.GateSvrGlobal.GetSvrMsgParser().Register(uint32(ProtoMsg.EmSSMsgId_SVR_MSG_COMMON_PUSH_PLAYER_SVRID),
 		&ProtoMsg.PbSvrCommonPushPlayerSvrId{}, mgr.onPlayerEnterSvr) //玩家进入服务的id
@@ -58,6 +53,8 @@ func (mgr *playerMgr) OnAccept(tcp_session *tcp.Session) {
 
 	p := &player{
 		session_: logic_session,
+		svr_type_in_: make(map[ProtoMsg.EmSvrType]int32),
+		state_: player_state_connect,
 	}
 
 	logic_session.OnCreate()
@@ -96,8 +93,7 @@ func (mgr *playerMgr) OnClose(tcp_session *tcp.Session) {
 }
 
 func (mgr *playerMgr) OnPlayerOffline(logic_session common_global.ILogicSession) {
-	session := logic_session.(common_global.ILogicSession)
-	player := mgr.m_player_[session.Id()]
+	player := mgr.m_player_[logic_session.Id()]
 	if player == nil {
 		return
 	}
@@ -132,16 +128,14 @@ func (mgr *playerMgr) BroadClientMsg(head common.IMsgHead, msg interface{}) {
 
 func (mgr *playerMgr) onRecvPlayerLogin(sink interface{}, head common.IMsgHead, msg interface{}) {
 	session := sink.(common_global.ILogicSession)
-	player := mgr.m_tmp_player_[session.Id()]
 
+	player := mgr.m_tmp_player_[session.Id()]
 	if player == nil {
 		session.Close()
 		return
 	}
 
-	//防止重新发登陆消息
-	player = mgr.m_player_[session.Id()]
-	if player != nil {
+	if player.state_ != player_state_connect {
 		return
 	}
 
@@ -149,14 +143,14 @@ func (mgr *playerMgr) onRecvPlayerLogin(sink interface{}, head common.IMsgHead, 
 	c_mhead.Uid_ = session.Id()
 	_, err := global.GateSvrGlobal.GetSvrsMgr().SendBySvrType(session.Id(), ProtoMsg.EmSvrType_Login, head, msg)
 	if err != nil {
-		log.Error("playerMgr::onRecvLogin SendBySvrType err:%v", err)
+		log.Error("playerMgr::onRecvPlayerLogin SendBySvrType err:%v", err)
 
 		//todo session.Close()
 
 		return
 	}
 
-
+	player.state_ = player_state_login
 }
 
 //登陆服登陆返回
@@ -169,28 +163,52 @@ func (mgr *playerMgr) onRecvLoginRet(sink interface{}, head common.IMsgHead, msg
 	}
 
 	if login_res_msg.Ret.ErrCode != 0 {
-		player.session_.Send(common.InnerToClientHead(head), msg)
+		player.state_ = player_state_connect
+		player.OnRecvSvr(head, msg)
 		return
 	}
 
 	//登陆Game服务器
-	global.GateSvrGlobal.GetSvrsMgr().SendBySvrType(login_res_msg.Uid, ProtoMsg.EmSvrType_Gs, head, &ProtoMsg.PbSvrGameLoginReqMsg{
+	ihead.Msg_id_ = uint32(ProtoMsg.EmSSMsgId_SVR_MSG_GAME_LOGIN)
+	_, err := global.GateSvrGlobal.GetSvrsMgr().SendBySvrType(login_res_msg.Uid, ProtoMsg.EmSvrType_Gs, head, &ProtoMsg.PbSvrGameLoginReqMsg{
 		Uid: login_res_msg.Uid,
 		Online: true,
 	})
+
+	if err != nil {
+		log.Error("playerMgr::onRecvLoginRet SendBySvrType err:%v", err)
+		player.state_ = player_state_connect
+		return
+	}
 }
 
 //游戏服登陆返回
 func (mgr *playerMgr)onRecvGameLoginRet(sink interface{}, head common.IMsgHead, msg interface{}) {
-	game_login_res_msg := msg.(*ProtoMsg.PbSvrGameLoginResMsg)
+	game_login_res_msg := msg.(*ProtoMsg.PbCsPlayerLoginResMsg)
 	ihead := head.(*common.ProtocolInnerHead)
+	session := sink.(common_global.ILogicSession)
 	player := mgr.m_tmp_player_[ihead.Uid_lst_[0]]
-	if player == nil {
+	if player == nil {//玩家已经断开连接
+		session.Send(&common.ProtocolInnerHead{
+			Msg_id_: uint32(ProtoMsg.EmSSMsgId_SVR_MSG_GAME_LOGIN),
+			Uid_lst_: []uint64{ game_login_res_msg.Uid },
+		}, &ProtoMsg.PbSvrGameLoginReqMsg{
+			Uid: game_login_res_msg.Uid,
+			Online: false,
+		})
+
 		return
 	}
 
+	chead := &common.ProtocolClientHead{
+		Msg_id_: uint32(ProtoMsg.EmCSMsgId_CS_MSG_PLAYER_LOGIN),
+		Uid_: game_login_res_msg.Uid,
+		Seq_: ihead.Seq_,
+	}
+
 	if game_login_res_msg.Ret.ErrCode != 0 {
-		player.session_.Send(common.ClientToInnerHead(head), msg)
+		player.OnRecvSvr(chead, msg)
+		player.state_ = player_state_connect
 		return
 	}
 
@@ -201,8 +219,9 @@ func (mgr *playerMgr)onRecvGameLoginRet(sink interface{}, head common.IMsgHead, 
 
 	mgr.m_player_[ihead.Uid_lst_[0]] = player
 	mgr.m_player_by_id_[game_login_res_msg.Uid] = player
-	player.session_.Send(common.ClientToInnerHead(head), msg)
 
+	player.OnRecvSvr(chead, msg)
+	player.state_ = player_state_online
 	log.Release("playerMgr::onRecvGameLoginRet player:%d login success", player.uid_)
 }
 
@@ -218,4 +237,37 @@ func (mgr *playerMgr) onPlayerEnterSvr(sink interface{}, head common.IMsgHead, m
 	} else {
 		delete(p.svr_type_in_, proto_msg.SvrType)
 	}
+
+	log.Release("playerMgr::onPlayerEnterSvr enter svr:%+v", proto_msg)
+}
+
+func (mgr *playerMgr) OnSvrClosed(cfg_svr_info *ProtoMsg.PbSvrBaseInfo) {
+	if cfg_svr_info == nil {
+		return
+	}
+
+	for _, player := range mgr.m_tmp_player_ {
+		if svr_id, ok := player.svr_type_in_[cfg_svr_info.SvrType]; ok {
+			if svr_id == cfg_svr_info.SvrId {
+				player.session_.Close()
+			}
+		}
+	}
+
+	switch cfg_svr_info.SvrType{
+	case ProtoMsg.EmSvrType_Gs:
+		//剔除该gamesvr上的玩家
+		for _, player := range mgr.m_player_ {
+			if svr_id, ok := player.svr_type_in_[cfg_svr_info.SvrType]; ok {
+				if svr_id == cfg_svr_info.SvrId {
+					player.session_.Close()
+				}
+			}
+		}
+
+	case ProtoMsg.EmSvrType_Login:
+
+	}
+
+	log.Release("playerMgr::OnSvrClosed svr_info:%+v", cfg_svr_info)
 }

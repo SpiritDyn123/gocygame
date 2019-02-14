@@ -13,6 +13,7 @@ type IGameSvrGlobal interface {
 	GetWheelTimer() timer.WheelTimer
 
 	GetSvrsMgr() *net.SvrsMgr
+	GetPlayerMgr() IPlayerMgr
 }
 
 var GameSvrGlobal IGameSvrGlobal

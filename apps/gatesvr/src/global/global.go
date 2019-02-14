@@ -12,7 +12,6 @@ type IGateSvrGlobal interface {
 	GetClientMsgParser() tools.IMsgDispatcher
 	GetSvrMsgParser() tools.IMsgDispatcher
 	GetPlayerMgr() IPlayerMgr
-
 }
 
 var GateSvrGlobal IGateSvrGlobal

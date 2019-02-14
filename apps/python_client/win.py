@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import *
 from enum import *
 from config import *
 from output import *
-from user_pb2 import *
 from net.client import client as tcpClient
 from net.codec import *
 from net.http_login import *
@@ -19,9 +18,11 @@ import Crypto.Cipher.PKCS1_v1_5
 import threading
 import datetime
 import time
-from google.protobuf.json_format import MessageToJson, MessageToDict
+from google.protobuf.json_format import MessageToDict
 import json
-
+from PyQt5 import sip
+from proto.login_pb2 import  *
+from proto.cs_protoid_pb2 import *
 from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
@@ -30,12 +31,11 @@ class BtnState(Enum):
     Login = 2
     Send = 3
 
-from PyQt5 import sip
-
 
 LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
+
 
 class ClientWin(QMainWindow):
     def __init__(self, logic_win):
@@ -210,8 +210,8 @@ class MsgWin(object):
         else:
             self.__ui.pushButton.setText("登陆")
             self.__ui.comboBox.clear()
-            self.__ui.comboBox.addItem("游客登录", 1)
-            self.__ui.comboBox.addItem("账户登录", 2)
+            self.__ui.comboBox.addItem("游客登录", Login_type_visitor)
+            self.__ui.comboBox.addItem("账户登录", Login_type_user)
         self.__ui.comboBox.currentIndexChanged.connect(self.login_choice_changed)
 
     def on_click(self):
@@ -285,17 +285,21 @@ class MsgWin(object):
         else:
             login_type = self.__ui.comboBox.currentData()
             login_desc = "游客登录"
-            if login_type == 1:  # 游客登录
-                err = self.__loginGuest()
-            else:
-                name = self.__ui.name_input.text()
-                if name == "":
-                    return
-                pwd = self.__ui.pwd_input.text()
-                if pwd == "":
-                    return
+            err = None
+            if login_type == Login_type_visitor:  # 游客登录
+                #err = self.__loginGuest()
+                pass
+            elif login_type == Login_type_user:
+                # name = self.__ui.name_input.text()
+                # if name == "":
+                #     return
+                # pwd = self.__ui.pwd_input.text()
+                # if pwd == "":
+                #     return
                 login_desc = "账号登陆"
-                err = self.__loginUser(name, pwd)
+                #err = self.__loginUser(name, pwd)
+            err = self.__login(login_type)
+
             if not err:
                 self.__ui.comboBox.setVisible(True)
                 self.SetBtn(BtnState.Send)
@@ -363,8 +367,8 @@ class MsgWin(object):
             #心跳
             if now - self.__last_send_msg > 15:
                 self.__last_send_msg = now
-                mh = msgHead()
-                mh.cmd = 0
+                mh = msgSympolHead()
+                mh.cmd = CS_MSG_HEART_BEAT
                 mh.uid = self.__uid
                 self.__cli.Send(mh)
 
@@ -378,7 +382,7 @@ class MsgWin(object):
         return None, "unregister cmd:" + str(cmd)
 
     def __proto_to_str(self, msg):
-        dict_data = MessageToDict(msg, preserving_proto_field_name=True)
+        dict_data = MessageToDict(msg, preserving_proto_field_name=True, including_default_value_fields=True)
         return json.dumps(dict_data, ensure_ascii=False, indent=2)
 
     def __addMsg(self, msg, update_ui=True):
@@ -395,55 +399,30 @@ class MsgWin(object):
         if update_ui:
             self.__updateRecvMsgList()
 
-    def __login(self, token_data):
-        aes_cipher = AesCipher(bytes(Aes_key, encoding="utf-8"))
-        cc = clientCodec()
+    def __login(self, login_type):
+        login_msg = PbCsPlayerLoginReqMsg()
+        login_msg.login_type = login_type
+        if login_type == Login_type_user:
+            name = self.__ui.name_input.text()
+            if name == "":
+                return "用户名不能为空"
+            pwd = self.__ui.pwd_input.text()
+            if pwd == "":
+                return "密码不能为空"
+            login_msg.user_name = name
+            login_msg.user_name = pwd
 
+        cc = clientNoEncryptCodec()
         self.__cli = tcpClient(Tcp_ser_addr(self.RUN_ENVIREMENT), codec=cc)
         err = self.__cli.Connect()
         if err:
             return err
 
-        mh = msgHead()
-        mh.cmd = 100
-        mh.uid = token_data["uid"]
+        mh = msgSympolHead()
+        mh.cmd = CS_MSG_PLAYER_LOGIN
+        mh.seq = 0
+        mh.uid = 111
 
-        try_fisrt_connect_cnt = 0
-        while True:
-            if try_fisrt_connect_cnt >= 3:
-                return "try send FirstConnectRequest times 3"
-
-            mb = FirstConnectRequest()
-            mb.aeskey = Aes_key
-            bt = time.time()
-            err = self.__cli.Send(mh, mb)
-            if err:
-                return err
-
-            msgs, err = self.__cli.Read()
-            if err:
-                return err
-            t_p = time.time() - bt
-
-            recv_msg, err = self.__parseRecvMsg(msgs[0].cmd, msgs[1])
-            if err:
-                return err
-            self.__addMsg({"time": datetime.datetime.now(), "msg": [0, [msgs[0].cmd, recv_msg, len(msgs[1]), t_p]]})
-
-            if recv_msg.ret.err_code == 0:
-                break
-            pubkey = recv_msg.pubkey
-            pubkey = Crypto.PublicKey.RSA.importKey(bytes(pubkey, encoding="utf-8"))
-            cipher = Crypto.Cipher.PKCS1_v1_5.new(pubkey)
-            cc.SetRsa(cipher)
-            try_fisrt_connect_cnt += 1
-
-        cc.SetAes(aes_cipher)
-        login_msg = UserLoginRequest()
-        login_msg.uid = token_data["uid"]
-        login_msg.token = token_data["accessToken"]
-
-        mh.cmd = 1001
         bt = time.time()
         err = self.__cli.Send(mh, login_msg)
         if err:
@@ -460,29 +439,28 @@ class MsgWin(object):
         self.__addMsg({"time": datetime.datetime.now(), "msg": [0, [msgs[0].cmd, recv_msg, len(msgs[1]), t_p]]})
 
         if recv_msg.ret.err_code != 0:
-            return "login condsvr ret=" + str(recv_msg.ret.err_code) + ",msg=" + recv_msg.ret.err_msg.decode(
-                "utf-8")
+            return "login ret=" + str(recv_msg.ret.err_code) + ",msg=" + recv_msg.ret.err_msg
 
-        self.__uid = token_data["uid"]
+        self.__uid = recv_msg.uid
         self.__logined = True
         self.__last_send_msg = time.time()
 
         return None
-    #[{"kline_type":43200,"stock_code":"sh600360"}]
-    #游客登录
-    def __loginGuest(self):
-        # 初始化
-        token_data, err = HttpGuestLogin(Http_guest_url(self.RUN_ENVIREMENT))
-        if err:
-            return err
-        return self.__login(token_data)
 
-    #用户登录
-    def __loginUser(self, name, pwd):
-        token_data, err = HttpUserLogin(Http_user_url(self.RUN_ENVIREMENT), Rsa_pub_Key, name, pwd)
-        if err:
-            return err
-        return self.__login(token_data)
+    #游客登录
+    # def __loginGuest(self):
+    #     # 初始化
+    #     token_data, err = HttpGuestLogin(Http_guest_url(self.RUN_ENVIREMENT))
+    #     if err:
+    #         return err
+    #     return self.__login(token_data)
+    #
+    # #用户登录
+    # def __loginUser(self, name, pwd):
+    #     token_data, err = HttpUserLogin(Http_user_url(self.RUN_ENVIREMENT), Rsa_pub_Key, name, pwd)
+    #     if err:
+    #         return err
+    #    return self.__login(token_data)
 
     def __recvMsgThreadFunc(self, data):
         while True:
@@ -494,7 +472,7 @@ class MsgWin(object):
                 self.__queque_lock.release()
                 return
             else:
-                if msgs[0].cmd == KEEPALIVE_CMD or len(msgs) < 2:#heartbeat丢弃
+                if msgs[0].cmd == CS_MSG_HEART_BEAT or len(msgs) < 2:#heartbeat丢弃
                     continue
 
                 recv_msg, err = self.__parseRecvMsg(msgs[0].cmd, msgs[1])

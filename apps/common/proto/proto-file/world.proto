@@ -13,7 +13,7 @@ message PbSvrRegisterWorldResMsg {
 };
 
 //SVR_MSG_WORLD_LOGIN
-message PbSvWorldLoginReqMsg {
+message PbSvrWorldLoginReqMsg {
     uint64      uid = 1;
     bool        online = 2;
 };

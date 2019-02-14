@@ -3,6 +3,7 @@ package global
 import (
 	"github.com/SpiritDyn123/gocygame/libs/net/tcp"
 	"github.com/SpiritDyn123/gocygame/apps/common"
+	"github.com/SpiritDyn123/gocygame/apps/common/proto"
 )
 
 const (
@@ -22,4 +23,5 @@ type IPlayerMgr interface {
 	OnClose(tcp_session *tcp.Session)
 	GetPlayerById(uint64) IPlayer
 	BroadClientMsg(head common.IMsgHead, msg interface{})
+	OnSvrClosed(cfg_svr_info *ProtoMsg.PbSvrBaseInfo)
 }

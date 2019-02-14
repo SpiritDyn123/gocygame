@@ -13,8 +13,8 @@ type IMsgHead interface {
 //外网消息头部
 type ProtocolClientHead struct {
 	Msg_id_ uint32
-	Uid_ uint64
 	Seq_ uint32
+	Uid_ uint64
 }
 
 func(h *ProtocolClientHead) GetMsgId() uint32 {

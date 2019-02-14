@@ -4,7 +4,7 @@ set DEST_PATH=%cd%
 echo ===current dir:
 echo %DEST_PATH%
 
-cd ../../proto/
+cd ../../common/proto/proto-file/
 echo %cd%
 echo ===current dir:
 for %%f in (%cd%\*.proto) do (

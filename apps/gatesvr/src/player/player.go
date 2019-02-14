@@ -8,6 +8,13 @@ import (
 	"github.com/SpiritDyn123/gocygame/libs/log"
 )
 
+type playerState int
+const(
+	player_state_connect = playerState(1) + iota
+	player_state_login
+	player_state_online
+)
+
 type player struct {
 	session_ 		common_global.ILogicSession
 	uid_ 			uint64
@@ -15,6 +22,7 @@ type player struct {
 
 	login_info_ 	*ProtoMsg.PbCsPlayerLoginReqMsg
 	svr_type_in_   map[ProtoMsg.EmSvrType]int32
+	state_ playerState
 }
 
 func (p *player) OnRecv(head common.IMsgHead, msg interface{}) {
@@ -29,27 +37,29 @@ func (p *player) OnRecv(head common.IMsgHead, msg interface{}) {
 	if _, ok := p.svr_type_in_[svr_type]; ok {
 		svr_mgr.SendBySvrId(svr_type, p.svr_type_in_[svr_type], head, msg)
 	} else {
-		_, choice_svr_id, err := svr_mgr.SendByCSId(p.uid_, head, msg) //功能性的无状态服务
+		_, _, err := svr_mgr.SendByCSId(p.uid_, head, msg) //功能性的无状态服务
 		if err != nil {
 			log.Error("player::OnRecv SendByCSId head:%v, error:%v", head, err)
-		} else {
-			if svr_type == ProtoMsg.EmSvrType_Gs {
-				p.svr_type_in_[svr_type] = choice_svr_id
-			}
 		}
 	}
 }
 
-func (p *player)  OnRecvSvr(head common.IMsgHead, msg interface{}) {
-	ihead := head.(*common.ProtocolInnerHead)
-	chead := &common.ProtocolClientHead{
-		Msg_id_: ihead.Msg_id_,
-		Seq_: ihead.Seq_,
-		Uid_: p.uid_,
-	}
-	p.session_.Send(chead, msg)
+func (p *player) resetLogin() {
+	p.state_ = player_state_connect
 }
 
-func (p *player) login() {
+func (p *player) OnRecvSvr(head common.IMsgHead, msg interface{}) {
+	var chead *common.ProtocolClientHead
+	ihead, ok  := head.(*common.ProtocolInnerHead)
+	if ok {
+		chead = &common.ProtocolClientHead{
+			Msg_id_: ihead.Msg_id_,
+			Seq_: ihead.Seq_,
+			Uid_: p.uid_,
+		}
+	} else {
+		chead = head.(*common.ProtocolClientHead)
+	}
 
+	p.session_.Send(chead, msg)
 }

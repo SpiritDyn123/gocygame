@@ -18,7 +18,7 @@ type loginMgr struct {
 
 func (mgr *loginMgr) Start() (err error) {
 	global.LoginSvrGlobal.GetMsgDispatcher().Register(uint32(ProtoMsg.EmCSMsgId_CS_MSG_PLAYER_LOGIN),
-		&ProtoMsg.PbSvrRegisterLoginReqMsg{}, mgr.onRecvPlayerLogin)
+		&ProtoMsg.PbCsPlayerLoginReqMsg{}, mgr.onRecvPlayerLogin)
 
 	return
 }
