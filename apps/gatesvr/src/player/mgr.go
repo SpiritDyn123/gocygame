@@ -246,13 +246,14 @@ func (mgr *playerMgr) OnSvrClosed(cfg_svr_info *ProtoMsg.PbSvrBaseInfo) {
 		return
 	}
 
-	for _, player := range mgr.m_tmp_player_ {
-		if svr_id, ok := player.svr_type_in_[cfg_svr_info.SvrType]; ok {
-			if svr_id == cfg_svr_info.SvrId {
-				player.session_.Close()
-			}
-		}
-	}
+	//todo请求中的可以做一些处理
+	//for _, player := range mgr.m_tmp_player_ {
+	//	if svr_id, ok := player.svr_type_in_[cfg_svr_info.SvrType]; ok {
+	//		if svr_id == cfg_svr_info.SvrId {
+	//			player.session_.Close()
+	//		}
+	//	}
+	//}
 
 	switch cfg_svr_info.SvrType{
 	case ProtoMsg.EmSvrType_Gs:
