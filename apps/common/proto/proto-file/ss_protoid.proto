@@ -9,6 +9,7 @@ enum emSSMsgId {
 
     //内部公共消息
     SVR_MSG_COMMON_PUSH_PLAYER_SVRID =  200001;
+    SVR_MSG_COMMON_REGISTER_SVR      = 200002;
     SVR_MSG_COMMON_END      =200999;
 
     //集群服务
@@ -19,25 +20,21 @@ enum emSSMsgId {
 
     //game
     SVR_MSG_GAME_BEGIN              = 210000;
-    SVR_MSG_REGISTER_GAME           = 210001; //注册game服务器
-    SVR_MSG_GAME_LOGIN              = 210002;   //游戏服登陆
+    SVR_MSG_GAME_LOGIN              = 210001;   //游戏服登陆
     SVR_MSG_GAME_END                = 219999;
 
     //world
     SVR_MSG_WORLD_BEGIN       = 220000;
-    SVR_MSG_REGISTER_WORLD      = 220001;  //注册大厅服务器
-    SVR_MSG_WORLD_LOGIN         = 220002;   //世界服登陆
+    SVR_MSG_WORLD_LOGIN         = 220001;   //世界服登陆
     SVR_MSG_WORLD_END       = 229999;
 
     //登陆
     SVR_MSG_LOGIN_BEGIN         = 230000;
-    SVR_MSG_REGISTER_LOGIN      = 230001;  //注册登陆服务器
-    SVR_MSG_LOGIN_END       = 239999;
+    SVR_MSG_LOGIN_END           = 239999;
 
     //db相关
     SVR_MSG_DB_BEGIN       = 240000;
-    SVR_MSG_REGISTER_DB         = 240001;  //注册DB服务器
-    SVR_MSG_DB_SERVICE          = 240002;
+    SVR_MSG_DB_SERVICE          = 240001;
     SVR_MSG_DB_END       = 249999;
 
     SVR_MSG_END                 = 299999;

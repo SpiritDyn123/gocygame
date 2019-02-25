@@ -3,15 +3,6 @@ import "cluster.proto";
 import "base.proto";
 package ProtoMsg;
 
-//SVR_MSG_REGISTER_LOGIN
-message PbSvrRegisterLoginReqMsg {
-   PbSvrBaseInfo        svr_info = 1;
-};
-
-message PbSvrRegisterLoginResMsg {
-   Ret ret = 1;
-};
-
 enum emLoginType {
     Login_type_invalid = 0;
     Login_type_visitor = 1;  //游客

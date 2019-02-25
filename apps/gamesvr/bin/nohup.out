@@ -1,0 +1,508 @@
+2019/02/25 13:20:15 service.go:80 [release] 启动中...
+2019/02/25 13:20:15 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:20:15 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:20:15 service.go:103 [release] 启动成功
+2019/02/25 13:20:15 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:20:15 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:20:15 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 12 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04213bdf0, 0xc042038be0, 0xc042118380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc042118400)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042106300, 0x733fa0, 0xc04216a230, 0x8c1de0, 0xc04211e3c0, 0x706680, 0xc042166018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc04216a230, 0x8c1de0, 0xc04211e3c0, 0x706680, 0xc042166018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038ca0, 0x733fa0, 0xc04216a230, 0x8c1de0, 0xc04211e3c0, 0xc04212690c, 0x2, 0x2, 0x0, 0xc04203c480)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc04216a230, 0x6caac0, 0xc04211e420, 0xf, 0x2e0601, 0xc04203c460, 0xc04213bf56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc0420471e0, 0xc04211e440, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04211e440, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038be0, 0xc042118380, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038be0, 0xc042118380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc0420101e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc0420101e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042012740, 0xc042010240, 0xc0420101e0, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:20:15 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:20:15 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 12 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04213bdf0, 0xc042038be0, 0xc04203a940)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04203a9c0)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042106300, 0x733fa0, 0xc04216a540, 0x8c1de0, 0xc04210efc0, 0x706680, 0xc0420040d0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc04216a540, 0x8c1de0, 0xc04210efc0, 0x706680, 0xc0420040d0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038ca0, 0x733fa0, 0xc04216a540, 0x8c1de0, 0xc04210efc0, 0xc042012a9c, 0x2, 0x2, 0x0, 0xc04203c480)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc04216a540, 0x6caac0, 0xc04210f020, 0xf, 0x2e0601, 0xc04203c460, 0xc04213bf56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc0420471e0, 0xc04210f040, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04210f040, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038be0, 0xc04203a940, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038be0, 0xc04203a940)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc0420101e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc0420101e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042012740, 0xc042010240, 0xc0420101e0, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:21:15 client.go:136 [debug] session id:3, addr:127.0.0.1:16000 Receive error:read tcp 127.0.0.1:5757->127.0.0.1:16000: wsarecv: An existing connection was forcibly closed by the remote host.
+2019/02/25 13:21:16 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Del, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:21:19 server.go:90 [debug] socket &{0xc04200e5c0 0xc04210ed80 2 0xc0420040a0 1 0xc04203c9c0 0xc042010480 false {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:12000->127.0.0.1:5754: wsarecv: An existing connection was forcibly closed by the remote host.
+2019/02/25 13:21:19 server_mgr.go:308 [release] OnSvrOffline svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:31:36 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:31:36 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:31:36 service.go:80 [release] 启动中...
+2019/02/25 13:31:36 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:31:36 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:31:36 service.go:103 [release] 启动成功
+2019/02/25 13:31:36 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 18 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04215bdf0, 0xc042038be0, 0xc04203a800)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04203a880)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042100300, 0x733fa0, 0xc042162230, 0x8c1de0, 0xc042108de0, 0x706680, 0xc042004098)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042162230, 0x8c1de0, 0xc042108de0, 0x706680, 0xc042004098)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038ca0, 0x733fa0, 0xc042162230, 0x8c1de0, 0xc042108de0, 0xc0420129bc, 0x2, 0x2, 0x0, 0xc0420e4240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042162230, 0x6caac0, 0xc042108e40, 0xf, 0xb91301, 0xc042138040, 0xc04215bf56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042047110, 0xc042108e60, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc042108e60, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038be0, 0xc04203a800, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038be0, 0xc04203a800)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc042138000)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc042138000)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042122040, 0xc042138060, 0xc042138000, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:31:36 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 18 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04215bdf0, 0xc042038be0, 0xc0421201c0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc042120240)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042100300, 0x733fa0, 0xc0421c4000, 0x8c1de0, 0xc042124220, 0x706680, 0xc042134018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc0421c4000, 0x8c1de0, 0xc042124220, 0x706680, 0xc042134018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038ca0, 0x733fa0, 0xc0421c4000, 0x8c1de0, 0xc042124220, 0xc04212213c, 0x2, 0x2, 0x0, 0xc042144180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc0421c4000, 0x6caac0, 0xc042124280, 0xf, 0x1, 0xc042138040, 0xc04215bf56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042047110, 0xc0421242a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc0421242a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038be0, 0xc0421201c0, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038be0, 0xc0421201c0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc042138000)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc042138000)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042122040, 0xc042138060, 0xc042138000, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:31:36 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:31:47 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:31:47 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:31:47 client.go:136 [debug] session id:3, addr:127.0.0.1:16000 Receive error:read tcp 127.0.0.1:8594->127.0.0.1:16000: use of closed network connection
+2019/02/25 13:31:47 server.go:90 [debug] socket &{0xc04200e5c0 0xc04211e200 4 0xc0421b4008 1 0xc04211a300 0xc042151560 true {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:12000->127.0.0.1:8595: use of closed network connection
+2019/02/25 13:31:47 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:8589->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:31:47 client.go:136 [debug] session id:2, addr:127.0.0.1:13000 Receive error:read tcp 127.0.0.1:8591->127.0.0.1:13000: use of closed network connection
+2019/02/25 13:31:47 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:31:47 service.go:116 [release] 关闭成功
+2019/02/25 13:32:42 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:32:42 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:32:42 service.go:80 [release] 启动中...
+2019/02/25 13:32:42 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:32:42 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:32:42 service.go:103 [release] 启动成功
+2019/02/25 13:32:42 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:32:42 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04215ddf0, 0xc042046be0, 0xc04203a380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04203a400)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc04211e300, 0x733fa0, 0xc042162310, 0x8c1de0, 0xc042002180, 0x706680, 0xc042004018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042162310, 0x8c1de0, 0xc042002180, 0x706680, 0xc042004018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc042162310, 0x8c1de0, 0xc042002180, 0xc0420121ac, 0x2, 0x2, 0x0, 0xc04203c240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042162310, 0x6caac0, 0xc0420021e0, 0xf, 0x2e0601, 0xc04208e400, 0xc04215df56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc04204f5f0, 0xc042002200, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc042002200, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc04203a380, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc04203a380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:32:42 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc04215ddf0, 0xc042046be0, 0xc0420567c0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc042056840)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc04211e300, 0x733fa0, 0xc04208cd90, 0x8c1de0, 0xc042126fc0, 0x706680, 0xc04207a0a8)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc04208cd90, 0x8c1de0, 0xc042126fc0, 0x706680, 0xc04207a0a8)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc04208cd90, 0x8c1de0, 0xc042126fc0, 0xc04205b09c, 0x2, 0x2, 0x0, 0xc04208e540)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc04208cd90, 0x6caac0, 0xc042127020, 0xf, 0x1, 0xc04208e400, 0xc04215df56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc04204f5f0, 0xc042127040, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc042127040, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc0420567c0, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc0420567c0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:33:34 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:33:34 server.go:90 [debug] socket &{0xc0420582e0 0xc042164160 3 0xc042196008 1 0xc042142240 0xc04218a120 true {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:12000->127.0.0.1:8872: use of closed network connection
+2019/02/25 13:33:34 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:8868->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:33:34 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:33:34 client.go:136 [debug] session id:2, addr:127.0.0.1:13000 Receive error:read tcp 127.0.0.1:8871->127.0.0.1:13000: use of closed network connection
+2019/02/25 13:33:34 client.go:136 [debug] session id:4, addr:127.0.0.1:16000 Receive error:read tcp 127.0.0.1:8875->127.0.0.1:16000: use of closed network connection
+2019/02/25 13:33:34 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:33:34 service.go:116 [release] 关闭成功
+2019/02/25 13:35:11 service.go:80 [release] 启动中...
+2019/02/25 13:35:11 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:35:11 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:35:11 service.go:103 [release] 启动成功
+2019/02/25 13:35:11 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:35:11 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:35:11 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042175df0, 0xc042046be0, 0xc04212a380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04212a400)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042122300, 0x733fa0, 0xc042184770, 0x8c1de0, 0xc04214c280, 0x706680, 0xc042154018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042184770, 0x8c1de0, 0xc04214c280, 0x706680, 0xc042154018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc042184770, 0x8c1de0, 0xc04214c280, 0xc04215014c, 0x2, 0x2, 0x0, 0xc04208e540)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042184770, 0x6caac0, 0xc04214c2e0, 0xf, 0x2e0001, 0xc04208e400, 0xc042175f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042053040, 0xc04214c300, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04214c300, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc04212a380, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc04212a380)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:35:11 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:35:11 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042175df0, 0xc042046be0, 0xc04212a500)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04212a580)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042122300, 0x733fa0, 0xc042184a10, 0x8c1de0, 0xc04214c380, 0x706680, 0xc042154028)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042184a10, 0x8c1de0, 0xc04214c380, 0x706680, 0xc042154028)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc042184a10, 0x8c1de0, 0xc04214c380, 0xc0421501ac, 0x2, 0x2, 0x0, 0xc04208e420)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042184a10, 0x6caac0, 0xc04214c3e0, 0xf, 0x2e0001, 0xc04208e400, 0xc042175f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042053040, 0xc04214c400, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04214c400, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc04212a500, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc04212a500)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:35:37 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:35:37 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:35:37 server.go:90 [debug] socket &{0xc0420582e0 0xc04214c220 2 0xc042154008 1 0xc04212e2a0 0xc04215c060 true {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:12000->127.0.0.1:9478: use of closed network connection
+2019/02/25 13:35:37 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:9477->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:35:37 client.go:136 [debug] session id:3, addr:127.0.0.1:13000 Receive error:read tcp 127.0.0.1:9480->127.0.0.1:13000: use of closed network connection
+2019/02/25 13:35:37 client.go:136 [debug] session id:4, addr:127.0.0.1:16000 Receive error:read tcp 127.0.0.1:9482->127.0.0.1:16000: use of closed network connection
+2019/02/25 13:35:37 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:35:37 service.go:116 [release] 关闭成功
+2019/02/25 13:37:10 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:37:10 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:37:10 service.go:80 [release] 启动中...
+2019/02/25 13:37:10 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:37:10 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:37:10 service.go:103 [release] 启动成功
+2019/02/25 13:37:10 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:37:10 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042187df0, 0xc042046be0, 0xc042138180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc042138200)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc04211e300, 0x733fa0, 0xc042172cb0, 0x8c1de0, 0xc04213c1a0, 0x706680, 0xc0421dc008)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042172cb0, 0x8c1de0, 0xc04213c1a0, 0x706680, 0xc0421dc008)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc042172cb0, 0x8c1de0, 0xc04213c1a0, 0xc04214e77c, 0x2, 0x2, 0x0, 0xc04208e420)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042172cb0, 0x6caac0, 0xc04213c200, 0xf, 0xb90001, 0xc04208e400, 0xc042187f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042053110, 0xc04213c220, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04213c220, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc042138180, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc042138180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:37:10 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 25 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042187df0, 0xc042046be0, 0xc0421a6300)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc0421a6380)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc04211e300, 0x733fa0, 0xc0421e0070, 0x8c1de0, 0xc04218c260, 0x706680, 0xc042190030)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc0421e0070, 0x8c1de0, 0xc04218c260, 0x706680, 0xc042190030)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042046ca0, 0x733fa0, 0xc0421e0070, 0x8c1de0, 0xc04218c260, 0xc0421a21ac, 0x2, 0x2, 0x0, 0xc04203c600)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc0421e0070, 0x6caac0, 0xc04218c2c0, 0xf, 0xb90d01, 0xc04208e400, 0xc042187f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc042053110, 0xc04218c2e0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04218c2e0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042046be0, 0xc0421a6300, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042046be0, 0xc0421a6300)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04208e240, 0xc042044120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc04205a700, 0xc042044180, 0xc042044120, 0x8c8060, 0xc04208e240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:39:54 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:39:54 client.go:136 [debug] session id:4, addr:127.0.0.1:16000 Receive error:EOF
+2019/02/25 13:39:54 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:9970->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:39:54 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:39:54 server.go:90 [debug] socket &{0xc0420582e0 0xc04218c040 2 0xc042190000 1 0xc04214c0c0 0xc04219e000 true {{0 0} 0 0 0 0} <nil>} read error:EOF
+2019/02/25 13:39:54 client.go:136 [debug] session id:3, addr:127.0.0.1:13000 Receive error:read tcp 127.0.0.1:9974->127.0.0.1:13000: use of closed network connection
+2019/02/25 13:39:55 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:39:55 service.go:116 [release] 关闭成功
+2019/02/25 13:41:52 service.go:80 [release] 启动中...
+2019/02/25 13:41:52 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:41:52 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:41:52 service.go:103 [release] 启动成功
+2019/02/25 13:41:52 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:41:52 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:41:52 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 12 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042159df0, 0xc042038bf0, 0xc0420aa240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc0420aa2c0)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042106300, 0x733fa0, 0xc042070930, 0x8c1de0, 0xc04216e120, 0x706680, 0xc04219a008)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042070930, 0x8c1de0, 0xc04216e120, 0x706680, 0xc04219a008)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038cb0, 0x733fa0, 0xc042070930, 0x8c1de0, 0xc04216e120, 0xc04217012c, 0x2, 0x2, 0x0, 0xc04203c840)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042070930, 0x6caac0, 0xc04216e180, 0xf, 0x2410001, 0xc04203c460, 0xc042159f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc0420451e0, 0xc04216e1a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04216e1a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038bf0, 0xc0420aa240, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038bf0, 0xc0420aa240)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc0420121e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc0420121e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042008750, 0xc042012240, 0xc0420121e0, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:41:52 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 12 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042159df0, 0xc042038bf0, 0xc0420aa400)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc0420aa480)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042106300, 0x733fa0, 0xc042070690, 0x8c1de0, 0xc04216e220, 0x706680, 0xc04219a018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc042070690, 0x8c1de0, 0xc04216e220, 0x706680, 0xc04219a018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038cb0, 0x733fa0, 0xc042070690, 0x8c1de0, 0xc04216e220, 0xc04217018c, 0x2, 0x2, 0x0, 0xc04203c5a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc042070690, 0x6caac0, 0xc04216e280, 0xf, 0x1, 0xc04203c460, 0xc042159f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc0420451e0, 0xc04216e2a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04216e2a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038bf0, 0xc0420aa400, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038bf0, 0xc0420aa400)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c2a0, 0xc0420121e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c2a0, 0xc0420121e0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc042008750, 0xc042012240, 0xc0420121e0, 0x8c8060, 0xc04203c2a0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:41:52 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:42:09 client.go:136 [debug] session id:2, addr:127.0.0.1:16000 Receive error:EOF
+2019/02/25 13:42:09 client.go:136 [debug] session id:3, addr:127.0.0.1:13000 Receive error:EOF
+2019/02/25 13:42:09 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:42:09 server.go:90 [debug] socket &{0xc0420105c0 0xc04216e3a0 4 0xc04213e008 1 0xc0420b0240 0xc04218e3c0 false {{0 0} 0 0 0 0} <nil>} read error:EOF
+2019/02/25 13:42:09 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:EOF
+2019/02/25 13:42:10 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Del, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:42:10 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:42:10 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:42:10 service.go:116 [release] 关闭成功
+2019/02/25 13:42:28 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:60000 svr_type:DB addr:"127.0.0.1:16000" ttl:20 timeout:60 
+2019/02/25 13:42:28 [release] TcpClientCluster::onRecvRegisterSvr opr_type:Add, svr:group_id:1 svr_id:30000 svr_type:World addr:"127.0.0.1:13000" ttl:20 timeout:60 
+2019/02/25 13:42:28 service.go:80 [release] 启动中...
+2019/02/25 13:42:28 service.go:83 [release] gamesvr_1_20000启动中
+2019/02/25 13:42:28 service.go:100 [release] gamesvr_1_20000启动成功
+2019/02/25 13:42:28 service.go:103 [release] 启动成功
+2019/02/25 13:42:28 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:10000 svr_type:Gate addr:"127.0.0.1:11000" ttl:20 timeout:60 
+2019/02/25 13:42:28 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 10 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042165df0, 0xc042038060, 0xc04214c400)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04214a280)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042134300, 0x733fa0, 0xc04210d030, 0x8c1de0, 0xc04218e320, 0x706680, 0xc0421d4018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc04210d030, 0x8c1de0, 0xc04218e320, 0x706680, 0xc0421d4018)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038120, 0x733fa0, 0xc04210d030, 0x8c1de0, 0xc04218e320, 0xc0421901dc, 0x2, 0x2, 0x4, 0xc042165d10)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc04210d030, 0x6caac0, 0xc04218e380, 0xf, 0xc90d01, 0x0, 0xc042165d60)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc04210e4e0, 0xc04218e3a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc04218e3a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038060, 0xc04214c400, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038060, 0xc04214c400)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c120, 0xc042012180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c120, 0xc042012180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc0420083f0, 0xc0420121e0, 0xc042012180, 0x8c8060, 0xc04203c120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:42:28 chanrpc.go:128 [error] interface conversion: interface {} is *session.SvrSession, not *session.ClientSession: goroutine 10 [running]:
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec.func1(0xc042165df0, 0xc042038060, 0xc042056280)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:102 +0xc3
+panic(0x6ebf60, 0xc04214a300)
+	C:/go/src/runtime/panic.go:491 +0x291
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).onReqRegister(0xc042134300, 0x733fa0, 0xc0421e2000, 0x8c1de0, 0xc0420ea720, 0x706680, 0xc0421d4028)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:228 +0x813
+github.com/SpiritDyn123/gocygame/apps/common/net.(*SvrsMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onReqRegister)-fm(0x733fa0, 0xc0421e2000, 0x8c1de0, 0xc0420ea720, 0x706680, 0xc0421d4028)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/server_mgr.go:61 +0x6d
+github.com/SpiritDyn123/gocygame/apps/common/tools.(*msgDispatcher).Dispatch(0xc042038120, 0x733fa0, 0xc0421e2000, 0x8c1de0, 0xc0420ea720, 0xc04205a43c, 0x2, 0x2, 0x0, 0xc04203c900)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/tools/msg_dispatcher.go:58 +0x287
+github.com/SpiritDyn123/gocygame/apps/common/net/session.(*SvrSession).OnRecv(0xc0421e2000, 0x6caac0, 0xc0420ea780, 0xf, 0x1, 0xc04203c2e0, 0xc042165f56)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/session/svr_session.go:73 +0x19e
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).onSessionRecv(0xc04210e4e0, 0xc0420ea7a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:195 +0x178
+github.com/SpiritDyn123/gocygame/apps/common/net.(*TcpClientMgr).(github.com/SpiritDyn123/gocygame/apps/common/net.onSessionRecv)-fm(0xc0420ea7a0, 0x2, 0x2)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/common/net/tcp_client.go:40 +0x4f
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).exec(0xc042038060, 0xc042056280, 0x0, 0x0)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:112 +0x2ca
+github.com/SpiritDyn123/gocygame/libs/chanrpc.(*Server).Exec(0xc042038060, 0xc042056280)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/chanrpc/chanrpc.go:126 +0x40
+github.com/SpiritDyn123/gocygame/libs/utils.(*Pooller).Pool(0xc04203c120, 0xc042012180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:142 +0x1f8
+github.com/SpiritDyn123/gocygame/apps/gamesvr/src.(*GameSvrGlobal).Pool(0xc04203c120, 0xc042012180)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/apps/gamesvr/src/server.go:104 +0x3e
+github.com/SpiritDyn123/gocygame/libs/utils.RunMutli.func2(0xc0420083f0, 0xc0420121e0, 0xc042012180, 0x8c8060, 0xc04203c120)
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:97 +0x6c
+created by github.com/SpiritDyn123/gocygame/libs/utils.RunMutli
+	D:/codes/pcServer/project/trunk/gothirdparty/src/github.com/SpiritDyn123/gocygame/libs/utils/service.go:95 +0x4cb
+2019/02/25 13:46:11 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:46:11 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:12000: use of closed network connection
+2019/02/25 13:46:11 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:11291->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:46:11 server.go:90 [debug] socket &{0xc042010380 0xc04218e200 3 0xc0421b8008 1 0xc04214e240 0xc0421ac120 true {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:12000->127.0.0.1:11297: use of closed network connection
+2019/02/25 13:46:11 client.go:136 [debug] session id:2, addr:127.0.0.1:16000 Receive error:EOF
+2019/02/25 13:46:11 client.go:136 [debug] session id:4, addr:127.0.0.1:13000 Receive error:EOF
+2019/02/25 13:46:11 service.go:113 [release] gamesvr_1_20000 关闭成功
+2019/02/25 13:46:11 service.go:116 [release] 关闭成功

@@ -1,0 +1,73 @@
+2019/02/25 13:20:15 service.go:80 [release] 启动中...
+2019/02/25 13:20:15 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:20:15 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:20:15 service.go:103 [release] 启动成功
+2019/02/25 13:20:15 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:21:22 server.go:90 [debug] socket &{0xc04200e5c0 0xc04215c040 2 0xc042160000 1 0xc0420e8060 0xc042174000 false {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:13000->127.0.0.1:5759: wsarecv: An existing connection was forcibly closed by the remote host.
+2019/02/25 13:21:22 server_mgr.go:308 [release] OnSvrOffline svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:21:25 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:5758->127.0.0.1:17000: wsarecv: An existing connection was forcibly closed by the remote host.
+2019/02/25 13:21:26 client.go:108 [error] connect to 127.0.0.1:17000 error:dial tcp 127.0.0.1:17000: connectex: No connection could be made because the target machine actively refused it.
+2019/02/25 13:31:36 service.go:80 [release] 启动中...
+2019/02/25 13:31:36 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:31:36 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:31:36 service.go:103 [release] 启动成功
+2019/02/25 13:31:36 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:31:47 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:31:47 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:13000: use of closed network connection
+2019/02/25 13:31:47 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:8590->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:31:47 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:31:47 service.go:116 [release] 关闭成功
+2019/02/25 13:32:42 service.go:80 [release] 启动中...
+2019/02/25 13:32:42 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:32:42 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:32:42 service.go:103 [release] 启动成功
+2019/02/25 13:32:42 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:33:34 server.go:90 [debug] socket &{0xc04200e5c0 0xc04216c120 2 0xc042180000 1 0xc042186000 0xc04218c000 false {{0 0} 0 0 0 0} <nil>} read error:EOF
+2019/02/25 13:33:34 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:33:34 server_mgr.go:308 [release] OnSvrOffline svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:33:34 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:13000: use of closed network connection
+2019/02/25 13:33:34 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:8870->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:33:34 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:33:34 service.go:116 [release] 关闭成功
+2019/02/25 13:35:11 service.go:80 [release] 启动中...
+2019/02/25 13:35:11 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:35:11 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:35:11 service.go:103 [release] 启动成功
+2019/02/25 13:35:11 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:35:37 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:35:37 server.go:90 [debug] socket &{0xc0420582e0 0xc04214e420 2 0xc042156010 1 0xc0420a4660 0xc042160240 true {{0 0} 0 0 0 0} <nil>} read error:read tcp 127.0.0.1:13000->127.0.0.1:9480: use of closed network connection
+2019/02/25 13:35:37 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:9479->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:35:37 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:35:37 service.go:116 [release] 关闭成功
+2019/02/25 13:37:10 service.go:80 [release] 启动中...
+2019/02/25 13:37:10 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:37:10 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:37:10 service.go:103 [release] 启动成功
+2019/02/25 13:37:10 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:39:54 server.go:90 [debug] socket &{0xc0420105c0 0xc042120040 2 0xc042124000 1 0xc042134000 0xc04213a000 false {{0 0} 0 0 0 0} <nil>} read error:EOF
+2019/02/25 13:39:54 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:EOF
+2019/02/25 13:39:54 server_mgr.go:308 [release] OnSvrOffline svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:39:54 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:39:54 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:13000: use of closed network connection
+2019/02/25 13:39:55 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:39:55 service.go:116 [release] 关闭成功
+2019/02/25 13:41:52 service.go:80 [release] 启动中...
+2019/02/25 13:41:52 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:41:52 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:41:52 service.go:103 [release] 启动成功
+2019/02/25 13:41:52 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:42:09 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:42:09 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:13000: use of closed network connection
+2019/02/25 13:42:09 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:11131->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:42:09 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:42:09 service.go:116 [release] 关闭成功
+2019/02/25 13:42:28 service.go:80 [release] 启动中...
+2019/02/25 13:42:28 service.go:83 [release] worldsvr_1_30000启动中
+2019/02/25 13:42:28 service.go:100 [release] worldsvr_1_30000启动成功
+2019/02/25 13:42:28 service.go:103 [release] 启动成功
+2019/02/25 13:42:28 server_mgr.go:247 [release] onReqRegister svr info:group_id:1 svr_id:20000 svr_type:Gs addr:"127.0.0.1:12000" ttl:20 timeout:60 cs_msg_begin:CS_MSG_GAME_BEGIN cs_msg_end:CS_MSG_GAME_END 
+2019/02/25 13:46:11 service.go:108 [release] 关闭中（signal:interrupt)...
+2019/02/25 13:46:11 server.go:56 [error] tcp server Accept error:accept tcp 127.0.0.1:13000: use of closed network connection
+2019/02/25 13:46:11 client.go:136 [debug] session id:1, addr:127.0.0.1:17000 Receive error:read tcp 127.0.0.1:11294->127.0.0.1:17000: use of closed network connection
+2019/02/25 13:46:11 service.go:113 [release] worldsvr_1_30000 关闭成功
+2019/02/25 13:46:11 service.go:116 [release] 关闭成功

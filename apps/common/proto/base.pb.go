@@ -21,24 +21,18 @@ It has these top-level messages:
 	PbSvrRegisterClusterReqMsg
 	PbSvrRegisterClusterResMsg
 	PbSvrBroadClusterMsg
-	PbSvrRegisterDBReqMsg
-	PbSvrRegisterDBResMsg
 	PbSvrDBServiceReqMsg
 	PbSvrDBServiceResMsg
 	PbSvrDBTestRecvReqMsg
 	PbSvrDBTestRecvResMsg
-	PbSvrRegisterGameReqMsg
-	PbSvrRegisterGameResMsg
 	PbSvrGameLoginReqMsg
-	PbSvrRegisterLoginReqMsg
-	PbSvrRegisterLoginResMsg
 	PbCsPlayerLoginReqMsg
 	PbCsPlayerLoginResMsg
 	PbCsPlayerBindReqMsg
 	PbCsPlayerBindResMsg
 	PbSvrCommonPushPlayerSvrId
-	PbSvrRegisterWorldReqMsg
-	PbSvrRegisterWorldResMsg
+	PbSvrCommonRegisterReqMsg
+	PbSvrCommonRegisterResMsg
 	PbSvrWorldLoginReqMsg
 */
 package ProtoMsg

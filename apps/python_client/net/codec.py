@@ -8,7 +8,7 @@ class msgHead(object):
     def __init__(self):
         self.cmd = 0  # uint16 h
         self.ver = 0  # uint8 B
-        self.type = 1  # uint8 B
+        self.type = 4  # uint8 B
         self.seq = 0  # uint32 I
         self.uid = 0  # uint64 Q
 

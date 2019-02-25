@@ -1,6 +1,7 @@
 syntax = "proto3";
 package ProtoMsg;
 import "cluster.proto";
+import "base.proto";
 
 //SVR_MSG_COMMON_PUSH_PLAYER_SVRID
 message PbSvrCommonPushPlayerSvrId {
@@ -9,3 +10,12 @@ message PbSvrCommonPushPlayerSvrId {
     int32 svr_id = 3;
     bool  add = 4; //添加还是删除
 }
+
+//SVR_MSG_COMMON_REGISTER_SVR
+message PbSvrCommonRegisterReqMsg {
+   PbSvrBaseInfo        svr_info = 1;
+};
+
+message PbSvrCommonRegisterResMsg {
+   Ret ret = 1;
+};

@@ -3,15 +3,6 @@ import "cluster.proto";
 import "base.proto";
 package ProtoMsg;
 
-//SVR_MSG_REGISTER_WORLD
-message PbSvrRegisterWorldReqMsg {
-   PbSvrBaseInfo        svr_info = 1;
-};
-
-message PbSvrRegisterWorldResMsg {
-   Ret ret = 1;
-};
-
 //SVR_MSG_WORLD_LOGIN
 message PbSvrWorldLoginReqMsg {
     uint64      uid = 1;
